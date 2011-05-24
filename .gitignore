@@ -1,0 +1,8 @@
+
+# Managed by NuGet
+/lib/
+# Standard VS.NET and ReSharper Foo
+/src/*/obj/
+/src/*/bin/
+/src/*/*.user
+/src/*.suo
