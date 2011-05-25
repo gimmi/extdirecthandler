@@ -1,5 +1,5 @@
 /*
-JSMake version 0.8.4
+JSMake version 0.8.10
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -15,9 +15,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-Make = {};
+jsmake = this.jsmake || {};
 
-Make.Utils = {
+jsmake.Utils = {
 	escapeForRegex: function (str) {
 		return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 	},
@@ -121,13 +121,14 @@ Make.Utils = {
 	}
 };
 
-Make.Project = function (name, defaultTaskName, logger) {
+jsmake.Project = function (name, defaultTaskName, body, logger) {
 	this._name = name;
 	this._defaultTaskName = defaultTaskName;
 	this._tasks = {};
+	this._body = body;
 	this._logger = logger;
 };
-Make.Project.prototype = {
+jsmake.Project.prototype = {
 	getName: function () {
 		return this._name;
 	},
@@ -143,24 +144,32 @@ Make.Project.prototype = {
 	},
 	getTasks: function (name) {
 		var tasks = [];
-		this._fillDependencies(this.getTask(name), tasks, new Make.RecursionChecker('Task recursion found'));
-		return Make.Utils.distinct(tasks);
+		this._fillDependencies(this.getTask(name), tasks, new jsmake.RecursionChecker('Task recursion found'));
+		return jsmake.Utils.distinct(tasks);
 	},
-	run: function (name, args) {
+	runBody: function (global) {
+		var me = this;
+		global.task = function (name, tasks, body) {
+			me.addTask(new jsmake.Task(name, tasks, body, me._logger));
+		};
+		this._body.apply({}, []);
+		global.task = undefined;
+	},
+	runTask: function (name, args) {
 		var tasks, taskNames;
 		name = name || this._defaultTaskName;
 		tasks = this.getTasks(name);
-		taskNames = Make.Utils.map(tasks, function (task) {
+		taskNames = jsmake.Utils.map(tasks, function (task) {
 			return task.getName();
 		}, this);
 		this._logger.log('Task execution order: ' + taskNames.join(', '));
-		Make.Utils.each(tasks, function (task) {
+		jsmake.Utils.each(tasks, function (task) {
 			task.run(task.getName() === name ? args : []);
 		}, this);
 	},
 	_fillDependencies: function (task, tasks, recursionChecker) {
 		recursionChecker.wrap(task.getName(), function () {
-			Make.Utils.each(task.getTaskNames(), function (taskName) {
+			jsmake.Utils.each(task.getTaskNames(), function (taskName) {
 				var task = this.getTask(taskName);
 				this._fillDependencies(task, tasks, recursionChecker);
 			}, this);
@@ -169,13 +178,13 @@ Make.Project.prototype = {
 	}
 };
 
-Make.Task = function (name, taskNames, body, logger) {
+jsmake.Task = function (name, taskNames, body, logger) {
 	this._name = name;
 	this._taskNames = taskNames;
 	this._body = body;
 	this._logger = logger;
 };
-Make.Task.prototype = {
+jsmake.Task.prototype = {
 	getName: function () {
 		return this._name;
 	},
@@ -188,11 +197,11 @@ Make.Task.prototype = {
 	}
 };
 
-Make.RecursionChecker = function (message) {
+jsmake.RecursionChecker = function (message) {
 	this._message = message;
 	this._stack = [];
 };
-Make.RecursionChecker.prototype = {
+jsmake.RecursionChecker.prototype = {
 	enter: function (id) {
 		this._check(id);
 		this._stack.push(id);
@@ -209,18 +218,18 @@ Make.RecursionChecker.prototype = {
 		}
 	},
 	_check: function (id) {
-		if (Make.Utils.contains(this._stack, id)) {
+		if (jsmake.Utils.contains(this._stack, id)) {
 			this._stack.push(id);
 			throw this._message + ': ' + this._stack.join(' => ');
 		}
 	}
 };
 
-Make.AntPathMatcher = function (pattern, caseSensitive) {
+jsmake.AntPathMatcher = function (pattern, caseSensitive) {
 	this._pattern = pattern;
 	this._caseSensitive = caseSensitive;
 };
-Make.AntPathMatcher.prototype = {
+jsmake.AntPathMatcher.prototype = {
 	match: function (path) {
 		var patternTokens, pathTokens;
 		patternTokens = this._tokenize(this._pattern);
@@ -259,17 +268,17 @@ Make.AntPathMatcher.prototype = {
 			} else if (ch === '?') {
 				regex += '.{1}';
 			} else {
-				regex += Make.Utils.escapeForRegex(ch);
+				regex += jsmake.Utils.escapeForRegex(ch);
 			}
 		}
 		return new RegExp(regex, (this._caseSensitive ? '' : 'i')).test(pathToken);
 	},
 	_tokenize: function (pattern) {
 		var tokens = pattern.split(/\\+|\/+/);
-		tokens = Make.Utils.map(tokens, function (token) {
-			return Make.Utils.trim(token);
+		tokens = jsmake.Utils.map(tokens, function (token) {
+			return jsmake.Utils.trim(token);
 		}, this);
-		tokens = Make.Utils.filter(tokens, function (token) {
+		tokens = jsmake.Utils.filter(tokens, function (token) {
 			return !/^[\s\.]*$/.test(token);
 		}, this);
 		if (tokens[tokens.length - 1] === '**') {
@@ -280,18 +289,15 @@ Make.AntPathMatcher.prototype = {
 	}
 };
 
-Make.Sys = {
-	loadJavascriptFile: function (file) {
-		load(file);
-	},
+jsmake.Sys = {
 	isWindowsOs: function () {
-		return Make.Fs.getPathSeparator() === '\\';
+		return jsmake.Fs.getPathSeparator() === '\\';
 	},
 	runCommand: function (command, opts) {
 		return runCommand(command, opts);
 	},
 	createRunner: function (command) {
-		return new Make.CommandRunner(command);
+		return new jsmake.CommandRunner(command);
 	},
 	getEnvVar: function (name, def) {
 		return java.lang.System.getenv(name) || def;
@@ -301,62 +307,47 @@ Make.Sys = {
 	}
 };
 
-Make.Fs = {
+jsmake.Fs = {
 	createScanner: function (basePath) {
-		return new Make.FsScanner(basePath, this.isCaseSensitive());
+		return new jsmake.FsScanner(basePath, this.isCaseSensitive());
 	},
-	getFileEncoding: function () {
+	getCharacterEncoding: function () {
 		return java.lang.System.getProperty("file.encoding", "UTF-8"); // Windows default is "Cp1252"
 	},
 	getPathSeparator: function () {
 		return java.io.File.separator;
 	},
 	isCaseSensitive: function () {
-		return !Make.Sys.isWindowsOs();
+		return !jsmake.Sys.isWindowsOs();
 	},
-	readFile: function (path) {
+	readFile: function (path, characterEncoding) {
+		characterEncoding = characterEncoding || this.getCharacterEncoding();
 		if (!this.fileExists(path)) {
 			throw "File '" + path + "' not found";
 		}
-		return readFile(path);
+		return readFile(path, characterEncoding);
 	},
-	getName: function (path) {
-		return this._translateJavaString(new java.io.File(path).getName());
-	},
-	copyFileToDirectory: function (srcPath, destPath) {
-		this.copyFileToFile(srcPath, this.combinePaths(destPath, this.getName(srcPath)));
-	},
-	copyFileToFile: function (srcPath, destPath) {
-		var srcFile, destFile, output, input, buffer, n;
-		srcFile = new java.io.File(srcPath);
-		destFile = new java.io.File(destPath);
-		input = new java.io.FileInputStream(srcFile);
-		try {
-			output = new java.io.FileOutputStream(destFile);
-			try {
-				buffer = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024 * 4);
-				while (-1 !== (n = input.read(buffer))) {
-					output.write(buffer, 0, n);
-				}
-			} finally {
-				output.close();
-			}
-		} finally {
-			input.close();
-		}
-	},
-	writeFile: function (path, data, encoding) {
+	writeFile: function (path, data, characterEncoding) {
+		characterEncoding = characterEncoding || this.getCharacterEncoding();
 		this.createDirectory(this.getParentDirectory(path));
 		var out = new java.io.FileOutputStream(new java.io.File(path));
 		data = new java.lang.String(data || '');
 		try {
-			if (!encoding) {
-				out.write(data.getBytes());
-			} else {
-				out.write(data.getBytes(encoding));
-			}
+			out.write(data.getBytes(characterEncoding));
 		} finally {
 			out.close();
+		}
+	},
+	getName: function (path) {
+		return this._translateJavaString(new java.io.File(path).getName());
+	},
+	copyPath: function (srcPath, destDirectory) {
+		if (this.fileExists(srcPath)) {
+			this._copyFile(srcPath, destDirectory);
+		} else if (this.directoryExists(srcPath)) {
+			this._copyDirectory(srcPath, destDirectory);
+		} else {
+			throw "Cannot copy source path '" + srcPath + "', it does not exists";
 		}
 	},
 	pathExists: function (path) {
@@ -380,10 +371,10 @@ Make.Fs = {
 		}
 	},
 	deletePath: function (path) {
-		Make.Utils.each(this.getFiles(path), function (fileName) {
+		jsmake.Utils.each(this.getFileNames(path), function (fileName) {
 			new java.io.File(path, fileName)['delete']();
 		}, this);
-		Make.Utils.each(this.getDirectories(path), function (dirName) {
+		jsmake.Utils.each(this.getDirectoryNames(path), function (dirName) {
 			this.deletePath(this.combinePaths(path, dirName));
 		}, this);
 		new java.io.File(path)['delete']();
@@ -395,29 +386,64 @@ Make.Fs = {
 		return this._translateJavaString(new java.io.File(path).getCanonicalFile().getParent());
 	},
 	combinePaths: function () {
-		var paths = Make.Utils.flatten(arguments);
-		return Make.Utils.reduce(paths, function (memo, path) {
-			return (memo ? this._combine(memo, path) : path);
+		var paths = jsmake.Utils.flatten(arguments);
+		return jsmake.Utils.reduce(paths, function (memo, path) {
+			return (memo ? this._javaCombine(memo, path) : path);
 		}, null, this);
 	},
-	_combine: function (path1, path2) {
-		return this._translateJavaString(new java.io.File(path1, path2).getPath());
-	},
-	getFiles: function (basePath) {
-		return this._getFiles(basePath, function (fileName) {
+	getFileNames: function (basePath) {
+		return this._getPathNames(basePath, function (fileName) {
 			return new java.io.File(fileName).isFile();
 		});
 	},
-	getDirectories: function (basePath) {
-		return this._getFiles(basePath, function (fileName) {
+	getDirectoryNames: function (basePath) {
+		return this._getPathNames(basePath, function (fileName) {
 			return new java.io.File(fileName).isDirectory();
 		});
 	},
-	_getFiles: function (basePath, filter) {
+	_javaCombine: function (path1, path2) {
+		return this._translateJavaString(new java.io.File(path1, path2).getPath());
+	},
+	_copyDirectory: function (srcDirectory, destDirectory) {
+		this.deletePath(destDirectory);
+		this.createDirectory(destDirectory);
+		jsmake.Utils.each(this.getFileNames(srcDirectory), function (path) {
+			this.copyPath(this.combinePaths(srcDirectory, path), destDirectory);
+		}, this);
+		jsmake.Utils.each(this.getDirectoryNames(srcDirectory), function (path) {
+			this.copyPath(this.combinePaths(srcDirectory, path), this.combinePaths(destDirectory, path));
+		}, this);
+	},
+	_copyFile: function (srcFile, destDirectory) {
+		var destFile = this.combinePaths(destDirectory, this.getName(srcFile));
+		this.deletePath(destFile);
+		this.createDirectory(destDirectory);
+		this._copyFileToFile(srcFile, destFile);
+	},
+	_copyFileToFile: function (srcPath, destPath) {
+		var srcFile, destFile, output, input, buffer, n;
+		srcFile = new java.io.File(srcPath);
+		destFile = new java.io.File(destPath);
+		input = new java.io.FileInputStream(srcFile);
+		try {
+			output = new java.io.FileOutputStream(destFile);
+			try {
+				buffer = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024 * 4);
+				while (-1 !== (n = input.read(buffer))) {
+					output.write(buffer, 0, n);
+				}
+			} finally {
+				output.close();
+			}
+		} finally {
+			input.close();
+		}
+	},
+	_getPathNames: function (basePath, filter) {
 		var fileFilter, files;
 		fileFilter = new java.io.FileFilter({ accept: filter });
 		files = this._translateJavaArray(new java.io.File(basePath).listFiles(fileFilter));
-		return Make.Utils.map(files, function (file) {
+		return jsmake.Utils.map(files, function (file) {
 			return this._translateJavaString(file.getName());
 		}, this);
 	},
@@ -435,19 +461,19 @@ Make.Fs = {
 		return String(javaString);
 	}
 };
-Make.FsScanner = function (basePath, caseSensitive) {
+jsmake.FsScanner = function (basePath, caseSensitive) {
 	this._basePath = basePath;
 	this._includeMatchers = [];
 	this._excludeMatchers = [];
 	this._caseSensitive = caseSensitive;
 };
-Make.FsScanner.prototype = {
+jsmake.FsScanner.prototype = {
 	include: function (pattern) {
-		this._includeMatchers.push(new Make.AntPathMatcher(pattern, this._caseSensitive));
+		this._includeMatchers.push(new jsmake.AntPathMatcher(pattern, this._caseSensitive));
 		return this;
 	},
 	exclude: function (pattern) {
-		this._excludeMatchers.push(new Make.AntPathMatcher(pattern, this._caseSensitive));
+		this._excludeMatchers.push(new jsmake.AntPathMatcher(pattern, this._caseSensitive));
 		return this;
 	},
 	scan: function () {
@@ -459,15 +485,15 @@ Make.FsScanner.prototype = {
 		return fileNames;
 	},
 	_scan: function (relativePath, fileNames) {
-		var fullPath = Make.Fs.combinePaths(this._basePath, relativePath);
-		Make.Utils.each(Make.Fs.getFiles(fullPath), function (fileName) {
-			fileName = Make.Fs.combinePaths(relativePath, fileName);
+		var fullPath = jsmake.Fs.combinePaths(this._basePath, relativePath);
+		jsmake.Utils.each(jsmake.Fs.getFileNames(fullPath), function (fileName) {
+			fileName = jsmake.Fs.combinePaths(relativePath, fileName);
 			if (this._evaluatePath(fileName, false)) {
-				fileNames.push(Make.Fs.combinePaths(this._basePath, fileName));
+				fileNames.push(jsmake.Fs.combinePaths(this._basePath, fileName));
 			}
 		}, this);
-		Make.Utils.each(Make.Fs.getDirectories(fullPath), function (dir) {
-			dir = Make.Fs.combinePaths(relativePath, dir);
+		jsmake.Utils.each(jsmake.Fs.getDirectoryNames(fullPath), function (dir) {
+			dir = jsmake.Fs.combinePaths(relativePath, dir);
 			if (this._evaluatePath(dir, true)) {
 				this._scan(dir, fileNames);
 			}
@@ -484,60 +510,53 @@ Make.FsScanner.prototype = {
 	},
 	_runMatchers: function (matchers, value) {
 		var match = false;
-		Make.Utils.each(matchers, function (matcher) {
+		jsmake.Utils.each(matchers, function (matcher) {
 			match = match || matcher.match(value);
 		}, this);
 		return match;
 	}
 };
 
-Make.CommandRunner = function (command) {
+jsmake.CommandRunner = function (command) {
 	this._command = command;
 	this._arguments = [];
-	this._logger = Make.Sys;
+	this._logger = jsmake.Sys;
 };
-Make.CommandRunner.prototype = {
+jsmake.CommandRunner.prototype = {
 	args: function () {
-		this._arguments = this._arguments.concat(Make.Utils.flatten(arguments));
+		this._arguments = this._arguments.concat(jsmake.Utils.flatten(arguments));
 		return this;
 	},
 	run: function () {
 		this._logger.log(this._command + ' ' + this._arguments.join(' '));
-		var exitStatus = Make.Sys.runCommand(this._command, { args: this._arguments });
+		var exitStatus = jsmake.Sys.runCommand(this._command, { args: this._arguments });
 		if (exitStatus !== 0) {
 			throw 'Command failed with exit status ' + exitStatus;
 		}
 	}
 };
-Make.Main = function () {
-	this._definedProject = null;
-	this._currentProject = null;
-	this._logger = Make.Sys;
+jsmake.Main = function () {
+	this._project = null;
+	this._logger = jsmake.Sys;
 };
-Make.Main.prototype = {
-	initGlobalScope: function (global) {
-		global.project = this._bind(this.project, this);
-		global.task = this._bind(this.task, this);
-	},
-	run: function (args) {
-		if (!this._definedProject) {
+jsmake.Main.prototype = {
+	getProject: function () {
+		if (!this._project) {
 			throw 'No project defined';
 		}
-		this._definedProject.run(args.shift(), args);
+		return this._project;
+	},
+	initGlobalScope: function (global) {
+		global.project = this._bind(this.project, this);
+	},
+	run: function (args) {
+		this.getProject().run(args.shift(), args);
 	},
 	project: function (name, defaultTaskName, body) {
-		if (this._definedProject) {
+		if (this._project) {
 			throw 'project already defined';
 		}
-		this._definedProject = this._currentProject = new Make.Project(name, defaultTaskName, this._logger);
-		body.apply({}, []);
-		this._currentProject = null;
-	},
-	task: function (name, tasks, body) {
-		if (!this._currentProject) {
-			throw 'Tasks must be defined only into projects';
-		}
-		this._currentProject.addTask(new Make.Task(name, tasks, body, this._logger));
+		this._project = new jsmake.Project(name, defaultTaskName, body, this._logger);
 	},
 	_bind: function (fn, scope) {
 		return function () {

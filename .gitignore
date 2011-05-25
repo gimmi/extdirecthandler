@@ -1,8 +1,10 @@
-
 # Managed by NuGet
 /lib/
+# Build output
+/build/
 # Standard VS.NET and ReSharper Foo
 /src/*/obj/
 /src/*/bin/
-/src/*/*.user
+/src/*.user
 /src/*.suo
+/src/SharedAssemblyInfo.cs
