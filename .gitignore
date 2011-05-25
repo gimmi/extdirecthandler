@@ -8,3 +8,4 @@
 /src/*.user
 /src/*.suo
 /src/SharedAssemblyInfo.cs
+/TestResult.xml
