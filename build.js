@@ -1,6 +1,6 @@
 load('jsmake.dotnet.DotNetUtils.js');
 
-project('ExtDirectHandler', 'build', function () {
+project('ExtDirectHandler', 'test', function () {
 	var fs = jsmake.Fs;
 	var dotnet = new jsmake.dotnet.DotNetUtils();
 	
@@ -11,7 +11,8 @@ project('ExtDirectHandler', 'build', function () {
 	});
 	
 	task('dependencies', [], function () {
-		dotnet.downloadNuGetPackages('src', 'lib');
+		var pkgs = fs.createScanner('src').include('**/packages.config').scan();
+		dotnet.downloadNuGetPackages(pkgs, 'lib');
 	});
 	
 	task('assemblyinfo', [ 'version' ], function () {
@@ -34,6 +35,8 @@ project('ExtDirectHandler', 'build', function () {
 	});
 
 	task('test', [ 'build' ], function () {
+		var testDlls = jsmake.Fs.createScanner('build/bin').include('**/*Tests.dll').scan();
+		dotnet.runNUnit(testDlls);
 	});
 
 	task('release', [ 'version', 'dependencies', 'assemblyinfo' ], function () {

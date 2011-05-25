@@ -2,18 +2,18 @@ jsmake.dotnet = {};
 
 jsmake.dotnet.DotNetUtils = function () {
 	this._nugetPath = 'tools/nuget/NuGet.exe';
+	this._nunitPath = 'lib/NUnit.2.5.10.11092/tools/nunit-console.exe';
 	this._frameworkVersion = '4.0.30319';
 };
 jsmake.dotnet.DotNetUtils.prototype = {
 	updateNuGet: function () {
 		jsmake.Sys.createRunner(this._nugetPath).args('update').run();
 	},
-	downloadNuGetPackages: function (srcPath, libPath) {
-		var pkgs = jsmake.Fs.createScanner(srcPath).include('**/packages.config').scan();
-		jsmake.Utils.each(pkgs, function (pkg) {
+	downloadNuGetPackages: function (packages, outputDirectory) {
+		jsmake.Utils.each(packages, function (pkg) {
 			jsmake.Sys.createRunner(this._nugetPath)
 				.args('install', pkg)
-				.args('-OutputDirectory', libPath)
+				.args('-OutputDirectory', outputDirectory)
 				.run();
 		}, this);
 	},
@@ -43,5 +43,8 @@ jsmake.dotnet.DotNetUtils.prototype = {
 			return '[assembly: System.Reflection.' + name + '("' + value + '")]';
 		}, this);
 		jsmake.Fs.writeFile(path, rows.join('\n'));
+	},
+	runNUnit: function (dllPaths) {
+		jsmake.Sys.createRunner(this._nunitPath).args('/nologo', dllPaths).run();
 	}
 };
