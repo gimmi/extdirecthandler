@@ -1,5 +1,5 @@
 /*
-JSMake version 0.8.10
+JSMake version 0.8.11
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -271,7 +271,7 @@ jsmake.AntPathMatcher.prototype = {
 				regex += jsmake.Utils.escapeForRegex(ch);
 			}
 		}
-		return new RegExp(regex, (this._caseSensitive ? '' : 'i')).test(pathToken);
+		return new RegExp('^' + regex + '$', (this._caseSensitive ? '' : 'i')).test(pathToken);
 	},
 	_tokenize: function (pattern) {
 		var tokens = pattern.split(/\\+|\/+/);
@@ -308,6 +308,9 @@ jsmake.Sys = {
 };
 
 jsmake.Fs = {
+	zipPath: function (srcPath, destFile) {
+		jsmake.PathZipper.zip(srcPath, destFile);
+	},
 	createScanner: function (basePath) {
 		return new jsmake.FsScanner(basePath, this.isCaseSensitive());
 	},
@@ -371,13 +374,15 @@ jsmake.Fs = {
 		}
 	},
 	deletePath: function (path) {
-		jsmake.Utils.each(this.getFileNames(path), function (fileName) {
-			new java.io.File(path, fileName)['delete']();
+		if (!this.pathExists(path)) {
+			return;
+		}
+		jsmake.Utils.each(jsmake.Fs.getChildPathNames(path), function (name) {
+			this.deletePath(this.combinePaths(path, name));
 		}, this);
-		jsmake.Utils.each(this.getDirectoryNames(path), function (dirName) {
-			this.deletePath(this.combinePaths(path, dirName));
-		}, this);
-		new java.io.File(path)['delete']();
+		if (!new java.io.File(path)['delete']()) {
+			throw "'Unable to delete path '" + path + "'";
+		}
 	},
 	getCanonicalPath: function (path) {
 		return this._translateJavaString(new java.io.File(path).getCanonicalPath());
@@ -391,13 +396,18 @@ jsmake.Fs = {
 			return (memo ? this._javaCombine(memo, path) : path);
 		}, null, this);
 	},
-	getFileNames: function (basePath) {
-		return this._getPathNames(basePath, function (fileName) {
+	getChildPathNames: function (basePath) {
+		return this._listFilesWithFilter(basePath, function () {
+			return true;
+		});
+	},
+	getChildFileNames: function (basePath) {
+		return this._listFilesWithFilter(basePath, function (fileName) {
 			return new java.io.File(fileName).isFile();
 		});
 	},
-	getDirectoryNames: function (basePath) {
-		return this._getPathNames(basePath, function (fileName) {
+	getChildDirectoryNames: function (basePath) {
+		return this._listFilesWithFilter(basePath, function (fileName) {
 			return new java.io.File(fileName).isDirectory();
 		});
 	},
@@ -407,10 +417,10 @@ jsmake.Fs = {
 	_copyDirectory: function (srcDirectory, destDirectory) {
 		this.deletePath(destDirectory);
 		this.createDirectory(destDirectory);
-		jsmake.Utils.each(this.getFileNames(srcDirectory), function (path) {
+		jsmake.Utils.each(this.getChildFileNames(srcDirectory), function (path) {
 			this.copyPath(this.combinePaths(srcDirectory, path), destDirectory);
 		}, this);
-		jsmake.Utils.each(this.getDirectoryNames(srcDirectory), function (path) {
+		jsmake.Utils.each(this.getChildDirectoryNames(srcDirectory), function (path) {
 			this.copyPath(this.combinePaths(srcDirectory, path), this.combinePaths(destDirectory, path));
 		}, this);
 	},
@@ -420,10 +430,8 @@ jsmake.Fs = {
 		this.createDirectory(destDirectory);
 		this._copyFileToFile(srcFile, destFile);
 	},
-	_copyFileToFile: function (srcPath, destPath) {
-		var srcFile, destFile, output, input, buffer, n;
-		srcFile = new java.io.File(srcPath);
-		destFile = new java.io.File(destPath);
+	_copyFileToFile: function (srcFile, destFile) {
+		var input, output, buffer, n;
 		input = new java.io.FileInputStream(srcFile);
 		try {
 			output = new java.io.FileOutputStream(destFile);
@@ -439,7 +447,7 @@ jsmake.Fs = {
 			input.close();
 		}
 	},
-	_getPathNames: function (basePath, filter) {
+	_listFilesWithFilter: function (basePath, filter) {
 		var fileFilter, files;
 		fileFilter = new java.io.FileFilter({ accept: filter });
 		files = this._translateJavaArray(new java.io.File(basePath).listFiles(fileFilter));
@@ -486,13 +494,13 @@ jsmake.FsScanner.prototype = {
 	},
 	_scan: function (relativePath, fileNames) {
 		var fullPath = jsmake.Fs.combinePaths(this._basePath, relativePath);
-		jsmake.Utils.each(jsmake.Fs.getFileNames(fullPath), function (fileName) {
+		jsmake.Utils.each(jsmake.Fs.getChildFileNames(fullPath), function (fileName) {
 			fileName = jsmake.Fs.combinePaths(relativePath, fileName);
 			if (this._evaluatePath(fileName, false)) {
 				fileNames.push(jsmake.Fs.combinePaths(this._basePath, fileName));
 			}
 		}, this);
-		jsmake.Utils.each(jsmake.Fs.getDirectoryNames(fullPath), function (dir) {
+		jsmake.Utils.each(jsmake.Fs.getChildDirectoryNames(fullPath), function (dir) {
 			dir = jsmake.Fs.combinePaths(relativePath, dir);
 			if (this._evaluatePath(dir, true)) {
 				this._scan(dir, fileNames);
@@ -533,6 +541,43 @@ jsmake.CommandRunner.prototype = {
 		if (exitStatus !== 0) {
 			throw 'Command failed with exit status ' + exitStatus;
 		}
+	}
+};
+jsmake.PathZipper = {
+	zip: function (srcPath, destFile) {
+		var zipOutputStream = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(destFile));
+		try {
+			this._zip(jsmake.Fs.getParentDirectory(srcPath), jsmake.Fs.getName(srcPath), zipOutputStream);
+		} finally {
+			zipOutputStream.close(); // This raise exception "java.util.zip.ZipException: ZIP file must have at least one entry"
+		}
+	},
+	_zip: function (basePath, relativePath, zipOutputStream) {
+		var names, path;
+		path = jsmake.Fs.combinePaths(basePath, relativePath);
+		if (jsmake.Fs.fileExists(path)) {
+			this._addFile(basePath, relativePath, zipOutputStream);
+		} else if (jsmake.Fs.directoryExists(path)) {
+			jsmake.Utils.each(jsmake.Fs.getChildPathNames(path), function (name) {
+				this._zip(basePath, jsmake.Fs.combinePaths(relativePath, name), zipOutputStream);
+			}, this);
+		} else {
+			throw "Cannot zip source path '" + path + "', it does not exists";
+		}
+	},
+	_addFile: function (basePath, relativePath, zipOutputStream) {
+		var fileInputStream, buffer, n;
+		zipOutputStream.putNextEntry(new java.util.zip.ZipEntry(relativePath));
+		buffer = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024 * 4);
+		fileInputStream = new java.io.FileInputStream(jsmake.Fs.combinePaths(basePath, relativePath));
+		try {
+			while (-1 !== (n = fileInputStream.read(buffer))) {
+				zipOutputStream.write(buffer, 0, n);
+			}
+		} finally {
+			fileInputStream.close();
+		}
+		zipOutputStream.closeEntry();
 	}
 };
 jsmake.Main = function () {

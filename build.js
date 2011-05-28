@@ -39,10 +39,10 @@ project('ExtDirectHandler', 'test', function () {
 		dotnet.runNUnit(testDlls);
 	});
 
-	task('release', [ 'version', 'dependencies', 'assemblyinfo' ], function () {
+	task('release', [ 'test' ], function () {
 		fs.deletePath('build');
 		dotnet.runMSBuild('src/ExtDirectHandler.sln', [ 'Clean', 'ExtDirectHandler:Rebuild' ]);
-		// 'build/bin' contains deploy
+		jsmake.DirectoryZipper.zip('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor, version.build, version.revision ].join('.') + '.zip');
 		version.revision += 1;
 		fs.writeFile('version.json', JSON.stringify(version));
 	});

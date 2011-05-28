@@ -1,2 +1,2 @@
-tools\jsmake-0.8.10\jsmake.cmd
+tools\jsmake\jsmake.cmd %*
 pause
