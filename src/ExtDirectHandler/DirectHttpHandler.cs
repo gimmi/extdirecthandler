@@ -2,48 +2,43 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
+using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
-using SpikeHttpHandler.Configuration;
 
-namespace SpikeHttpHandler
+namespace ExtDirectHandler
 {
 	public class DirectHttpHandler : IHttpHandler
 	{
 		private static IDictionary<string, DirectActionMetadata> _actionMetadatas;
-		private static DirectActionFactory _actionFactory;
-		private readonly JsonSerializer _serializer = new JsonSerializer();
+		private static ObjectFactory _objectFactory;
+		private string _namespace;
 
-		public static void SetActionMetadatas(IDictionary<string, DirectActionMetadata> actions)
+		public bool IsReusable
 		{
-			if (_actionMetadatas != null)
+			get { return false; }
+		}
+
+		internal static void SetActionMetadatas(IDictionary<string, DirectActionMetadata> actions)
+		{
+			if(_actionMetadatas != null)
 			{
 				throw new Exception("Already configured");
 			}
 			_actionMetadatas = actions;
 		}
 
-		public static void SetActionFactory(DirectActionFactory factory)
+		public static void SetObjectFactory(ObjectFactory factory)
 		{
-			if (_actionFactory != null)
+			if(_objectFactory != null)
 			{
 				throw new Exception("Already configured");
 			}
-			_actionFactory = factory;
+			_objectFactory = factory;
 		}
 
-		public static DirectActionFactory ActionFactory
+		public void SetNamespace(string ns)
 		{
-			set { _actionFactory = value; }
-		}
-
-		public JsonSerializer Serializer
-		{
-			get { return _serializer; }
-		}
-
-		public bool IsReusable
-		{
-			get { return false; }
+			_namespace = ns;
 		}
 
 		public void ProcessRequest(HttpContext context)
@@ -61,7 +56,15 @@ namespace SpikeHttpHandler
 
 		private void DoPost(HttpRequest request, HttpResponse response)
 		{
-			SerializeResponse(response, new DirectHandler(_actionFactory).handle(DeserializeRequest(request)));
+			var directHandler = new DirectHandler(_objectFactory, _actionMetadatas);
+			DirectRequest directRequest = DeserializeRequest(request);
+			DirectResponse directResponse = directHandler.Handle(directRequest);
+			SerializeResponse(response, directResponse);
+		}
+
+		private void DoGet(HttpRequest request, HttpResponse response)
+		{
+			SerializeResponse(response, new DirectApiBuilder(_actionMetadatas.Values).BuildApi(_namespace, request.Url.ToString()));
 		}
 
 		private DirectRequest DeserializeRequest(HttpRequest request)
@@ -69,21 +72,16 @@ namespace SpikeHttpHandler
 			var sr = new StreamReader(request.InputStream, request.ContentEncoding);
 			using(JsonReader jsonReader = new JsonTextReader(sr))
 			{
-				return _serializer.Deserialize<DirectRequest>(jsonReader);
+				return new JsonSerializer().Deserialize<DirectRequest>(jsonReader);
 			}
 		}
 
-		private void SerializeResponse(HttpResponse response, DirectResponse value)
+		private void SerializeResponse(HttpResponse response, object value)
 		{
 			using(var jsonWriter = new JsonTextWriter(new StreamWriter(response.OutputStream, response.ContentEncoding)))
 			{
-				_serializer.Serialize(jsonWriter, value);
+				new JsonSerializer().Serialize(jsonWriter, value);
 			}
-		}
-
-		private void DoGet(HttpRequest request, HttpResponse response)
-		{
-			response.Write("Hello from custom handler.");
 		}
 	}
 }

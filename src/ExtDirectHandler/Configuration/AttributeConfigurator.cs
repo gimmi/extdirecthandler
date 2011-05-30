@@ -3,35 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SpikeHttpHandler.Configuration
+namespace ExtDirectHandler.Configuration
 {
 	public class AttributeConfigurator
 	{
 		private readonly IList<Type> _types = new List<Type>();
 
-		public void AddTypes(Assembly assembly)
+		public AttributeConfigurator AddTypes(Assembly assembly)
 		{
 			AddTypes(assembly.GetTypes());
+			return this;
 		}
 
-		public void AddTypes(IEnumerable<Type> types)
+		public AttributeConfigurator AddTypes(IEnumerable<Type> types)
 		{
 			foreach(Type type in types.Where(HasAttribute<DirectActionAttribute>))
 			{
 				AddType(type);
 			}
+			return this;
 		}
 
-		public void AddType(Type type)
+		public AttributeConfigurator AddType(Type type)
 		{
 			_types.Add(type);
+			return this;
 		}
 
 		public void Configure()
 		{
-			Dictionary<string, DirectActionMetadata> actions = _types.ToDictionary(
-				t => GetAttribute<DirectActionAttribute>(t).Name,
-				t => new DirectActionMetadata{ Type = t, Methods = FindDirectMethods(t) }
+			Dictionary<string, DirectActionMetadata> actions = _types.Select(t => new{ GetAttribute<DirectActionAttribute>(t).Name, Type = t, Methods = FindDirectMethods(t) }).ToDictionary(
+				x => x.Name,
+				x => new DirectActionMetadata{ Name = x.Name, Type = x.Type, Methods = x.Methods }
 				);
 			DirectHttpHandler.SetActionMetadatas(actions);
 		}
@@ -40,9 +43,10 @@ namespace SpikeHttpHandler.Configuration
 		{
 			return type.GetMethods()
 				.Where(HasAttribute<DirectMethodAttribute>)
+				.Select(m => new { GetAttribute<DirectMethodAttribute>(m).Name, Method = m })
 				.ToDictionary(
-					m => GetAttribute<DirectMethodAttribute>(m).Name,
-					m => new DirectMethodMetadata{ Method = m }
+					x => x.Name,
+					x => new DirectMethodMetadata{ Name = x.Name, Method = x.Method }
 				);
 		}
 

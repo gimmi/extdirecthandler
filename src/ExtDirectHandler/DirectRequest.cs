@@ -2,7 +2,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SpikeHttpHandler
+namespace ExtDirectHandler
 {
 	internal class DirectRequest
 	{

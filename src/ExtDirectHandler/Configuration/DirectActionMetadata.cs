@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
-namespace SpikeHttpHandler.Configuration
+namespace ExtDirectHandler.Configuration
 {
-	public class DirectActionMetadata
+	internal class DirectActionMetadata
 	{
 		public Type Type;
 		public string Name;

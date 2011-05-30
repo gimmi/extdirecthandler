@@ -1,7 +1,8 @@
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace SpikeHttpHandler
+namespace ExtDirectHandler
 {
 	internal class DirectResponse
 	{
@@ -24,7 +25,7 @@ namespace SpikeHttpHandler
 		public String Where;
 
 		[JsonProperty("result")]
-		public object Result;
+		public JToken Result;
 
 		public DirectResponse(DirectRequest request)
 		{

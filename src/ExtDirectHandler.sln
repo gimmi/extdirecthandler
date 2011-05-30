@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler", "ExtDire
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.Tests", "ExtDirectHandler.Tests\ExtDirectHandler.Tests.csproj", "{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.Sample", "ExtDirectHandler.Sample\ExtDirectHandler.Sample.csproj", "{0965CCEA-B907-4C1F-B3CA-FA7C2EE9FC49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0965CCEA-B907-4C1F-B3CA-FA7C2EE9FC49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0965CCEA-B907-4C1F-B3CA-FA7C2EE9FC49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0965CCEA-B907-4C1F-B3CA-FA7C2EE9FC49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0965CCEA-B907-4C1F-B3CA-FA7C2EE9FC49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

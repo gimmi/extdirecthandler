@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 
-namespace SpikeHttpHandler.Configuration
+namespace ExtDirectHandler.Configuration
 {
-	public class DirectMethodMetadata
+	internal class DirectMethodMetadata
 	{
+		public string Name;
 		public MethodInfo Method;
 	}
 }

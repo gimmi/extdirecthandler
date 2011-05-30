@@ -48,7 +48,8 @@
     <Compile Include="Configuration\DirectActionMetadata.cs" />
     <Compile Include="Configuration\DirectMethodAttribute.cs" />
     <Compile Include="Configuration\DirectMethodMetadata.cs" />
-    <Compile Include="DirectActionFactory.cs" />
+    <Compile Include="DirectApiBuilder.cs" />
+    <Compile Include="ObjectFactory.cs" />
     <Compile Include="DirectHandler.cs" />
     <Compile Include="DirectHttpHandler.cs" />
     <Compile Include="DirectRequest.cs" />

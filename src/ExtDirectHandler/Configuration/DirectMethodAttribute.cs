@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpikeHttpHandler.Configuration
+namespace ExtDirectHandler.Configuration
 {
 	public class DirectMethodAttribute : Attribute
 	{
