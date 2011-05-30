@@ -1,5 +1,5 @@
 /*
-JSMake version 0.8.11
+JSMake version 0.8.12
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -15,19 +15,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/** @namespace Top level namespace for JSMake  */
 jsmake = this.jsmake || {};
 
+/** @class Various helper methods to make working with Javascript easier */
 jsmake.Utils = {
+	/**
+	 * Return the same string with escaped regex chars, in order to be safely included as part of regex
+	 * @param {String} str string to escape
+	 * @returns {String} escaped string
+	 */
 	escapeForRegex: function (str) {
 		return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is an array
+	 */
 	isArray: function (v) {
 		// Check ignored test 'isArray should show strange behavior on Firefox'
 		return Object.prototype.toString.apply(v) === '[object Array]';
 	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is an argument object
+	 */
 	isArguments: function (v) {
 		return !!(v && Object.prototype.hasOwnProperty.call(v, 'callee'));
 	},
+	/**
+	 * @param v
+	 * @returns {Array} passed value, converted to array
+	 */
 	toArray: function (v) {
 		if (this.isEmpty(v)) {
 			return [];
@@ -39,18 +58,55 @@ jsmake.Utils = {
 			return [ v ];
 		}
 	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is an object
+	 */
 	isObject : function (v) {
 		return !!v && Object.prototype.toString.call(v) === '[object Object]';
 	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is a number
+	 */
 	isNumber: function (v) {
 		return typeof v === 'number' && isFinite(v);
 	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is null, undefined or empty array
+	 */
 	isEmpty : function (v) {
 		return v === null || v === undefined || ((this.isArray(v) && !v.length));
 	},
+	/**
+	 * @param {String} str string to trim
+	 * @returns {String} passed value with head and tail spaces removed
+	 */
 	trim: function (str) {
 		return str.replace(/(?:^\s+)|(?:\s+$)/g, '');
 	},
+	/**
+	 * Iterate over each element of items.
+	 * @param items the collection on which iterate, can be anything
+	 * @param {Function} fn the funcion to call for each element in items.
+	 * Will be called with the following parameters: currentItem, itemIndex, items.
+	 * If function returns truthy value then iteration will stop
+	 * @param {Object} [scope] 'this' binding for function
+	 * @example
+	 * // Array iteration: the following code logs
+	 * // item=a, index=0, items=[a,b]
+	 * // item=b, index=1, items=[a,b]
+	 * jsmake.Utils.each([ 'a', 'b'], function (item, index, items) {
+	 *     jsmake.Sys.log('item=' + item + ', index=' + index + ', items=' + items);
+	 * }, this);
+	 * // Object iteration: the following code logs
+	 * // item=1, index=a, items=[object]
+	 * // item=2, index=b, items=[object]
+	 * jsmake.Utils.each({ a: 1, b: 2 }, function (item, index, items) {
+	 *     jsmake.Sys.log('item=' + item + ', index=' + index + ', items=' + items);
+	 * }, this);
+	 */
 	each: function (items, fn, scope) {
 		var key;
 		if (this.isObject(items)) {
@@ -70,6 +126,19 @@ jsmake.Utils = {
 			}
 		}
 	},
+	/**
+	 * Filter collection, returning elements that satisfy passed criteria
+	 * @param items can be anything, see {@link jsmake.Utils.each}
+	 * @param {Function} fn filter criteria, will be called for each element in items, passing current element as parameter.
+	 * Must return falsy value to indicate that the element should be filtered out
+	 * @param {Object} [scope] 'this' binding for function
+	 * @returns {Array} filtered values
+	 * @example
+	 * // returns [ 1, 2 ]
+	 * jsmake.Utils.filter([ 1, 2, 3 ], function (item) {
+	 *     return item < 3;
+	 * });
+	 */
 	filter: function (items, fn, scope) {
 		var ret = [];
 		this.each(items, function (item) {
@@ -79,6 +148,21 @@ jsmake.Utils = {
 		}, this);
 		return ret;
 	},
+	/**
+	 * Transform each item in passed collection, returning a new array with transformed items
+	 * @param items can be anything, see {@link jsmake.Utils.each}
+	 * @param {Function} fn transformation function, will be called for each element in items.
+	 * Will be called with the following parameters: currentItem, itemIndex, items.
+	 * If function returns truthy value then iteration will stop
+	 * Must return the transformed item
+	 * @param {Object} [scope] 'this' binding for function
+	 * @returns {Array} new array with transformed items
+	 * @example
+	 * // returns [ 4, 9 ]
+	 * jsmake.Utils.map([ 2, 3 ], function (item) {
+	 *     return item * item;
+	 * });
+	 */
 	map: function (items, fn, scope) {
 		var ret = [];
 		this.each(items, function (item, key) {
@@ -86,12 +170,24 @@ jsmake.Utils = {
 		}, this);
 		return ret;
 	},
+	/**
+	 * @example
+	 * // returns 'items are: 2 3 '
+	 * jsmake.Utils.reduce([ 2, 3 ], function (memo, item) {
+	 *     return memo + item + ' ';
+	 * }, 'items are: ');
+	 */
 	reduce: function (items, fn, memo, scope) {
 		this.each(items, function (item) {
 			memo = fn.call(scope, memo, item);
 		}, this);
 		return memo;
 	},
+	/**
+	 * @example
+	 * jsmake.Utils.contains([ 2, 3 ], 3); // returns true
+	 * jsmake.Utils.contains([ 2, 3 ], 4); // returns false
+	 */
 	contains: function (items, item) {
 		var ret = false;
 		this.each(items, function (it) {
@@ -100,6 +196,10 @@ jsmake.Utils = {
 		}, this);
 		return ret;
 	},
+	/**
+	 * @example
+	 * jsmake.Utils.distinct([ 2, 3, 2, 3 ]); // returns [ 2, 3 ]
+	 */
 	distinct: function (items) {
 		var ret = [];
 		this.each(items, function (item) {
@@ -109,6 +209,10 @@ jsmake.Utils = {
 		}, this);
 		return ret;
 	},
+	/**
+	 * @example
+	 * jsmake.Utils.flatten([ 1, [ 2, 3 ], [ 4, [ 5, 6 ] ] ]); // returns [ 1, 2, 3, 4, 5, 6 ]
+	 */
 	flatten: function (items) {
 		return this.reduce(items, function (memo, item) {
 			if (this.isArray(item)) {
@@ -289,40 +393,106 @@ jsmake.AntPathMatcher.prototype = {
 	}
 };
 
+/**
+ * @class Contains methods for system interaciont and informations
+ */
 jsmake.Sys = {
+	/**
+	 * Returns if OS is Windows
+	 * @returns true if running on Windows
+	 */
 	isWindowsOs: function () {
 		return jsmake.Fs.getPathSeparator() === '\\';
 	},
 	runCommand: function (command, opts) {
 		return runCommand(command, opts);
 	},
+	/**
+	 * Create a runner object, used to define and invoke an external program
+	 * @param {String} command the path of the command executable
+	 * @return {jsmake.CommandRunner} CommandRunner instance to fluently configure and run command
+	 * @see jsmake.CommandRunner
+	 * @example
+	 * // runs '/path/to/cmd.exe par1 par2 par3 par4'
+	 * jsmake.Sys.createRunner('/path/to/cmd.exe')
+	 *     .args('par1', 'par2')
+	 *     .args([ 'par3', 'par4' ])
+	 *     .run();
+	 */
 	createRunner: function (command) {
 		return new jsmake.CommandRunner(command);
 	},
+	/**
+	 * Returns environment variable value
+	 * @param {String} name name of the environment variable
+	 * @param {String} def default value to return if environment variable not defined
+	 * @returns {String} environment variable value or def
+	 */
 	getEnvVar: function (name, def) {
 		return java.lang.System.getenv(name) || def;
 	},
+	/**
+	 * Log message to the console
+	 * @param {String} msg the message to log
+	 */
 	log: function (msg) {
 		print(msg);
 	}
 };
 
+/** @class Contains methods for working with filesystem */
 jsmake.Fs = {
+	/**
+	 * Create a zip file containing specified file/directory
+	 * @param {String} srcPath file/directory to zip
+	 * @param {String} destFile zip file name
+	 */
 	zipPath: function (srcPath, destFile) {
 		jsmake.PathZipper.zip(srcPath, destFile);
 	},
+	/**
+	 * Create a filesystem scanner
+	 * @param {String} basePath the path to scan for children tha match criteria
+	 * @returns {jsmake.FsScanner} FsScanner instance to fluently configure and run scanner
+	 * @see jsmake.FsScanner
+	 * @example
+	 * // returns all js and java files in \home folder, including subfolders, excluding .git folders
+	 * jsmake.Fs.createScanner('\home')
+	 *     .include('**\*.js')
+	 *     .include('**\*.java')
+	 *     .exclude('**\.git')
+	 *     .scan();
+	 */
 	createScanner: function (basePath) {
 		return new jsmake.FsScanner(basePath, this.isCaseSensitive());
 	},
+	/**
+	 * Return default OS character encoding
+	 * @returns {String} Character encoding, e.g. 'UTF-8' or 'Cp1252'
+	 */
 	getCharacterEncoding: function () {
 		return java.lang.System.getProperty("file.encoding", "UTF-8"); // Windows default is "Cp1252"
 	},
+	/**
+	 * Return OS path separator
+	 * @returns {String} path separator, e.g. '/' or '\'
+	 */
 	getPathSeparator: function () {
 		return java.io.File.separator;
 	},
+	/**
+	 * Returns true if OS has case sensitive filesystem
+	 * @returns {Boolean} true if OS has case sensitive filesystem
+	 */
 	isCaseSensitive: function () {
 		return !jsmake.Sys.isWindowsOs();
 	},
+	/**
+	 * Read text file content
+	 * @param {String} path path of the file to read
+	 * @param {String} [characterEncoding=OS default]
+	 * @returns {String} text content
+	 */
 	readFile: function (path, characterEncoding) {
 		characterEncoding = characterEncoding || this.getCharacterEncoding();
 		if (!this.fileExists(path)) {
@@ -330,20 +500,38 @@ jsmake.Fs = {
 		}
 		return readFile(path, characterEncoding);
 	},
-	writeFile: function (path, data, characterEncoding) {
+	/**
+	 * Write String to file, creating all necessary parent directories and overwriting if file already exists
+	 * @param {String} path path of the file to write
+	 * @param {String} content file content
+	 * @param {String} [characterEncoding=OS default]
+	 */
+	writeFile: function (path, content, characterEncoding) {
 		characterEncoding = characterEncoding || this.getCharacterEncoding();
 		this.createDirectory(this.getParentDirectory(path));
 		var out = new java.io.FileOutputStream(new java.io.File(path));
-		data = new java.lang.String(data || '');
+		content = new java.lang.String(content || '');
 		try {
-			out.write(data.getBytes(characterEncoding));
+			out.write(content.getBytes(characterEncoding));
 		} finally {
 			out.close();
 		}
 	},
+	/**
+	 * Extract last element from a path
+	 * @param {String} path the source path
+	 * @returns {String} the name of the last element in the path
+	 * @example
+	 * jsmake.Fs.getName('/users/gimmi/file.txt'); // returns 'file.txt'
+	 */
 	getName: function (path) {
 		return this._translateJavaString(new java.io.File(path).getName());
 	},
+	/**
+	 * Copy file or directory to another directory
+	 * @param {String} srcPath source file/directory. Must exists
+	 * @param {String} destDirectory destination directory
+	 */
 	copyPath: function (srcPath, destDirectory) {
 		if (this.fileExists(srcPath)) {
 			this._copyFile(srcPath, destDirectory);
@@ -353,17 +541,33 @@ jsmake.Fs = {
 			throw "Cannot copy source path '" + srcPath + "', it does not exists";
 		}
 	},
+	/**
+	 * @param {String} path file or directory path
+	 * @returns {Boolean} true if file or directory exists
+	 */
 	pathExists: function (path) {
 		return new java.io.File(path).exists();
 	},
+	/**
+	 * @param {String} path directory path
+	 * @returns {Boolean} true if path exists and is a directory
+	 */
 	directoryExists: function (path) {
 		var file = new java.io.File(path);
 		return file.exists() && file.isDirectory();
 	},
+	/**
+	 * @param {String} path file path
+	 * @returns {Boolean} true if path exists and is a file
+	 */
 	fileExists: function (path) {
 		var file = new java.io.File(path);
 		return file.exists() && file.isFile();
 	},
+	/**
+	 * Create directory and all necessary parents
+	 * @param {String} path directory to create
+	 */
 	createDirectory: function (path) {
 		var file = new java.io.File(path);
 		if (file.exists() && file.isDirectory()) {
@@ -373,6 +577,10 @@ jsmake.Fs = {
 			throw "Failed to create directories for path '" + path + "'";
 		}
 	},
+	/**
+	 * Delete file or directory, with all cild elements
+	 * @param {String} path to delete
+	 */
 	deletePath: function (path) {
 		if (!this.pathExists(path)) {
 			return;
@@ -384,12 +592,30 @@ jsmake.Fs = {
 			throw "'Unable to delete path '" + path + "'";
 		}
 	},
+	/**
+	 * Transform a path to absolute, removing '.' and '..' references
+	 * @param {String} path path to translate
+	 * @returns {String} path in canonical form
+	 * @example
+	 * jsmake.Fs.getCanonicalPath('../file.txt'); // returns '/users/file.txt'
+	 */
 	getCanonicalPath: function (path) {
 		return this._translateJavaString(new java.io.File(path).getCanonicalPath());
 	},
+	/**
+	 * Returns parent path
+	 * @param {String} path
+	 * @returns {String} parent path
+	 */
 	getParentDirectory: function (path) {
 		return this._translateJavaString(new java.io.File(path).getCanonicalFile().getParent());
 	},
+	/**
+	 * Combine all passed path fragments into one, using OS path separator. Supports any number of parameters.
+	 * @example
+	 * jsmake.Fs.combinePaths('home', 'gimmi', [ 'dir/subdir', 'file.txt' ]);
+	 * // returns 'home/gimmi/dir/subdir/file.txt'
+	 */
 	combinePaths: function () {
 		var paths = jsmake.Utils.flatten(arguments);
 		return jsmake.Utils.reduce(paths, function (memo, path) {
@@ -469,6 +695,10 @@ jsmake.Fs = {
 		return String(javaString);
 	}
 };
+/**
+ * Don't instantiate it directly, use {@link jsmake.Fs.createScanner}
+ * @constructor
+ */
 jsmake.FsScanner = function (basePath, caseSensitive) {
 	this._basePath = basePath;
 	this._includeMatchers = [];
@@ -476,14 +706,35 @@ jsmake.FsScanner = function (basePath, caseSensitive) {
 	this._caseSensitive = caseSensitive;
 };
 jsmake.FsScanner.prototype = {
+	/**
+	 * Add a criteria for path inclusion. If no inclusion path are specified, '**\*' is assumed
+	 * @param {String} pattern
+	 * @returns {jsmake.FsScanner} this instance, for chaining calls
+	 * @example
+	 * jsmake.Fs.createScanner('\home').include('**\*.js').scan();
+	 */
 	include: function (pattern) {
 		this._includeMatchers.push(new jsmake.AntPathMatcher(pattern, this._caseSensitive));
 		return this;
 	},
+	/**
+	 * Add a criteria for path exclusion
+	 * @param {String} pattern
+	 * @returns {jsmake.FsScanner} this instance, for chaining calls
+	 * @example
+	 * jsmake.Fs.createScanner('\home').exclude('**\.git').scan();
+	 */
 	exclude: function (pattern) {
 		this._excludeMatchers.push(new jsmake.AntPathMatcher(pattern, this._caseSensitive));
 		return this;
 	},
+	/**
+	 * Execute filesystem scanning with defined criterias
+	 * @returns {String[]} all mathing paths
+	 * @example
+	 * // returns the path of all files in /home directory
+	 * jsmake.Fs.createScanner('/home').scan();
+	 */
 	scan: function () {
 		var fileNames = [];
 		if (this._includeMatchers.length === 0) {
@@ -525,16 +776,29 @@ jsmake.FsScanner.prototype = {
 	}
 };
 
+/**
+ * Don't instantiate it directly, use {@link jsmake.Sys.createRunner}
+ * @constructor
+ */
 jsmake.CommandRunner = function (command) {
 	this._command = command;
 	this._arguments = [];
 	this._logger = jsmake.Sys;
 };
 jsmake.CommandRunner.prototype = {
+	/**
+	 * Add all passed arguments. Supports any number of parameters.
+	 * @returns {jsmake.CommandRunner} this instance, for chaining calls
+	 * @example
+	 * jsmake.Sys.createRunner('cmd.exe').args('par1', 'par2', [ 'par3', 'par4' ]).run();
+	 */
 	args: function () {
 		this._arguments = this._arguments.concat(jsmake.Utils.flatten(arguments));
 		return this;
 	},
+	/**
+	 * Run configured command. if exitstatus of the command is 0 then execution is considered succesful, otherwise an exception is thrown
+	 */
 	run: function () {
 		this._logger.log(this._command + ' ' + this._arguments.join(' '));
 		var exitStatus = jsmake.Sys.runCommand(this._command, { args: this._arguments });
