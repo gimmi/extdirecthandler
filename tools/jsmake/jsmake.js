@@ -1,5 +1,5 @@
 /*
-JSMake version 0.8.12
+JSMake version 0.8.25
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -80,11 +80,23 @@ jsmake.Utils = {
 		return v === null || v === undefined || ((this.isArray(v) && !v.length));
 	},
 	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is a function
+	 */
+	isFunction : function (v) {
+		return Object.prototype.toString.apply(v) === '[object Function]';
+	},
+	/**
 	 * @param {String} str string to trim
 	 * @returns {String} passed value with head and tail spaces removed
 	 */
 	trim: function (str) {
 		return str.replace(/(?:^\s+)|(?:\s+$)/g, '');
+	},
+	/**
+	 * A function that does nothing, useful to pass around as null value
+	 */
+	EMPTY_FN: function () {
 	},
 	/**
 	 * Iterate over each element of items.
@@ -225,17 +237,12 @@ jsmake.Utils = {
 	}
 };
 
-jsmake.Project = function (name, defaultTaskName, body, logger) {
-	this._name = name;
-	this._defaultTaskName = defaultTaskName;
+jsmake.Project = function (body, logger) {
 	this._tasks = {};
 	this._body = body;
 	this._logger = logger;
 };
 jsmake.Project.prototype = {
-	getName: function () {
-		return this._name;
-	},
 	addTask: function (task) {
 		this._tasks[task.getName()] = task;
 	},
@@ -251,17 +258,8 @@ jsmake.Project.prototype = {
 		this._fillDependencies(this.getTask(name), tasks, new jsmake.RecursionChecker('Task recursion found'));
 		return jsmake.Utils.distinct(tasks);
 	},
-	runBody: function (global) {
-		var me = this;
-		global.task = function (name, tasks, body) {
-			me.addTask(new jsmake.Task(name, tasks, body, me._logger));
-		};
-		this._body.apply({}, []);
-		global.task = undefined;
-	},
 	runTask: function (name, args) {
 		var tasks, taskNames;
-		name = name || this._defaultTaskName;
 		tasks = this.getTasks(name);
 		taskNames = jsmake.Utils.map(tasks, function (task) {
 			return task.getName();
@@ -849,23 +847,25 @@ jsmake.Main = function () {
 	this._logger = jsmake.Sys;
 };
 jsmake.Main.prototype = {
-	getProject: function () {
-		if (!this._project) {
-			throw 'No project defined';
-		}
-		return this._project;
+	init: function (global) {
+		this._project = new jsmake.Project(function () {
+		}, this._logger);
+		global.task = this._bind(this._task, this);
 	},
-	initGlobalScope: function (global) {
-		global.project = this._bind(this.project, this);
+	runTask: function (name, args) {
+		this._project.runTask(name, args);
 	},
-	run: function (args) {
-		this.getProject().run(args.shift(), args);
+	// TODO document it with JSDoc
+	_task: function () {
+		var args = this._getTaskParameters(jsmake.Utils.toArray(arguments));
+		this._project.addTask(new jsmake.Task(args[0], args[1], args[2], this._logger));
 	},
-	project: function (name, defaultTaskName, body) {
-		if (this._project) {
-			throw 'project already defined';
-		}
-		this._project = new jsmake.Project(name, defaultTaskName, body, this._logger);
+	_getTaskParameters: function (args) {
+		return [
+			args.shift(),
+			jsmake.Utils.isFunction(args[0]) ? [] : jsmake.Utils.toArray(args.shift()),
+			args.shift() || jsmake.Utils.EMPTY_FN
+		];
 	},
 	_bind: function (fn, scope) {
 		return function () {
