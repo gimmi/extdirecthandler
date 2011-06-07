@@ -35,11 +35,11 @@ namespace ExtDirectHandler
 			Type = request.Type;
 		}
 
-		public void SetException(string message, string where)
+		public void SetException(Exception e)
 		{
 			Type = "exception";
-			Message = message;
-			Where = where;
+			Message = e.Message;
+			Where = e.ToString();
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -47,7 +48,20 @@ namespace ExtDirectHandler
 			var response = new DirectResponse(request);
 			MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
 			object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
-			response.Result = SerializeResult(methodInfo.Invoke(actionInstance, parameters), jsonSerializer);
+			object result = null;
+			try
+			{
+				result = methodInfo.Invoke(actionInstance, parameters);
+			}
+			catch(TargetInvocationException e)
+			{
+				response.SetException(e.InnerException);
+			}
+			catch(Exception e)
+			{
+				response.SetException(e);
+			}
+			response.Result = SerializeResult(result, jsonSerializer);
 			return response;
 		}
 

@@ -1,4 +1,5 @@
-﻿using ExtDirectHandler.Configuration;
+﻿using System;
+using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,6 +21,11 @@ namespace ExtDirectHandler.Tests
 			_objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			_metadata = MockRepository.GenerateStub<Metadata>();
 			_target = new DirectHandler(_objectFactory, _metadata);
+
+			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
+			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
+			_metadata.Stub(x => x.GetMethodInfo("Action", "methodWithParams")).Return(typeof(Action).GetMethod("MethodWithParams"));
+			_metadata.Stub(x => x.GetMethodInfo("Action", "methodThatThrowException")).Return(typeof(Action).GetMethod("MethodThatThrowException"));
 		}
 
 		[Test]
@@ -33,9 +39,6 @@ namespace ExtDirectHandler.Tests
 			_objectFactory.Expect(x => x.GetInstance(typeof(JsonSerializer))).Return(jsonSerializer);
 			_objectFactory.Expect(x => x.Release(jsonSerializer));
 
-			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
-			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
-
 			_target.Handle(new DirectRequest{
 				Action = "Action",
 				Method = "method",
@@ -48,9 +51,6 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_response_based_on_request_data()
 		{
-			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
-			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
-
 			DirectResponse actual = _target.Handle(new DirectRequest{
 				Action = "Action",
 				Method = "method",
@@ -69,13 +69,30 @@ namespace ExtDirectHandler.Tests
 		}
 
 		[Test]
+		public void Should_build_expected_response_when_target_method_throws_exception()
+		{
+			DirectResponse actual = _target.Handle(new DirectRequest{
+				Action = "Action",
+				Method = "methodThatThrowException",
+				Data = new JToken[0],
+				Tid = 123,
+				Type = "rpc"
+			}, new JsonSerializer(), new Action());
+
+			actual.Action.Should().Be.EqualTo("Action");
+			actual.Method.Should().Be.EqualTo("methodThatThrowException");
+			actual.Tid.Should().Be.EqualTo(123);
+			actual.Type.Should().Be.EqualTo("exception");
+			actual.Message.Should().Be.EqualTo("something wrong happened");
+			actual.Where.Should().Contain("something wrong happened");
+			actual.Result.Should().Be.Null();
+		}
+
+		[Test]
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
-
-			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
-			_metadata.Stub(x => x.GetMethodInfo("Action", "methodWithParams")).Return(typeof(Action).GetMethod("MethodWithParams"));
 
 			DirectResponse response = _target.Handle(new DirectRequest{
 				Action = "Action",
@@ -83,7 +100,7 @@ namespace ExtDirectHandler.Tests
 				Data = new JToken[]{ new JValue(123), new JValue("str"), new JValue(true) }
 			}, new JsonSerializer(), actionInstance);
 
-			((object)response.Result).Should().Be.EqualTo(new JValue("ret"));
+			response.Result.ToString().Should().Be.EqualTo("ret");
 
 			actionInstance.VerifyAllExpectations();
 		}
@@ -91,6 +108,11 @@ namespace ExtDirectHandler.Tests
 		public class Action
 		{
 			public virtual void Method() {}
+
+			public virtual void MethodThatThrowException()
+			{
+				throw new Exception("something wrong happened");
+			}
 
 			public virtual string MethodWithParams(int intValue, string stringValue, bool boolValue)
 			{
