@@ -2,6 +2,7 @@
 
 namespace ExtDirectHandler.Configuration
 {
+	[AttributeUsage(AttributeTargets.Class)]
 	public class DirectActionAttribute : Attribute
 	{
 		private readonly string _name;

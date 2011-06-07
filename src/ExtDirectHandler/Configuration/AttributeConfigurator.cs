@@ -11,8 +11,17 @@ namespace ExtDirectHandler.Configuration
 
 		public AttributeConfigurator AddTypes(Assembly assembly)
 		{
-			AddTypes(assembly.GetTypes());
-			return this;
+			return AddTypes(assembly.GetTypes());
+		}
+
+		public AttributeConfigurator AddTypes(params Type[] types)
+		{
+			return AddTypes(types.AsEnumerable());
+		}
+
+		public AttributeConfigurator AddType<T>()
+		{
+			return AddType(typeof(T));
 		}
 
 		public AttributeConfigurator AddTypes(IEnumerable<Type> types)
@@ -32,18 +41,23 @@ namespace ExtDirectHandler.Configuration
 
 		public void Configure()
 		{
+			DirectHttpHandler.SetActionMetadatas(BuildMetadata());
+		}
+
+		internal Dictionary<string, DirectActionMetadata> BuildMetadata()
+		{
 			Dictionary<string, DirectActionMetadata> actions = _types.Select(t => new{ GetAttribute<DirectActionAttribute>(t).Name, Type = t, Methods = FindDirectMethods(t) }).ToDictionary(
 				x => x.Name,
 				x => new DirectActionMetadata{ Name = x.Name, Type = x.Type, Methods = x.Methods }
 				);
-			DirectHttpHandler.SetActionMetadatas(actions);
+			return actions;
 		}
 
 		private Dictionary<string, DirectMethodMetadata> FindDirectMethods(Type type)
 		{
-			return type.GetMethods()
+			return type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
 				.Where(HasAttribute<DirectMethodAttribute>)
-				.Select(m => new { GetAttribute<DirectMethodAttribute>(m).Name, Method = m })
+				.Select(m => new{ GetAttribute<DirectMethodAttribute>(m).Name, Method = m })
 				.ToDictionary(
 					x => x.Name,
 					x => new DirectMethodMetadata{ Name = x.Name, Method = x.Method }
