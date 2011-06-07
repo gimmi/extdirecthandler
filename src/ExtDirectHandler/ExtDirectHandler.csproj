@@ -43,11 +43,8 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Configuration\AttributeConfigurator.cs" />
-    <Compile Include="Configuration\DirectActionAttribute.cs" />
+    <Compile Include="Configuration\ReflectionConfigurator.cs" />
     <Compile Include="Configuration\DirectActionMetadata.cs" />
-    <Compile Include="Configuration\DirectMethodAttribute.cs" />
-    <Compile Include="Configuration\DirectMethodMetadata.cs" />
     <Compile Include="DirectApiBuilder.cs" />
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="DirectHandler.cs" />

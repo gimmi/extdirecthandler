@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json.Linq;
 
@@ -6,9 +7,9 @@ namespace ExtDirectHandler
 {
 	internal class DirectApiBuilder
 	{
-		private readonly IEnumerable<DirectActionMetadata> _actionMetadatas;
+		private readonly IDictionary<string, DirectActionMetadata> _actionMetadatas;
 
-		public DirectApiBuilder(IEnumerable<DirectActionMetadata> actionMetadatas)
+		public DirectApiBuilder(IDictionary<string, DirectActionMetadata> actionMetadatas)
 		{
 			_actionMetadatas = actionMetadatas;
 		}
@@ -28,21 +29,21 @@ namespace ExtDirectHandler
 		private JObject BuildActions()
 		{
 			var actions = new JObject();
-			foreach(DirectActionMetadata actionMetadata in _actionMetadatas)
+			foreach(KeyValuePair<string, DirectActionMetadata> kvp in _actionMetadatas)
 			{
-				actions.Add(actionMetadata.Name, BuildMethods(actionMetadata.Methods.Values));
+				actions.Add(kvp.Key, BuildMethods(kvp.Value.Methods));
 			}
 			return actions;
 		}
 
-		private JObject BuildMethods(IEnumerable<DirectMethodMetadata> methodMetadatas)
+		private JObject BuildMethods(IEnumerable<KeyValuePair<string, MethodInfo>> methodMetadatas)
 		{
 			var methods = new JObject();
-			foreach(DirectMethodMetadata methodMetadata in methodMetadatas)
+			foreach (KeyValuePair<string, MethodInfo> methodMetadata in methodMetadatas)
 			{
-				methods.Add(methodMetadata.Name, new JObject{
-					{ "name", methodMetadata.Name },
-					{ "len", methodMetadata.Method.GetParameters().Length }
+				methods.Add(methodMetadata.Key, new JObject{
+					{ "name", methodMetadata.Key },
+					{ "len", methodMetadata.Value.GetParameters().Length }
 				});
 			}
 			return methods;

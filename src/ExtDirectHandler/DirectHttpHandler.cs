@@ -64,7 +64,7 @@ namespace ExtDirectHandler
 
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
-			SerializeResponse(response, new DirectApiBuilder(_actionMetadatas.Values).BuildApi(_namespace, request.Url.ToString()));
+			SerializeResponse(response, new DirectApiBuilder(_actionMetadatas).BuildApi(_namespace, request.Url.ToString()));
 		}
 
 		private DirectRequest DeserializeRequest(HttpRequest request)

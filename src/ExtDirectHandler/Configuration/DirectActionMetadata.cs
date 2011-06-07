@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ExtDirectHandler.Configuration
 {
 	internal class DirectActionMetadata
 	{
 		public Type Type;
-		public string Name;
-		public IDictionary<string, DirectMethodMetadata> Methods = new Dictionary<string, DirectMethodMetadata>();
+		public IDictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>();
 	}
 }

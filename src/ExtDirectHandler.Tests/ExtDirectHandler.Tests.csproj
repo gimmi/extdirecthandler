@@ -49,7 +49,7 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Class1.cs" />
-    <Compile Include="Configuration\AttributeConfiguratorTest.cs" />
+    <Compile Include="Configuration\ReflectionConfiguratorTest.cs" />
     <Compile Include="DirectApiBuilderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

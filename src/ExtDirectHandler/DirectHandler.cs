@@ -24,7 +24,7 @@ namespace ExtDirectHandler
 			try
 			{
 				DirectActionMetadata directActionMetadata = _actionMetadatas[request.Action];
-				MethodInfo methodInfo = directActionMetadata.Methods[request.Method].Method;
+				MethodInfo methodInfo = directActionMetadata.Methods[request.Method];
 				object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
 				object actionInstance = _objectFactory.GetInstance(directActionMetadata.Type);
 				try

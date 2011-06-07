@@ -8,8 +8,8 @@ namespace ExtDirectHandler.Sample
 	{
 		private void Application_Start(object sender, EventArgs e)
 		{
-			new AttributeConfigurator()
-				.AddTypes(typeof(Global).Assembly)
+			new ReflectionConfigurator()
+				.RegisterType<DirectAction>()
 				.Configure();
 		}
 
