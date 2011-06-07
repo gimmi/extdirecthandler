@@ -74,7 +74,7 @@ namespace ExtDirectHandler
 			}
 		}
 
-		private object[] GetParameterValues(ParameterInfo[] parameterInfos, JToken[] data, JsonSerializer jsonSerializer)
+		internal object[] GetParameterValues(ParameterInfo[] parameterInfos, JToken[] data, JsonSerializer jsonSerializer)
 		{
 			var parameters = new object[parameterInfos.Length];
 			for(int i = 0; i < parameterInfos.Length; i++)

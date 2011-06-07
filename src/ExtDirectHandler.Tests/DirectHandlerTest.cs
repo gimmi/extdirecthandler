@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Newtonsoft.Json;
@@ -105,6 +106,18 @@ namespace ExtDirectHandler.Tests
 			actionInstance.VerifyAllExpectations();
 		}
 
+		[Test]
+		public void Should_parse_jtoken_values_as_expected()
+		{
+			ParameterInfo[] parameterInfos = typeof(Action).GetMethod("MethodWithRawParameters").GetParameters();
+
+			object[] actual = _target.GetParameterValues(parameterInfos, new JToken[]{ new JValue("value") }, new JsonSerializer());
+
+			actual.Length.Should().Be.EqualTo(1);
+			actual[0].Should().Not.Be.Null().And.Be.OfType<JValue>();
+			actual[0].ToString().Should().Be.EqualTo("value");
+		}
+
 		public class Action
 		{
 			public virtual void Method() {}
@@ -117,6 +130,11 @@ namespace ExtDirectHandler.Tests
 			public virtual string MethodWithParams(int intValue, string stringValue, bool boolValue)
 			{
 				return null;
+			}
+
+			public virtual JToken MethodWithRawParameters(JToken par)
+			{
+				return par;
 			}
 		}
 	}
