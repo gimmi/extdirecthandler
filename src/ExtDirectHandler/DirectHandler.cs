@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,37 +8,46 @@ namespace ExtDirectHandler
 	internal class DirectHandler
 	{
 		private readonly ObjectFactory _objectFactory;
-		private readonly IDictionary<string, DirectActionMetadata> _actionMetadatas;
+		private readonly Metadata _metadata;
 
-		public DirectHandler(ObjectFactory objectFactory, IDictionary<string, DirectActionMetadata> actionMetadatas)
+		public DirectHandler(ObjectFactory objectFactory, Metadata metadata)
 		{
 			_objectFactory = objectFactory;
-			_actionMetadatas = actionMetadatas;
+			_metadata = metadata;
 		}
 
 		public DirectResponse Handle(DirectRequest request)
 		{
-			var response = new DirectResponse(request);
 			var jsonSerializer = (JsonSerializer)_objectFactory.GetInstance(typeof(JsonSerializer));
 			try
 			{
-				DirectActionMetadata directActionMetadata = _actionMetadatas[request.Action];
-				MethodInfo methodInfo = directActionMetadata.Methods[request.Method];
-				object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
-				object actionInstance = _objectFactory.GetInstance(directActionMetadata.Type);
-				try
-				{
-					response.Result = SerializeResult(methodInfo.Invoke(actionInstance, parameters), jsonSerializer);
-				}
-				finally
-				{
-					_objectFactory.Release(actionInstance);
-				}
+				return Handle(request, jsonSerializer);
 			}
 			finally
 			{
 				_objectFactory.Release(jsonSerializer);
 			}
+		}
+
+		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer)
+		{
+			object actionInstance = _objectFactory.GetInstance(_metadata.GetActionType(request.Action));
+			try
+			{
+				return Handle(request, jsonSerializer, actionInstance);
+			}
+			finally
+			{
+				_objectFactory.Release(actionInstance);
+			}
+		}
+
+		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, object actionInstance)
+		{
+			var response = new DirectResponse(request);
+			MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
+			object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
+			response.Result = SerializeResult(methodInfo.Invoke(actionInstance, parameters), jsonSerializer);
 			return response;
 		}
 

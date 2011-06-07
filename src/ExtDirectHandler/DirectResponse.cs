@@ -32,6 +32,14 @@ namespace ExtDirectHandler
 			Action = request.Action;
 			Method = request.Method;
 			Tid = request.Tid;
+			Type = request.Type;
+		}
+
+		public void SetException(string message, string where)
+		{
+			Type = "exception";
+			Message = message;
+			Where = where;
 		}
 	}
 }

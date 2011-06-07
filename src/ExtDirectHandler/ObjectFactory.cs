@@ -4,11 +4,11 @@ namespace ExtDirectHandler
 {
 	public class ObjectFactory
 	{
-		public object GetInstance(Type type)
+		public virtual object GetInstance(Type type)
 		{
 			return Activator.CreateInstance(type);
 		}
 
-		public void Release(object instance) {}
+		public virtual void Release(object instance) { }
 	}
 }

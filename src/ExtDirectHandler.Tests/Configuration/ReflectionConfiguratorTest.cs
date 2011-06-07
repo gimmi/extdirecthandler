@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ExtDirectHandler.Configuration;
 using NUnit.Framework;
+using Rhino.Mocks;
 using SharpTestsEx;
 
 namespace ExtDirectHandler.Tests.Configuration
@@ -19,20 +20,29 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_configure_all_registered_types()
 		{
-			Dictionary<string, DirectActionMetadata> actual = _target.RegisterType<ActionClass1>().RegisterType<ActionClass2>().BuildMetadata();
-			actual.Keys.Should().Have.SameValuesAs(new[]{ "ActionClass1", "ActionClass2" });
+			var metadata = MockRepository.GenerateMock<Metadata>();
+			metadata.Expect(x => x.AddAction("ActionClass1", typeof(ActionClass1)));
+			metadata.Expect(x => x.AddAction("ActionClass2", typeof(ActionClass2)));
+
+			_target.RegisterType<ActionClass1>()
+				.RegisterType<ActionClass2>()
+				.FillMetadata(metadata);
+
+			metadata.VerifyAllExpectations();
 		}
 
 		[Test]
 		public void Should_configure_methods()
 		{
-			Dictionary<string, DirectActionMetadata> actual = _target.RegisterType<ActionClass1>().BuildMetadata();
-			actual["ActionClass1"].Methods.Keys.Should().Have.SameValuesAs(new[]{
-				"publicInstanceMethod",
-				"methodWithParameters"
-			});
-		}
+			var metadata = MockRepository.GenerateMock<Metadata>();
+			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod")));
+			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters")));
 
+			_target.RegisterType<ActionClass1>().FillMetadata(metadata);
+
+			metadata.VerifyAllExpectations();
+		}
+		
 		private class BaseClass
 		{
 			public void BaseMethod() {}

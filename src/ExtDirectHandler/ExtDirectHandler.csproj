@@ -43,8 +43,8 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\Metadata.cs" />
     <Compile Include="Configuration\ReflectionConfigurator.cs" />
-    <Compile Include="Configuration\DirectActionMetadata.cs" />
     <Compile Include="DirectApiBuilder.cs" />
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="DirectHandler.cs" />

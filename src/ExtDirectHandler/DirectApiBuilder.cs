@@ -7,11 +7,11 @@ namespace ExtDirectHandler
 {
 	internal class DirectApiBuilder
 	{
-		private readonly IDictionary<string, DirectActionMetadata> _actionMetadatas;
+		private readonly Metadata _metadata;
 
-		public DirectApiBuilder(IDictionary<string, DirectActionMetadata> actionMetadatas)
+		public DirectApiBuilder(Metadata metadata)
 		{
-			_actionMetadatas = actionMetadatas;
+			_metadata = metadata;
 		}
 
 		internal JObject BuildApi(string ns, string url)
@@ -29,21 +29,21 @@ namespace ExtDirectHandler
 		private JObject BuildActions()
 		{
 			var actions = new JObject();
-			foreach(KeyValuePair<string, DirectActionMetadata> kvp in _actionMetadatas)
+			foreach(string actionName in _metadata.GetActionNames())
 			{
-				actions.Add(kvp.Key, BuildMethods(kvp.Value.Methods));
+				actions.Add(actionName, BuildMethods(actionName));
 			}
 			return actions;
 		}
 
-		private JObject BuildMethods(IEnumerable<KeyValuePair<string, MethodInfo>> methodMetadatas)
+		private JObject BuildMethods(string actionName)
 		{
 			var methods = new JObject();
-			foreach (KeyValuePair<string, MethodInfo> methodMetadata in methodMetadatas)
+			foreach (string methodName in _metadata.GetMethodNames(actionName))
 			{
-				methods.Add(methodMetadata.Key, new JObject{
-					{ "name", methodMetadata.Key },
-					{ "len", methodMetadata.Value.GetParameters().Length }
+				methods.Add(methodName, new JObject{
+					{ "name", methodName },
+					{ "len", _metadata.GetNumberOfParameters(actionName, methodName) }
 				});
 			}
 			return methods;

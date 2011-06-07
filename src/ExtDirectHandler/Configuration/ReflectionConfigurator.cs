@@ -36,26 +36,22 @@ namespace ExtDirectHandler.Configuration
 
 		public void Configure()
 		{
-			DirectHttpHandler.SetActionMetadatas(BuildMetadata());
+			var metadata = new Metadata();
+			FillMetadata(metadata);
+			DirectHttpHandler.SetActionMetadatas(metadata);
 		}
 
-		internal Dictionary<string, DirectActionMetadata> BuildMetadata()
+		internal void FillMetadata(Metadata ret)
 		{
-			Dictionary<string, DirectActionMetadata> actions = _types.Select(t => new{ t.Name, Type = t, Methods = FindDirectMethods(t) }).ToDictionary(
-				x => x.Name,
-				x => new DirectActionMetadata{ Type = x.Type, Methods = x.Methods }
-				);
-			return actions;
-		}
-
-		private Dictionary<string, MethodInfo> FindDirectMethods(Type type)
-		{
-			return type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-				.Select(m => new{ Name = pascalizeName(m.Name), Method = m })
-				.ToDictionary(
-					x => x.Name,
-					x => x.Method
-				);
+			foreach(var type in _types)
+			{
+				var actionName = type.Name;
+				ret.AddAction(actionName, type);
+				foreach(var methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
+				{
+					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo);
+				}
+			}
 		}
 
 		private string pascalizeName(string name)

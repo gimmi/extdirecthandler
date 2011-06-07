@@ -9,7 +9,7 @@ namespace ExtDirectHandler
 {
 	public class DirectHttpHandler : IHttpHandler
 	{
-		private static IDictionary<string, DirectActionMetadata> _actionMetadatas;
+		private static Metadata _metadata;
 		private static ObjectFactory _objectFactory;
 		private string _namespace;
 
@@ -18,13 +18,13 @@ namespace ExtDirectHandler
 			get { return false; }
 		}
 
-		internal static void SetActionMetadatas(IDictionary<string, DirectActionMetadata> actions)
+		internal static void SetActionMetadatas(Metadata metadata)
 		{
-			if(_actionMetadatas != null)
+			if(_metadata != null)
 			{
 				throw new Exception("Already configured");
 			}
-			_actionMetadatas = actions;
+			_metadata = metadata;
 		}
 
 		public static void SetObjectFactory(ObjectFactory factory)
@@ -56,7 +56,7 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest request, HttpResponse response)
 		{
-			var directHandler = new DirectHandler(_objectFactory, _actionMetadatas);
+			var directHandler = new DirectHandler(_objectFactory, _metadata);
 			DirectRequest directRequest = DeserializeRequest(request);
 			DirectResponse directResponse = directHandler.Handle(directRequest);
 			SerializeResponse(response, directResponse);
@@ -64,7 +64,7 @@ namespace ExtDirectHandler
 
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
-			SerializeResponse(response, new DirectApiBuilder(_actionMetadatas).BuildApi(_namespace, request.Url.ToString()));
+			SerializeResponse(response, new DirectApiBuilder(_metadata).BuildApi(_namespace, request.Url.ToString()));
 		}
 
 		private DirectRequest DeserializeRequest(HttpRequest request)
