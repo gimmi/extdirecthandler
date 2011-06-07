@@ -30,7 +30,7 @@ namespace ExtDirectHandler
 			}
 		}
 
-		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer)
+		private DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer)
 		{
 			object actionInstance = _objectFactory.GetInstance(_metadata.GetActionType(request.Action));
 			try
@@ -47,10 +47,10 @@ namespace ExtDirectHandler
 		{
 			var response = new DirectResponse(request);
 			MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
-			object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
 			object result = null;
 			try
 			{
+				object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
 				result = methodInfo.Invoke(actionInstance, parameters);
 			}
 			catch(TargetInvocationException e)
@@ -76,6 +76,10 @@ namespace ExtDirectHandler
 
 		internal object[] GetParameterValues(ParameterInfo[] parameterInfos, JToken[] data, JsonSerializer jsonSerializer)
 		{
+			if(parameterInfos.Length != data.Length)
+			{
+				throw new Exception(string.Format("Method expect {0} parameter(s), but passed {1} parameter(s)", parameterInfos.Length, data.Length));
+			}
 			var parameters = new object[parameterInfos.Length];
 			for(int i = 0; i < parameterInfos.Length; i++)
 			{

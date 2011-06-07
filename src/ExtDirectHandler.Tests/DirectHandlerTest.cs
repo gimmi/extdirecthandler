@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Newtonsoft.Json;
@@ -27,6 +26,7 @@ namespace ExtDirectHandler.Tests
 			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
 			_metadata.Stub(x => x.GetMethodInfo("Action", "methodWithParams")).Return(typeof(Action).GetMethod("MethodWithParams"));
 			_metadata.Stub(x => x.GetMethodInfo("Action", "methodThatThrowException")).Return(typeof(Action).GetMethod("MethodThatThrowException"));
+			_metadata.Stub(x => x.GetMethodInfo("Action", "methodWithRawParameters")).Return(typeof(Action).GetMethod("MethodWithRawParameters"));
 		}
 
 		[Test]
@@ -109,13 +109,34 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_parse_jtoken_values_as_expected()
 		{
-			ParameterInfo[] parameterInfos = typeof(Action).GetMethod("MethodWithRawParameters").GetParameters();
+			var actionInstance = MockRepository.GenerateMock<Action>();
+			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
 
-			object[] actual = _target.GetParameterValues(parameterInfos, new JToken[]{ new JValue("value") }, new JsonSerializer());
+			DirectResponse response = _target.Handle(new DirectRequest{
+				Action = "Action",
+				Method = "methodWithRawParameters",
+				Data = new JToken[]{ new JValue("value") }
+			}, new JsonSerializer(), actionInstance);
 
-			actual.Length.Should().Be.EqualTo(1);
-			actual[0].Should().Not.Be.Null().And.Be.OfType<JValue>();
-			actual[0].ToString().Should().Be.EqualTo("value");
+			response.Result.ToString().Should().Be.EqualTo("ret");
+		}
+
+		[Test]
+		public void Should_return_error_when_passed_wrong_number_of_parameters()
+		{
+			var actionInstance = MockRepository.GenerateMock<Action>();
+			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
+
+			DirectResponse response = _target.Handle(new DirectRequest{
+				Action = "Action",
+				Method = "method",
+				Data = new JToken[]{ new JValue("value") }
+			}, new JsonSerializer(), actionInstance);
+
+			response.Result.Should().Be.Null();
+			response.Type.Should().Be.EqualTo("exception");
+			response.Message.Should().Be.EqualTo("Method expect 0 parameter(s), but passed 1 parameter(s)");
+			response.Where.Should().Contain("Method expect 0 parameter(s), but passed 1 parameter(s)");
 		}
 
 		public class Action
