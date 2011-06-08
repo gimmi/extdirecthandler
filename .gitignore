@@ -9,3 +9,4 @@
 /src/*.suo
 /src/SharedAssemblyInfo.cs
 /TestResult.xml
+/src/SampleWebApplication/extjs/
