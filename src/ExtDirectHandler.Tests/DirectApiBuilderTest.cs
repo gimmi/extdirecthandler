@@ -54,22 +54,22 @@ App.server.REMOTING_API = {
   'type': 'remoting',
   'namespace': 'App.server',
   'actions': {
-    'Action1': {
-      'method1': {
+    'Action1': [
+      {
         'name': 'method1',
         'len': 2
       },
-      'method2': {
+      {
         'name': 'method2',
         'len': 1
       }
-    },
-    'Action2': {
-      'method1': {
+    ],
+    'Action2': [
+      {
         'name': 'method1',
         'len': 1
       }
-    }
+    ]
   }
 };");
 		}

@@ -45,12 +45,12 @@ namespace ExtDirectHandler
 			return actions;
 		}
 
-		private JObject BuildMethods(string actionName)
+		private JArray BuildMethods(string actionName)
 		{
-			var methods = new JObject();
+			var methods = new JArray();
 			foreach(string methodName in _metadata.GetMethodNames(actionName))
 			{
-				methods.Add(methodName, new JObject{
+				methods.Add(new JObject{
 					{ "name", methodName },
 					{ "len", _metadata.GetNumberOfParameters(actionName, methodName) }
 				});
