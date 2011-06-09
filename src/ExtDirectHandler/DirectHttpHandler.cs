@@ -9,7 +9,7 @@ namespace ExtDirectHandler
 	public class DirectHttpHandler : IHttpHandler
 	{
 		private static Metadata _metadata;
-		private static ObjectFactory _objectFactory;
+		private static ObjectFactory _objectFactory = new ObjectFactory();
 
 		public bool IsReusable
 		{
