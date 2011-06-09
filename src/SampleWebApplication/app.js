@@ -1,6 +1,7 @@
 ﻿Ext.application({
 	name: 'HelloExt',
-	launch: function() {
+	launch: function () {
+		Ext.direct.Manager.addProvider(Ext.app.REMOTING_API);
 		Ext.create('Ext.container.Viewport', {
 			layout: 'fit',
 			items: [ {

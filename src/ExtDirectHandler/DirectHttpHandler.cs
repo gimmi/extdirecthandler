@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using ExtDirectHandler.Configuration;
@@ -64,7 +63,12 @@ namespace ExtDirectHandler
 
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
+			response.ContentType = "text/javascript";
+			response.Write("Ext.ns('Ext.app');");
+			response.Write(Environment.NewLine);
+			response.Write("Ext.app.REMOTING_API = ");
 			SerializeResponse(response, new DirectApiBuilder(_metadata).BuildApi(_namespace, request.Url.ToString()));
+			response.Write(";");
 		}
 
 		private DirectRequest DeserializeRequest(HttpRequest request)
@@ -80,6 +84,9 @@ namespace ExtDirectHandler
 		{
 			using(var jsonWriter = new JsonTextWriter(new StreamWriter(response.OutputStream, response.ContentEncoding)))
 			{
+				jsonWriter.Formatting = Formatting.Indented;
+				jsonWriter.Indentation = 1;
+				jsonWriter.IndentChar = '\t';
 				new JsonSerializer().Serialize(jsonWriter, value);
 			}
 		}
