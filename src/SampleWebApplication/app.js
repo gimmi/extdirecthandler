@@ -1,7 +1,9 @@
-﻿Ext.application({
-	name: 'HelloExt',
+﻿Ext.require('Ext.direct.*');
+
+Ext.application({
+	name: 'Sample',
 	launch: function () {
-		Ext.direct.Manager.addProvider(Ext.app.REMOTING_API);
+		Ext.direct.Manager.addProvider(Sample.server.REMOTING_API);
 		Ext.create('Ext.container.Viewport', {
 			layout: 'fit',
 			items: [ {

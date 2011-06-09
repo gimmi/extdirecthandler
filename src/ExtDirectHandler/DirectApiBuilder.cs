@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System;
+using System.Text;
 using ExtDirectHandler.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ExtDirectHandler
@@ -14,10 +15,18 @@ namespace ExtDirectHandler
 			_metadata = metadata;
 		}
 
-		internal JObject BuildApi(string ns, string url)
+		internal string BuildApi(string ns, string url)
+		{
+			return new StringBuilder()
+				.AppendFormat("Ext.ns('{0}');", ns ?? "Ext.app").Append(Environment.NewLine)
+				.AppendFormat("{0}.REMOTING_API = {1};", ns ?? "Ext.app", BuildApi(ns, ns, url).ToString(Formatting.Indented))
+				.ToString();
+		}
+
+		internal JObject BuildApi(string id, string ns, string url)
 		{
 			var api = new JObject{
-				{ "id", new JValue(ns) },
+				{ "id", new JValue(id) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(ns) },
@@ -39,7 +48,7 @@ namespace ExtDirectHandler
 		private JObject BuildMethods(string actionName)
 		{
 			var methods = new JObject();
-			foreach (string methodName in _metadata.GetMethodNames(actionName))
+			foreach(string methodName in _metadata.GetMethodNames(actionName))
 			{
 				methods.Add(methodName, new JObject{
 					{ "name", methodName },

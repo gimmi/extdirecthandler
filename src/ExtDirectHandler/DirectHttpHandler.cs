@@ -10,7 +10,6 @@ namespace ExtDirectHandler
 	{
 		private static Metadata _metadata;
 		private static ObjectFactory _objectFactory;
-		private string _namespace;
 
 		public bool IsReusable
 		{
@@ -33,11 +32,6 @@ namespace ExtDirectHandler
 				throw new Exception("Already configured");
 			}
 			_objectFactory = factory;
-		}
-
-		public void SetNamespace(string ns)
-		{
-			_namespace = ns;
 		}
 
 		public void ProcessRequest(HttpContext context)
@@ -63,12 +57,10 @@ namespace ExtDirectHandler
 
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
+			string ns = request.QueryString["ns"];
 			response.ContentType = "text/javascript";
-			response.Write("Ext.ns('Ext.app');");
-			response.Write(Environment.NewLine);
-			response.Write("Ext.app.REMOTING_API = ");
-			SerializeResponse(response, new DirectApiBuilder(_metadata).BuildApi(_namespace, request.Url.ToString()));
-			response.Write(";");
+			var url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
+			response.Write(new DirectApiBuilder(_metadata).BuildApi(ns, url));
 		}
 
 		private DirectRequest DeserializeRequest(HttpRequest request)
@@ -80,14 +72,14 @@ namespace ExtDirectHandler
 			}
 		}
 
-		private void SerializeResponse(HttpResponse response, object value)
+		private void SerializeResponse(HttpResponse httpResponse, DirectResponse directResponse)
 		{
-			using(var jsonWriter = new JsonTextWriter(new StreamWriter(response.OutputStream, response.ContentEncoding)))
+			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
 			{
 				jsonWriter.Formatting = Formatting.Indented;
 				jsonWriter.Indentation = 1;
 				jsonWriter.IndentChar = '\t';
-				new JsonSerializer().Serialize(jsonWriter, value);
+				new JsonSerializer().Serialize(jsonWriter, directResponse);
 			}
 		}
 	}
