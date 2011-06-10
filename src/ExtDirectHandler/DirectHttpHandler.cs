@@ -3,6 +3,7 @@ using System.IO;
 using System.Web;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ExtDirectHandler
 {
@@ -76,9 +77,6 @@ namespace ExtDirectHandler
 		{
 			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
 			{
-				jsonWriter.Formatting = Formatting.Indented;
-				jsonWriter.Indentation = 1;
-				jsonWriter.IndentChar = '\t';
 				new JsonSerializer().Serialize(jsonWriter, directResponse);
 			}
 		}
