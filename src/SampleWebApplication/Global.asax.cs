@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Web;
 using ExtDirectHandler.Configuration;
-using ExtDirectHandler.Sample;
 
 namespace SampleWebApplication
 {

@@ -1284,6 +1284,7 @@
     <Content Include="jasmine-1.0.2\jasmine.css" />
     <Content Include="jasmine-1.0.2\jasmine.js" />
     <Content Include="tests.html" />
+    <Content Include="tests\Sample.server.DirectActionTest.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1388,9 +1389,7 @@
     <None Include="extjs\src\core\test\unit\spec\Ext-mess.backup" />
     <None Include="jasmine-1.0.2\MIT.LICENSE" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="tests\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

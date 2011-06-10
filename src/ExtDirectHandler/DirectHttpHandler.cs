@@ -59,7 +59,7 @@ namespace ExtDirectHandler
 		{
 			string ns = request.QueryString["ns"];
 			response.ContentType = "text/javascript";
-			var url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
+			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
 			response.Write(new DirectApiBuilder(_metadata).BuildApi(ns, url));
 		}
 

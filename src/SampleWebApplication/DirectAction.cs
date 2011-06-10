@@ -1,10 +1,41 @@
-﻿namespace ExtDirectHandler.Sample
+﻿namespace SampleWebApplication
 {
 	public class DirectAction
 	{
-		public string Echo(string par)
+		public string StringEcho(string par)
 		{
 			return par;
 		}
+
+		public double NumberEcho(double par)
+		{
+			return par;
+		}
+
+		public bool BoolEcho(bool par)
+		{
+			return par;
+		}
+
+		public int[] ArrayEcho(int[] ints)
+		{
+			return ints;
+		}
+
+		public ExampleClass ObjectEcho(ExampleClass obj)
+		{
+			return obj;
+		}
+
+		#region Nested type: ExampleClass
+
+		public class ExampleClass
+		{
+			public string StringValue;
+			public double NumberValue;
+			public bool BoolValue;
+		}
+
+		#endregion
 	}
 }
