@@ -37,7 +37,7 @@ namespace ExtDirectHandler.Tests
 			_objectFactory.Expect(x => x.Release(actionInstance));
 
 			var jsonSerializer = new JsonSerializer();
-			_objectFactory.Expect(x => x.GetInstance(typeof(JsonSerializer))).Return(jsonSerializer);
+			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(jsonSerializer);
 			_objectFactory.Expect(x => x.Release(jsonSerializer));
 
 			_target.Handle(new DirectRequest{

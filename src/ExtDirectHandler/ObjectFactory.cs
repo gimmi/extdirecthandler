@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ExtDirectHandler
 {
@@ -9,6 +11,11 @@ namespace ExtDirectHandler
 			return Activator.CreateInstance(type);
 		}
 
-		public virtual void Release(object instance) { }
+		public virtual JsonSerializer GetJsonSerializer()
+		{
+			return new JsonSerializer { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+		}
+
+		public virtual void Release(object instance) {}
 	}
 }

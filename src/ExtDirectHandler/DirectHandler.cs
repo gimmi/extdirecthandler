@@ -19,7 +19,7 @@ namespace ExtDirectHandler
 
 		public DirectResponse Handle(DirectRequest request)
 		{
-			var jsonSerializer = (JsonSerializer)_objectFactory.GetInstance(typeof(JsonSerializer));
+			var jsonSerializer = _objectFactory.GetJsonSerializer();
 			try
 			{
 				return Handle(request, jsonSerializer);

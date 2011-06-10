@@ -73,7 +73,7 @@ describe("Sample.server.DirectAction", function () {
 
 	it('should echo object', function () {
 		var actual;
-		var obj = { StringValue: 'hello', NumberValue: 3.14, BoolValue: true };
+		var obj = { stringValue: 'hello', numberValue: 3.14, boolValue: true };
 		runs(function() {
 			target.objectEcho(obj, function (ret) {
 				this.done = true;
