@@ -37,6 +37,9 @@ task('assemblyinfo', 'version', function () {
 });
 
 task('jslint', function () {
+	// Visual Studio set Javascript files encoding as "UTF-8 with signature". This cause problem with JSLint.
+	// As a workarount, when creating a new js file, select File => Save as... => Save with encoding... => "UTF-8 without signature"
+	// See http://forums.silverlight.net/forums/t/144306.aspx
 	var files = fs.createScanner('src/SampleWebApplication')
 		.include('**/*.js')
 		.exclude('jasmine-*')
