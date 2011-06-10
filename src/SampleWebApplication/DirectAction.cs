@@ -1,4 +1,6 @@
-﻿namespace SampleWebApplication
+﻿using Newtonsoft.Json.Linq;
+
+namespace SampleWebApplication
 {
 	public class DirectAction
 	{
@@ -23,6 +25,11 @@
 		}
 
 		public ExampleClass ObjectEcho(ExampleClass obj)
+		{
+			return obj;
+		}
+
+		public JObject JObjectEcho(JObject obj)
 		{
 			return obj;
 		}

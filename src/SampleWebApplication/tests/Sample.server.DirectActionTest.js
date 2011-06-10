@@ -87,4 +87,21 @@ describe("Sample.server.DirectAction", function () {
 			expect(actual).toEqual(obj);
 		});
 	});
+
+	it('should echo raw JSON object', function () {
+		var actual;
+		var obj = { stringValue: 'hello', numberValue: 3.14, boolValue: true };
+		runs(function() {
+			target.jObjectEcho(obj, function (ret) {
+				this.done = true;
+				actual = ret;
+			}, this);
+		});
+		waitsFor(function () {
+			return this.done;
+		});
+		runs(function () {
+			expect(actual).toEqual(obj);
+		});
+	});
 });
