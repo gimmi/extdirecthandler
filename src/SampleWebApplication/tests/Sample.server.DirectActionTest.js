@@ -1,4 +1,4 @@
-﻿/*global describe, beforeEach, expect, it */
+/*global describe, beforeEach, expect, it */
 
 describe("Sample.server.DirectAction", function () {
 	var target;

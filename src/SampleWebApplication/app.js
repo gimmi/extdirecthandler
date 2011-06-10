@@ -1,4 +1,4 @@
-﻿Ext.require('Ext.direct.*');
+Ext.require('Ext.direct.*');
 
 Ext.application({
 	name: 'Sample',
