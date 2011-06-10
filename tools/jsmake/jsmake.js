@@ -1,5 +1,5 @@
 /*
-JSMake version 0.8.25
+JSMake version 0.8.26
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -171,27 +171,27 @@ jsmake.Utils = {
 	 * @returns {Array} new array with transformed items
 	 * @example
 	 * // returns [ 4, 9 ]
-	 * jsmake.Utils.map([ 2, 3 ], function (item) {
+	 * jsmake.Utils.map([ 2, 3 ], function (item, index, items) {
 	 *     return item * item;
 	 * });
 	 */
 	map: function (items, fn, scope) {
 		var ret = [];
-		this.each(items, function (item, key) {
-			ret.push(fn.call(scope, item, key, items));
+		this.each(items, function (item, index, items) {
+			ret.push(fn.call(scope, item, index, items));
 		}, this);
 		return ret;
 	},
 	/**
 	 * @example
 	 * // returns 'items are: 2 3 '
-	 * jsmake.Utils.reduce([ 2, 3 ], function (memo, item) {
+	 * jsmake.Utils.reduce([ 2, 3 ], function (memo, item, index, items) {
 	 *     return memo + item + ' ';
 	 * }, 'items are: ');
 	 */
 	reduce: function (items, fn, memo, scope) {
-		this.each(items, function (item) {
-			memo = fn.call(scope, memo, item);
+		this.each(items, function (item, index, items) {
+			memo = fn.call(scope, memo, item, index, items);
 		}, this);
 		return memo;
 	},
