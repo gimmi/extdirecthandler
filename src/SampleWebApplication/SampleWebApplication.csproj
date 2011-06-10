@@ -13,6 +13,7 @@
     <RootNamespace>SampleWebApplication</RootNamespace>
     <AssemblyName>SampleWebApplication</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1279,6 +1280,10 @@
     <Content Include="extjs\src\ZIndexManager.js" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="jasmine-1.0.2\jasmine-html.js" />
+    <Content Include="jasmine-1.0.2\jasmine.css" />
+    <Content Include="jasmine-1.0.2\jasmine.js" />
+    <Content Include="tests.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -1381,6 +1386,10 @@
     <None Include="extjs\resources\themes\templates\resources\sass\my-ext-theme.scss" />
     <None Include="extjs\src\core\test\unit\build.sh" />
     <None Include="extjs\src\core\test\unit\spec\Ext-mess.backup" />
+    <None Include="jasmine-1.0.2\MIT.LICENSE" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="tests\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

@@ -1,0 +1,21 @@
+﻿<html>
+<head>
+    <title></title>
+	<link rel="stylesheet" type="text/css" href="jasmine-1.0.2/jasmine.css">
+	<script type="text/javascript" src="jasmine-1.0.2/jasmine.js"></script>
+	<script type="text/javascript" src="jasmine-1.0.2/jasmine-html.js"></script>
+    <script type="text/javascript" src="extjs/ext-debug.js"> </script>
+    <script type="text/javascript" src="rpc?ns=Sample.server"> </script>
+    <script type="text/javascript" src="tests/Sample.server.DirectActionTest.js"> </script>
+	<script type="text/javascript">
+		Ext.require('Ext.direct.*');
+
+		Ext.onReady(function() {
+			Ext.direct.Manager.addProvider(Sample.server.REMOTING_API);
+			jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+			jasmine.getEnv().execute();
+		});
+	</script>
+</head>
+<body></body>
+</html>
