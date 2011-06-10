@@ -3,7 +3,7 @@ using System.IO;
 using System.Web;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace ExtDirectHandler
 {
@@ -48,12 +48,19 @@ namespace ExtDirectHandler
 			}
 		}
 
-		private void DoPost(HttpRequest request, HttpResponse response)
+		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			var directHandler = new DirectHandler(_objectFactory, _metadata);
-			DirectRequest directRequest = DeserializeRequest(request);
-			DirectResponse directResponse = directHandler.Handle(directRequest);
-			SerializeResponse(response, directResponse);
+			JToken jToken = JToken.Load(new JsonTextReader(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding)));
+			var requests = new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(jToken.Type == JTokenType.Array ? jToken : new JArray(jToken)));
+			var responses = new DirectResponse[requests.Length];
+			for(int i = 0; i < requests.Length; i++)
+			{
+				responses[i] = new DirectHandler(_objectFactory, _metadata).Handle(requests[i]);
+			}
+			using (var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
+			{
+				new JsonSerializer().Serialize(jsonWriter, responses.Length == 1 ? (object)responses[0] : responses);
+			}
 		}
 
 		private void DoGet(HttpRequest request, HttpResponse response)
@@ -62,23 +69,6 @@ namespace ExtDirectHandler
 			response.ContentType = "text/javascript";
 			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
 			response.Write(new DirectApiBuilder(_metadata).BuildApi(ns, url));
-		}
-
-		private DirectRequest DeserializeRequest(HttpRequest request)
-		{
-			var sr = new StreamReader(request.InputStream, request.ContentEncoding);
-			using(JsonReader jsonReader = new JsonTextReader(sr))
-			{
-				return new JsonSerializer().Deserialize<DirectRequest>(jsonReader);
-			}
-		}
-
-		private void SerializeResponse(HttpResponse httpResponse, DirectResponse directResponse)
-		{
-			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
-			{
-				new JsonSerializer().Serialize(jsonWriter, directResponse);
-			}
 		}
 	}
 }

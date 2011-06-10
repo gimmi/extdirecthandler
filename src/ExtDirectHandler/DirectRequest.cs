@@ -6,6 +6,8 @@ namespace ExtDirectHandler
 {
 	internal class DirectRequest
 	{
+		private JToken[] _data;
+
 		[JsonProperty("method")]
 		public String Method;
 
@@ -15,10 +17,14 @@ namespace ExtDirectHandler
 		[JsonProperty("tid")]
 		public int Tid;
 
-		[JsonProperty("data")]
-		public JToken[] Data;
-
 		[JsonProperty("action")]
 		public String Action;
+
+		[JsonProperty("data")]
+		public JToken[] Data
+		{
+			get { return _data; }
+			set { _data = value ?? new JToken[0]; }
+		}
 	}
 }

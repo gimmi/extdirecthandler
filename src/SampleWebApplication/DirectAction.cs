@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace SampleWebApplication
 {
@@ -32,6 +33,11 @@ namespace SampleWebApplication
 		public JObject JObjectEcho(JObject obj)
 		{
 			return obj;
+		}
+
+		public void ExceptionMethod()
+		{
+			throw new ApplicationException("An error occured");
 		}
 
 		#region Nested type: ExampleClass
