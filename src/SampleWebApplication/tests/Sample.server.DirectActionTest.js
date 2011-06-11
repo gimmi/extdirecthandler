@@ -23,6 +23,23 @@ describe("Sample.server.DirectAction", function () {
 		});
 	});
 
+	it("should not corrupt strings", function () {
+		runs(function () {
+			target.stringEcho('тащий', function (result) {
+				this.actual = result;
+				this.completed = true;
+			}, this);
+		});
+
+		waitsFor(function () {
+			return this.completed;
+		}, 'Server call', 1000);
+
+		runs(function () {
+			expect(this.actual).toEqual('тащий');
+		});
+	});
+
 	it('should echo numeric value', function () {
 		var actual;
 		runs(function () {
@@ -105,23 +122,59 @@ describe("Sample.server.DirectAction", function () {
 		});
 	});
 
-	it('should return error in case of exception', function () {
+	it("should call methods without parameters", function () {
 		runs(function () {
-			target.exceptionMethod(function (ret, event) {
+			target.noParams(function (result) {
+				this.actual = result;
 				this.done = true;
-				this.ret = ret;
-				this.event = event;
 			}, this);
 		});
+
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
+
 		runs(function () {
-			expect(this.ret).toBeNull();
-			expect(this.event.type).toEqual('exception');
+			expect(this.actual).toEqual(true);
 		});
 	});
-	
+
+	describe('exception handling', function () {
+		var exceptionCount;
+		var exceptionHandler = function () {
+			exceptionCount += 1;
+		};
+
+		beforeEach(function () {
+			exceptionCount = 0;
+			Ext.direct.Manager.on('exception', exceptionHandler);
+		});
+
+		afterEach(function () {
+			Ext.direct.Manager.un('exception', exceptionHandler);
+		});
+
+		it("should return exception", function () {
+			runs(function () {
+				target.exception(function (result, event) {
+					this.done = true;
+					this.result = result;
+					this.event = event;
+				}, this);
+			});
+
+			waitsFor(function () {
+				return this.done;
+			}, 'Server call', 1000);
+
+			runs(function () {
+				expect(exceptionCount).toEqual(1);
+				expect(this.result).toBeNull();
+				expect(this.event.type).toEqual('exception');
+			});
+		});
+	});
+
 	it("should batch calls", function () {
 		var requestCount, responseCount = 0;
 		var request = function (i) {

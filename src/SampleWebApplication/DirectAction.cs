@@ -35,7 +35,12 @@ namespace SampleWebApplication
 			return obj;
 		}
 
-		public void ExceptionMethod()
+		public bool NoParams()
+		{
+			return true;
+		}
+
+		public string Exception()
 		{
 			throw new ApplicationException("An error occured");
 		}
