@@ -10,3 +10,5 @@
 /src/SharedAssemblyInfo.cs
 /TestResult.xml
 /src/SampleWebApplication/extjs/
+src/ExtSamplesRunner/extjs/
+src/**/*.user

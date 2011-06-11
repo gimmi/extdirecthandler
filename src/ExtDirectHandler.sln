@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.Tests", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWebApplication", "SampleWebApplication\SampleWebApplication.csproj", "{AD514971-E75A-488C-9531-F1A36DEA9D60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtSamplesRunner", "ExtSamplesRunner\ExtSamplesRunner.csproj", "{599F012D-0BDF-4FDB-996F-982ACCD3998D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
