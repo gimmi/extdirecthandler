@@ -10,7 +10,8 @@ describe("Sample.server.DirectAction", function () {
 	it('should echo string value', function () {
 		var actual;
 		runs(function () {
-			target.stringEcho('hello world', function (ret) {
+			target.stringEcho('hello world', function (ret, event) {
+				this.success = event.status;
 				this.done = true;
 				actual = ret;
 			}, this);
@@ -20,12 +21,14 @@ describe("Sample.server.DirectAction", function () {
 		}, 'Server call', 1000);
 		runs(function () {
 			expect(actual).toEqual('hello world');
+			expect(this.success).toEqual(true);
 		});
 	});
 
 	it("should not corrupt strings", function () {
 		runs(function () {
-			target.stringEcho('тащий', function (result) {
+			target.stringEcho('тащий', function (result, event) {
+				this.success = event.status;
 				this.actual = result;
 				this.completed = true;
 			}, this);
@@ -36,6 +39,7 @@ describe("Sample.server.DirectAction", function () {
 		}, 'Server call', 1000);
 
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(this.actual).toEqual('тащий');
 		});
 	});
@@ -43,15 +47,17 @@ describe("Sample.server.DirectAction", function () {
 	it('should echo numeric value', function () {
 		var actual;
 		runs(function () {
-			target.numberEcho(3.14, function (ret) {
+			target.numberEcho(3.14, function (result, event) {
+				this.success = event.status;
 				this.done = true;
-				actual = ret;
+				actual = result;
 			}, this);
 		});
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(actual).toEqual(3.14);
 		});
 	});
@@ -59,15 +65,17 @@ describe("Sample.server.DirectAction", function () {
 	it('should echo bool value', function () {
 		var actual;
 		runs(function () {
-			target.boolEcho(true, function (ret) {
+			target.boolEcho(true, function (result, event) {
+				this.success = event.status;
 				this.done = true;
-				actual = ret;
+				actual = result;
 			}, this);
 		});
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(actual).toEqual(true);
 		});
 	});
@@ -75,15 +83,17 @@ describe("Sample.server.DirectAction", function () {
 	it('should echo array', function () {
 		var actual;
 		runs(function () {
-			target.arrayEcho([1, 2, 3], function (ret) {
+			target.arrayEcho([1, 2, 3], function (result, event) {
+				this.success = event.status;
 				this.done = true;
-				actual = ret;
+				actual = result;
 			}, this);
 		});
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(actual).toEqual([1, 2, 3]);
 		});
 	});
@@ -92,15 +102,17 @@ describe("Sample.server.DirectAction", function () {
 		var actual;
 		var obj = { stringValue: 'hello', numberValue: 3.14, boolValue: true };
 		runs(function () {
-			target.objectEcho(obj, function (ret) {
+			target.objectEcho(obj, function (result, event) {
+				this.success = event.status;
 				this.done = true;
-				actual = ret;
+				actual = result;
 			}, this);
 		});
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(actual).toEqual(obj);
 		});
 	});
@@ -109,22 +121,25 @@ describe("Sample.server.DirectAction", function () {
 		var actual;
 		var obj = { stringValue: 'hello', numberValue: 3.14, boolValue: true };
 		runs(function () {
-			target.jObjectEcho(obj, function (ret) {
+			target.jObjectEcho(obj, function (result, event) {
+				this.success = event.status;
 				this.done = true;
-				actual = ret;
+				actual = result;
 			}, this);
 		});
 		waitsFor(function () {
 			return this.done;
 		}, 'Server call', 1000);
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(actual).toEqual(obj);
 		});
 	});
 
 	it("should call methods without parameters", function () {
 		runs(function () {
-			target.noParams(function (result) {
+			target.noParams(function (result, event) {
+				this.success = event.status;
 				this.actual = result;
 				this.done = true;
 			}, this);
@@ -135,6 +150,7 @@ describe("Sample.server.DirectAction", function () {
 		}, 'Server call', 1000);
 
 		runs(function () {
+			expect(this.success).toEqual(true);
 			expect(this.actual).toEqual(true);
 		});
 	});
@@ -157,9 +173,9 @@ describe("Sample.server.DirectAction", function () {
 		it("should return exception", function () {
 			runs(function () {
 				target.exception(function (result, event) {
+					this.success = event.status;
 					this.done = true;
 					this.result = result;
-					this.event = event;
 				}, this);
 			});
 
@@ -168,9 +184,9 @@ describe("Sample.server.DirectAction", function () {
 			}, 'Server call', 1000);
 
 			runs(function () {
+				expect(this.success).toEqual(false);
 				expect(exceptionCount).toEqual(1);
 				expect(this.result).toBeNull();
-				expect(this.event.type).toEqual('exception');
 			});
 		});
 	});
@@ -178,8 +194,9 @@ describe("Sample.server.DirectAction", function () {
 	it("should batch calls", function () {
 		var requestCount, responseCount = 0;
 		var request = function (i) {
-			target.stringEcho('call ' + i, function (result) {
+			target.stringEcho('call ' + i, function (result, event) {
 				expect(result).toEqual('call ' + i);
+				expect(event.status).toEqual(true);
 				responseCount += 1;
 			});
 		};
