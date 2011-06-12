@@ -10,6 +10,7 @@ namespace ExtSamplesRunner
 		{
 			new ReflectionConfigurator()
 				.RegisterType<TestAction>()
+				.RegisterType<Profile>()
 				.Configure();
 		}
 
