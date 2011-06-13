@@ -34,11 +34,11 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public void Configure()
+		public Metadata BuildMetadata()
 		{
 			var metadata = new Metadata();
 			FillMetadata(metadata);
-			DirectHttpHandler.SetActionMetadatas(metadata);
+			return metadata;
 		}
 
 		internal void FillMetadata(Metadata ret)

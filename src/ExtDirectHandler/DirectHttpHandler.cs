@@ -17,7 +17,7 @@ namespace ExtDirectHandler
 			get { return false; }
 		}
 
-		internal static void SetActionMetadatas(Metadata metadata)
+		public static void SetMetadata(Metadata metadata)
 		{
 			if(_metadata != null)
 			{

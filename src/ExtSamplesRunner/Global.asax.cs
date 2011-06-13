@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using ExtDirectHandler;
 using ExtDirectHandler.Configuration;
 
 namespace ExtSamplesRunner
@@ -8,10 +9,10 @@ namespace ExtSamplesRunner
 	{
 		protected void Application_Start(object sender, EventArgs e)
 		{
-			new ReflectionConfigurator()
-				.RegisterType<TestAction>()
-				.RegisterType<Profile>()
-				.Configure();
+			DirectHttpHandler.SetMetadata(new ReflectionConfigurator()
+			                                     	.RegisterType<TestAction>()
+			                                     	.RegisterType<Profile>()
+			                                     	.BuildMetadata());
 		}
 
 		protected void Session_Start(object sender, EventArgs e) {}

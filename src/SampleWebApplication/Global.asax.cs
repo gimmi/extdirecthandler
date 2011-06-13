@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using ExtDirectHandler;
 using ExtDirectHandler.Configuration;
 
 namespace SampleWebApplication
@@ -8,9 +9,9 @@ namespace SampleWebApplication
 	{
 		protected void Application_Start(object sender, EventArgs e)
 		{
-			new ReflectionConfigurator()
-				.RegisterType<DirectAction>()
-				.Configure();
+			DirectHttpHandler.SetMetadata(new ReflectionConfigurator()
+			                              	.RegisterType<DirectAction>()
+			                              	.BuildMetadata());
 		}
 
 		protected void Session_Start(object sender, EventArgs e) {}
