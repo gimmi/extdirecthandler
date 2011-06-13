@@ -20,6 +20,9 @@ namespace ExtDirectHandler
 		[JsonProperty("action")]
 		public String Action;
 
+		[JsonIgnore]
+		public bool Upload;
+
 		[JsonProperty("data")]
 		public JToken[] Data
 		{

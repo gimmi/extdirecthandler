@@ -52,6 +52,7 @@ namespace ExtDirectHandler
 			{
 				methods.Add(new JObject{
 					{ "name", methodName },
+					{ "formHandler", _metadata.IsFormHandler(actionName, methodName) },
 					{ "len", _metadata.GetNumberOfParameters(actionName, methodName) }
 				});
 			}

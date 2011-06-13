@@ -50,14 +50,47 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			JToken jToken = JToken.Load(new JsonTextReader(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding)));
-			var requests = new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(jToken.Type == JTokenType.Array ? jToken : new JArray(jToken)));
+			DirectRequest[] requests;
+			if(httpRequest.ContentType.Contains("application/x-www-form-urlencoded"))
+			{
+				requests = new[]{ new DirectRequest() };
+				foreach(string key in httpRequest.Params.AllKeys)
+				{
+					switch(key)
+					{
+						case "extTID":
+							requests[0].Tid = int.Parse(httpRequest.Params[key]);
+							break;
+						case "extAction":
+							requests[0].Action = httpRequest.Params[key];
+							break;
+						case "extMethod":
+							requests[0].Method = httpRequest.Params[key];
+							break;
+						case "extType":
+							requests[0].Type = httpRequest.Params[key];
+							break;
+						case "extUpload":
+							requests[0].Upload = bool.Parse(httpRequest.Params[key]);
+							break;
+						default:
+							requests[0].Data = (requests[0].Data ?? new JToken[] { new JObject() });
+							((JObject)requests[0].Data[0]).Add(key, new JValue(httpRequest.Params[key]));
+							break;
+					}
+				}
+			}
+			else
+			{
+				JToken jToken = JToken.Load(new JsonTextReader(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding)));
+				requests = new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(jToken.Type == JTokenType.Array ? jToken : new JArray(jToken)));
+			}
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{
 				responses[i] = new DirectHandler(_objectFactory, _metadata).Handle(requests[i]);
 			}
-			using (var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
+			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
 			{
 				new JsonSerializer().Serialize(jsonWriter, responses.Length == 1 ? (object)responses[0] : responses);
 			}

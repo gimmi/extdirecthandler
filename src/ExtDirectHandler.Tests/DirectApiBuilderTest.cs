@@ -41,9 +41,12 @@ Ext.app.REMOTING_API = {
 			_metadata.Stub(x => x.GetActionNames()).Return(new[]{ "Action1", "Action2" });
 			_metadata.Stub(x => x.GetMethodNames("Action1")).Return(new[]{ "method1", "method2" });
 			_metadata.Stub(x => x.GetNumberOfParameters("Action1", "method1")).Return(2);
+			_metadata.Stub(x => x.IsFormHandler("Action1", "method1")).Return(false);
 			_metadata.Stub(x => x.GetNumberOfParameters("Action1", "method2")).Return(1);
+			_metadata.Stub(x => x.IsFormHandler("Action1", "method2")).Return(true);
 			_metadata.Stub(x => x.GetMethodNames("Action2")).Return(new[]{ "method1" });
 			_metadata.Stub(x => x.GetNumberOfParameters("Action2", "method1")).Return(1);
+			_metadata.Stub(x => x.IsFormHandler("Action2", "method1")).Return(false);
 
 			string actual = _target.BuildApi("App.server", "http://localhost:8080/rpc").Replace('"', '\'');
 
@@ -57,16 +60,19 @@ App.server.REMOTING_API = {
     'Action1': [
       {
         'name': 'method1',
+        'formHandler': false,
         'len': 2
       },
       {
         'name': 'method2',
+        'formHandler': true,
         'len': 1
       }
     ],
     'Action2': [
       {
         'name': 'method1',
+        'formHandler': false,
         'len': 1
       }
     ]

@@ -43,7 +43,7 @@ namespace ExtSamplesRunner
 		}
 
 		// formhandler
-		public object UpdateBasicInfo(IDictionary<string, object> values)
+		public object UpdateBasicInfo(IDictionary<string, string> values)
 		{
 			if ("aaron@sencha.com".Equals(values["email"]))
 			{

@@ -48,5 +48,10 @@ namespace ExtDirectHandler.Configuration
 		{
 			return _cache[actionName].Methods[methodName].GetParameters().Length;
 		}
+
+		public virtual bool IsFormHandler(string actionName, string methodName)
+		{
+			return (actionName == "Profile" && methodName == "updateBasicInfo"); // TODO this is just to try Ext examples
+		}
 	}
 }
