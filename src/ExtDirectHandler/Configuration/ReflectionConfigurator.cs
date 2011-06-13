@@ -7,7 +7,15 @@ namespace ExtDirectHandler.Configuration
 {
 	public class ReflectionConfigurator
 	{
+		private readonly ReflectionHelpers _reflectionHelpers;
 		private readonly IList<Type> _types = new List<Type>();
+
+		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
+		{
+			_reflectionHelpers = reflectionHelpers;
+		}
+
+		public ReflectionConfigurator() : this(new ReflectionHelpers()) {}
 
 		public ReflectionConfigurator RegisterTypes(params Type[] types)
 		{
@@ -43,13 +51,13 @@ namespace ExtDirectHandler.Configuration
 
 		internal void FillMetadata(Metadata ret)
 		{
-			foreach(var type in _types)
+			foreach(Type type in _types)
 			{
-				var actionName = type.Name;
+				string actionName = type.Name;
 				ret.AddAction(actionName, type);
-				foreach(var methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
+				foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 				{
-					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo);
+					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute()).FormHandler);
 				}
 			}
 		}

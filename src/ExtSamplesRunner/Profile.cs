@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ExtDirectHandler.Configuration;
 
 namespace ExtSamplesRunner
 {
@@ -42,19 +43,19 @@ namespace ExtSamplesRunner
 			};
 		}
 
-		// formhandler
+		[DirectMethod(FormHandler = true)]
 		public object UpdateBasicInfo(IDictionary<string, string> values)
 		{
-			if ("aaron@sencha.com".Equals(values["email"]))
+			if("aaron@sencha.com".Equals(values["email"]))
 			{
 				return new {
 					Success = false,
 					Errors = new Dictionary<string, string> {
-						{"email", "already taken"}
+						{ "email", "already taken" }
 					}
 				};
 			}
-			return new {Success = true};
+			return new { Success = true };
 		}
 	}
 }

@@ -13,9 +13,12 @@ namespace ExtDirectHandler.Configuration
 			Cache.Add(actionName, new ActionMetadata{ Type = type });
 		}
 
-		public virtual void AddMethod(string actionName, string methodName, MethodInfo methodInfo)
+		public virtual void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler)
 		{
-			Cache[actionName].Methods.Add(methodName, new MethodMetadata{ MethodInfo = methodInfo });
+			Cache[actionName].Methods.Add(methodName, new MethodMetadata{
+				MethodInfo = methodInfo, 
+				IsFormHandler = isFormHandler
+			});
 		}
 
 		public virtual Type GetActionType(string actionName)
@@ -45,7 +48,7 @@ namespace ExtDirectHandler.Configuration
 
 		public virtual bool IsFormHandler(string actionName, string methodName)
 		{
-			return (actionName == "Profile" && methodName == "updateBasicInfo"); // TODO this is just to try Ext examples
+			return Cache[actionName].Methods[methodName].IsFormHandler;
 		}
 
 		#region Nested type: ActionMetadata
@@ -63,6 +66,7 @@ namespace ExtDirectHandler.Configuration
 		private class MethodMetadata
 		{
 			public MethodInfo MethodInfo;
+			public bool IsFormHandler;
 		}
 
 		#endregion

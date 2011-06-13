@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-using ExtDirectHandler.Configuration;
+﻿using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SharpTestsEx;
 
 namespace ExtDirectHandler.Tests.Configuration
 {
 	[TestFixture]
 	internal class ReflectionConfiguratorTest
 	{
+		private ReflectionHelpers _reflectionHelpers;
 		private ReflectionConfigurator _target;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_target = new ReflectionConfigurator();
+			_reflectionHelpers = new ReflectionHelpers();
+			_target = new ReflectionConfigurator(_reflectionHelpers);
 		}
 
 		[Test]
@@ -35,14 +35,31 @@ namespace ExtDirectHandler.Tests.Configuration
 		public void Should_configure_methods()
 		{
 			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod")));
-			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters")));
+			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod"), false));
+			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters"), false));
 
 			_target.RegisterType<ActionClass1>().FillMetadata(metadata);
 
 			metadata.VerifyAllExpectations();
 		}
-		
+
+		[Test]
+		public void Should_configure_formhandler_from_attribute()
+		{
+			var metadata = MockRepository.GenerateMock<Metadata>();
+			metadata.Expect(x => x.AddMethod("ActionClass3", "formHandlerMethod", typeof(ActionClass3).GetMethod("FormHandlerMethod"), true));
+
+			_target.RegisterType<ActionClass3>().FillMetadata(metadata);
+
+			metadata.VerifyAllExpectations();
+		}
+
+		private class ActionClass3
+		{
+			[DirectMethod(FormHandler = true)]
+			public void FormHandlerMethod() {}
+		}
+
 		private class BaseClass
 		{
 			public void BaseMethod() {}
