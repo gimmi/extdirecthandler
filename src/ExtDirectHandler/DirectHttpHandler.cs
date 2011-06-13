@@ -51,34 +51,36 @@ namespace ExtDirectHandler
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
 			DirectRequest[] requests;
-			if(httpRequest.ContentType.Contains("application/x-www-form-urlencoded"))
+			if (httpRequest.Form.Count > 0)
 			{
-				requests = new[]{ new DirectRequest() };
-				foreach(string key in httpRequest.Params.AllKeys)
+				var request = new DirectRequest();
+				var data = new JObject();
+				foreach(string key in httpRequest.Form.AllKeys)
 				{
 					switch(key)
 					{
 						case "extTID":
-							requests[0].Tid = int.Parse(httpRequest.Params[key]);
+							request.Tid = int.Parse(httpRequest.Params[key]);
 							break;
 						case "extAction":
-							requests[0].Action = httpRequest.Params[key];
+							request.Action = httpRequest.Params[key];
 							break;
 						case "extMethod":
-							requests[0].Method = httpRequest.Params[key];
+							request.Method = httpRequest.Params[key];
 							break;
 						case "extType":
-							requests[0].Type = httpRequest.Params[key];
+							request.Type = httpRequest.Params[key];
 							break;
 						case "extUpload":
-							requests[0].Upload = bool.Parse(httpRequest.Params[key]);
+							request.Upload = bool.Parse(httpRequest.Params[key]);
 							break;
 						default:
-							requests[0].Data = (requests[0].Data ?? new JToken[] { new JObject() });
-							((JObject)requests[0].Data[0]).Add(key, new JValue(httpRequest.Params[key]));
+							data.Add(key, new JValue(httpRequest.Params[key]));
 							break;
 					}
 				}
+				request.Data = new JToken[] { data };
+				requests = new[] { request };
 			}
 			else
 			{
