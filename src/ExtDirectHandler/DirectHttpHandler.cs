@@ -92,6 +92,7 @@ namespace ExtDirectHandler
 			{
 				responses[i] = new DirectHandler(_objectFactory, _metadata).Handle(requests[i]);
 			}
+			httpResponse.ContentType = "application/json";
 			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
 			{
 				new JsonSerializer().Serialize(jsonWriter, responses.Length == 1 ? (object)responses[0] : responses);
