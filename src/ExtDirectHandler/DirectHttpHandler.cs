@@ -3,7 +3,6 @@ using System.IO;
 using System.Web;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ExtDirectHandler
 {
@@ -11,6 +10,7 @@ namespace ExtDirectHandler
 	{
 		private static Metadata _metadata;
 		private static ObjectFactory _objectFactory = new ObjectFactory();
+		private readonly DirectRequestsBuilder _directRequestsBuilder = new DirectRequestsBuilder();
 
 		public bool IsReusable
 		{
@@ -50,43 +50,7 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			DirectRequest[] requests;
-			if (httpRequest.Form.Count > 0)
-			{
-				var request = new DirectRequest();
-				var data = new JObject();
-				foreach(string key in httpRequest.Form.AllKeys)
-				{
-					switch(key)
-					{
-						case "extTID":
-							request.Tid = int.Parse(httpRequest.Params[key]);
-							break;
-						case "extAction":
-							request.Action = httpRequest.Params[key];
-							break;
-						case "extMethod":
-							request.Method = httpRequest.Params[key];
-							break;
-						case "extType":
-							request.Type = httpRequest.Params[key];
-							break;
-						case "extUpload":
-							request.Upload = bool.Parse(httpRequest.Params[key]);
-							break;
-						default:
-							data.Add(key, new JValue(httpRequest.Params[key]));
-							break;
-					}
-				}
-				request.Data = new JToken[] { data };
-				requests = new[] { request };
-			}
-			else
-			{
-				JToken jToken = JToken.Load(new JsonTextReader(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding)));
-				requests = new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(jToken.Type == JTokenType.Array ? jToken : new JArray(jToken)));
-			}
+			DirectRequest[] requests = httpRequest.Form.Count > 0 ? _directRequestsBuilder.BuildFromFormData(httpRequest.Form) : _directRequestsBuilder.BuildFromRequestData(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding));
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{

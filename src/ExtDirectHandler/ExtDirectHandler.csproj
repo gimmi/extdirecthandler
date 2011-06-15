@@ -48,6 +48,7 @@
     <Compile Include="Configuration\ReflectionConfigurator.cs" />
     <Compile Include="Configuration\ReflectionHelpers.cs" />
     <Compile Include="DirectApiBuilder.cs" />
+    <Compile Include="DirectRequestsBuilder.cs" />
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="DirectHandler.cs" />
     <Compile Include="DirectHttpHandler.cs" />
