@@ -13,11 +13,12 @@ namespace ExtDirectHandler.Configuration
 			Cache.Add(actionName, new ActionMetadata{ Type = type });
 		}
 
-		public virtual void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler)
+		public virtual void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
 		{
 			Cache[actionName].Methods.Add(methodName, new MethodMetadata{
 				MethodInfo = methodInfo, 
-				IsFormHandler = isFormHandler
+				IsFormHandler = isFormHandler,
+				HasNamedArguments = hasNamedArguments
 			});
 		}
 
@@ -51,6 +52,11 @@ namespace ExtDirectHandler.Configuration
 			return Cache[actionName].Methods[methodName].IsFormHandler;
 		}
 
+		public virtual bool HasNamedArguments(string actionName, string methodName)
+		{
+			return Cache[actionName].Methods[methodName].HasNamedArguments;
+		}
+
 		#region Nested type: ActionMetadata
 
 		private class ActionMetadata
@@ -67,6 +73,7 @@ namespace ExtDirectHandler.Configuration
 		{
 			public MethodInfo MethodInfo;
 			public bool IsFormHandler;
+			public bool HasNamedArguments;
 		}
 
 		#endregion

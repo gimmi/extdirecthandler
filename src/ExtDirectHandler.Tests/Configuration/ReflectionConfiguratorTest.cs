@@ -35,8 +35,8 @@ namespace ExtDirectHandler.Tests.Configuration
 		public void Should_configure_methods()
 		{
 			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod"), false));
-			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters"), false));
+			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod"), false, false));
+			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters"), false, false));
 
 			_target.RegisterType<ActionClass1>().FillMetadata(metadata);
 
@@ -47,7 +47,18 @@ namespace ExtDirectHandler.Tests.Configuration
 		public void Should_configure_formhandler_from_attribute()
 		{
 			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass3", "formHandlerMethod", typeof(ActionClass3).GetMethod("FormHandlerMethod"), true));
+			metadata.Expect(x => x.AddMethod("ActionClass3", "formHandlerMethod", typeof(ActionClass3).GetMethod("FormHandlerMethod"), true, false));
+
+			_target.RegisterType<ActionClass3>().FillMetadata(metadata);
+
+			metadata.VerifyAllExpectations();
+		}
+
+		[Test]
+		public void Should_configure_named_arguments_from_attribute()
+		{
+			var metadata = MockRepository.GenerateMock<Metadata>();
+			metadata.Expect(x => x.AddMethod("ActionClass3", "namedArgumentsMethod", typeof(ActionClass3).GetMethod("NamedArgumentsMethod"), false, true));
 
 			_target.RegisterType<ActionClass3>().FillMetadata(metadata);
 
@@ -58,6 +69,9 @@ namespace ExtDirectHandler.Tests.Configuration
 		{
 			[DirectMethod(FormHandler = true)]
 			public void FormHandlerMethod() {}
+
+			[DirectMethod(NamedArguments = true)]
+			public void NamedArgumentsMethod() {}
 		}
 
 		private class BaseClass

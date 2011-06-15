@@ -57,7 +57,8 @@ namespace ExtDirectHandler.Configuration
 				ret.AddAction(actionName, type);
 				foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 				{
-					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute()).FormHandler);
+					var directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
+					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 				}
 			}
 		}
