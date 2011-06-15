@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Newtonsoft.Json;
@@ -14,13 +15,15 @@ namespace ExtDirectHandler.Tests
 		private ObjectFactory _objectFactory;
 		private DirectHandler _target;
 		private Metadata _metadata;
+		private ParameterValuesParser _parameterValuesParser;
 
 		[SetUp]
 		public void SetUp()
 		{
 			_objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			_metadata = MockRepository.GenerateStub<Metadata>();
-			_target = new DirectHandler(_objectFactory, _metadata);
+			_parameterValuesParser = MockRepository.GenerateStub<ParameterValuesParser>();
+			_target = new DirectHandler(_objectFactory, _metadata, _parameterValuesParser);
 
 			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
 			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
@@ -40,10 +43,10 @@ namespace ExtDirectHandler.Tests
 			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(jsonSerializer);
 			_objectFactory.Expect(x => x.Release(jsonSerializer));
 
-			_target.Handle(new DirectRequest{
+			_target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JToken[0]
+				Data = new JArray()
 			});
 
 			_objectFactory.VerifyAllExpectations();
@@ -52,10 +55,10 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_response_based_on_request_data()
 		{
-			DirectResponse actual = _target.Handle(new DirectRequest{
+			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JToken[0],
+				Data = new JArray(),
 				Tid = 123,
 				Type = "rpc"
 			}, new JsonSerializer(), new Action());
@@ -72,10 +75,10 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_expected_response_when_target_method_throws_exception()
 		{
-			DirectResponse actual = _target.Handle(new DirectRequest{
+			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "methodThatThrowException",
-				Data = new JToken[0],
+				Data = new JArray(),
 				Tid = 123,
 				Type = "rpc"
 			}, new JsonSerializer(), new Action());
@@ -93,12 +96,13 @@ namespace ExtDirectHandler.Tests
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
+			_parameterValuesParser.Stub(x => x.ParseByPosition(Arg<ParameterInfo[]>.Is.Anything, Arg<JArray>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
 
-			DirectResponse response = _target.Handle(new DirectRequest{
+			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "methodWithParams",
-				Data = new JToken[]{ new JValue(123), new JValue("str"), new JValue(true) }
+				Data = new JArray(new JValue(123), new JValue("str"), new JValue(true))
 			}, new JsonSerializer(), actionInstance);
 
 			response.Result.ToString().Should().Be.EqualTo("ret");
@@ -107,36 +111,22 @@ namespace ExtDirectHandler.Tests
 		}
 
 		[Test]
-		public void Should_parse_jtoken_values_as_expected()
+		public void Should_return_error_when_fail_to_parse_parameters()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
+			_parameterValuesParser.Stub(x => x.ParseByPosition(Arg<ParameterInfo[]>.Is.Anything, Arg<JArray>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
 
-			DirectResponse response = _target.Handle(new DirectRequest{
-				Action = "Action",
-				Method = "methodWithRawParameters",
-				Data = new JToken[]{ new JValue("value") }
-			}, new JsonSerializer(), actionInstance);
-
-			response.Result.ToString().Should().Be.EqualTo("ret");
-		}
-
-		[Test]
-		public void Should_return_error_when_passed_wrong_number_of_parameters()
-		{
-			var actionInstance = MockRepository.GenerateMock<Action>();
-			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
-
-			DirectResponse response = _target.Handle(new DirectRequest{
+			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JToken[]{ new JValue("value") }
+				Data = new JArray()
 			}, new JsonSerializer(), actionInstance);
 
 			response.Result.Should().Be.Null();
 			response.Type.Should().Be.EqualTo("exception");
-			response.Message.Should().Be.EqualTo("Method expect 0 parameter(s), but passed 1 parameter(s)");
-			response.Where.Should().Contain("Method expect 0 parameter(s), but passed 1 parameter(s)");
+			response.Message.Should().Be.EqualTo("stubexc");
+			response.Where.Should().Contain("stubexc");
 		}
 
 		public class Action

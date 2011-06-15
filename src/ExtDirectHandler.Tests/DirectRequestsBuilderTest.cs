@@ -38,8 +38,7 @@ namespace ExtDirectHandler.Tests
 			actual.Method.Should().Be.EqualTo("method");
 			actual.Type.Should().Be.EqualTo("type");
 			actual.Upload.Should().Be.True();
-			actual.Data.Should().Have.Count.EqualTo(1);
-			JToken.DeepEquals(actual.Data[0], new JObject(new JProperty("field1", new JValue("value1")), new JProperty("field2", new JValue("value2")))).Should().Be.True();
+			JToken.DeepEquals(actual.Data, new JObject(new JProperty("field1", new JValue("value1")), new JProperty("field2", new JValue("value2")))).Should().Be.True();
 		}
 
 		[Test]
@@ -76,7 +75,7 @@ namespace ExtDirectHandler.Tests
 }
 "));
 			actual.Should().Have.Count.EqualTo(1);
-			actual[0].Data.Should().Have.SameSequenceAs(new JToken[0]);
+			JToken.DeepEquals(new JArray(), actual[0].Data).Should().Be.True();
 		}
 
 		[Test]

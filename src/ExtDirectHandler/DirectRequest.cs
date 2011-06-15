@@ -19,7 +19,7 @@ namespace ExtDirectHandler
 		public String Action;
 
 		[JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-		public JToken[] Data = new JToken[0];
+		public JToken Data = new JArray();
 
 		public bool Upload;
 	}

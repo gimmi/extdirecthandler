@@ -44,9 +44,9 @@ namespace ExtSamplesRunner
 		}
 
 		[DirectMethod(FormHandler = true)]
-		public object UpdateBasicInfo(IDictionary<string, string> values)
+		public object UpdateBasicInfo(string foo, string uid, string name, string email, string company)
 		{
-			if("aaron@sencha.com".Equals(values["email"]))
+			if("aaron@sencha.com".Equals(email))
 			{
 				return new {
 					Success = false,

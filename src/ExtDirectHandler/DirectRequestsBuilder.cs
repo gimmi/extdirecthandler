@@ -41,7 +41,7 @@ namespace ExtDirectHandler
 						break;
 				}
 			}
-			request.Data = new JToken[] { data };
+			request.Data = data;
 			return new[] { request };
 		}
 	}
