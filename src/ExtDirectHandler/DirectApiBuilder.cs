@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
@@ -25,7 +26,7 @@ namespace ExtDirectHandler
 
 		internal JObject BuildApi(string id, string ns, string url)
 		{
-			var api = new JObject{
+			var api = new JObject {
 				{ "id", new JValue(id) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
@@ -50,11 +51,20 @@ namespace ExtDirectHandler
 			var methods = new JArray();
 			foreach(string methodName in _metadata.GetMethodNames(actionName))
 			{
-				methods.Add(new JObject{
-					{ "name", methodName },
-					{ "formHandler", _metadata.IsFormHandler(actionName, methodName) },
-					{ "len", _metadata.GetNumberOfParameters(actionName, methodName) }
-				});
+				var obj = new JObject { { "name", methodName } };
+				if(_metadata.IsFormHandler(actionName, methodName))
+				{
+					obj.Add("formHandler", new JValue(true));
+				}
+				if(_metadata.HasNamedArguments(actionName, methodName))
+				{
+					obj.Add("params", new JArray(_metadata.GetArgumentNames(actionName, methodName).Select(x => new JValue(x))));
+				}
+				else
+				{
+					obj.Add("len", new JValue(_metadata.GetNumberOfParameters(actionName, methodName)));
+				}
+				methods.Add(obj);
 			}
 			return methods;
 		}

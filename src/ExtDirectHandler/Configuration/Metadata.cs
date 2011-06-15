@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace ExtDirectHandler.Configuration
 {
@@ -55,6 +56,11 @@ namespace ExtDirectHandler.Configuration
 		public virtual bool HasNamedArguments(string actionName, string methodName)
 		{
 			return Cache[actionName].Methods[methodName].HasNamedArguments;
+		}
+
+		public virtual IEnumerable<string> GetArgumentNames(string actionName, string methodName)
+		{
+			return Cache[actionName].Methods[methodName].MethodInfo.GetParameters().Select(p => p.Name);
 		}
 
 		#region Nested type: ActionMetadata

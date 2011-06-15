@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ExtDirectHandler.Configuration;
 
 namespace ExtSamplesRunner
 {
@@ -39,6 +40,12 @@ namespace ExtSamplesRunner
 				return new[] {1, 2, 3, 4, 5}.Select(n => new GetTreeResult {Id = n.ToString(), Text = "Node " + n, Leaf = false});
 			}
 			return new[] {1, 2, 3, 4, 5}.Select(n => new GetTreeResult {Id = id + n, Text = "Node " + id + "." + n, Leaf = true});
+		}
+
+		[DirectMethod(NamedArguments = true)]
+		public string ShowDetails(string firstName, string lastName, int age)
+		{
+			return string.Format("Hi {0} {1}, you are {2} years old.", firstName, lastName, age);
 		}
 
 		#region Nested type: GetGridParams

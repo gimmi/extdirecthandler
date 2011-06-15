@@ -50,7 +50,7 @@ namespace ExtDirectHandler
 			object result = null;
 			try
 			{
-				object[] parameters = GetParameterValues(methodInfo.GetParameters(), request.Data, jsonSerializer);
+				object[] parameters = new ParameterValuesParser().ParseByPosition(methodInfo.GetParameters(), request.Data, jsonSerializer);
 				result = methodInfo.Invoke(actionInstance, parameters);
 			}
 			catch(TargetInvocationException e)
@@ -72,20 +72,6 @@ namespace ExtDirectHandler
 				jsonSerializer.Serialize(writer, result);
 				return writer.Token;
 			}
-		}
-
-		internal object[] GetParameterValues(ParameterInfo[] parameterInfos, JToken[] data, JsonSerializer jsonSerializer)
-		{
-			if(parameterInfos.Length != data.Length)
-			{
-				throw new Exception(string.Format("Method expect {0} parameter(s), but passed {1} parameter(s)", parameterInfos.Length, data.Length));
-			}
-			var parameters = new object[parameterInfos.Length];
-			for(int i = 0; i < parameterInfos.Length; i++)
-			{
-				parameters[i] = jsonSerializer.Deserialize(new JTokenReader(data[i]), parameterInfos[i].ParameterType);
-			}
-			return parameters;
 		}
 	}
 }
