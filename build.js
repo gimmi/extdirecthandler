@@ -30,9 +30,9 @@ task('assemblyinfo', 'version', function () {
 		AssemblyTrademark: '',
 		AssemblyCompany: 'Gian Marco Gherardi',
 		AssemblyConfiguration: '', // Probably a good place to put Git SHA1 and build date
-		AssemblyVersion: [ version.major, version.minor, 0, 0 ].join('.'),
-		AssemblyFileVersion: [ version.major, version.minor, 0, 0 ].join('.'),
-		AssemblyInformationalVersion: [ version.major, version.minor, 0, 0 ].join('.')
+		AssemblyVersion: [ version.major, version.minor, version.build, version.revision ].join('.'),
+		AssemblyFileVersion: [ version.major, version.minor, version.build, version.revision ].join('.'),
+		AssemblyInformationalVersion: [ version.major, version.minor, version.build, version.revision ].join('.')
 	});
 });
 
@@ -64,9 +64,9 @@ task('release', 'test', function () {
 	dotnet.deployToNuGet('src/ExtDirectHandler/ExtDirectHandler.csproj', 'build');
 /*
 	dotnet.runMSBuild('src/ExtDirectHandler.sln', [ 'Clean', 'ExtDirectHandler:Rebuild' ]);
-	fs.zipPath('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor ].join('.') + '.zip');
+	fs.zipPath('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor, version.build, version.revision ].join('.') + '.zip');
 */
-	version.minor += 1;
+	version.revision += 1;
 	fs.writeFile('version.json', JSON.stringify(version));
 });
 
