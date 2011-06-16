@@ -17,6 +17,20 @@ jsmake.dotnet.DotNetUtils.prototype = {
 				.run();
 		}, this);
 	},
+	deployToNuGet: function (projFile, outputDirectory) {
+		jsmake.Sys.createRunner(this._nugetPath)
+			.args('pack', '-sym')
+			.args('-OutputDirectory', outputDirectory)
+			.args(projFile)
+			.run();
+		var packages = jsmake.Fs.createScanner(outputDirectory)
+			.include('*.nupkg')
+			.exclude('*.symbols.nupkg')
+			.scan();
+		jsmake.Sys.createRunner(this._nugetPath)
+			.args('push', packages[0])
+			.run();
+	},
 	runMSBuild: function (projectPath, targets, parameters) {
 		var runner = jsmake.Sys.createRunner(jsmake.Fs.combinePaths(jsmake.Sys.getEnvVar('SystemRoot'), 'Microsoft.NET', 'Framework', 'v' + this._frameworkVersion, 'MSBuild.exe'));
 		runner.args(projectPath, '/verbosity:minimal', '/nologo');

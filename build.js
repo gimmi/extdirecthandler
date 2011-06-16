@@ -25,14 +25,14 @@ task('assemblyinfo', 'version', function () {
 	dotnet.writeAssemblyInfo('src/SharedAssemblyInfo.cs', {
 		AssemblyTitle: 'ExtDirectHandler',
 		AssemblyProduct: 'ExtDirectHandler',
-		AssemblyDescription: '',
+		AssemblyDescription: 'Ext Direct router implementation for ASP.NET',
 		AssemblyCopyright: 'Copyright © Gian Marco Gherardi ' + new Date().getFullYear(),
 		AssemblyTrademark: '',
-		AssemblyCompany: '',
+		AssemblyCompany: 'Gian Marco Gherardi',
 		AssemblyConfiguration: '', // Probably a good place to put Git SHA1 and build date
-		AssemblyVersion: [ version.major, version.minor, version.build, 0 ].join('.'),
-		AssemblyFileVersion: [ version.major, version.minor, version.build, version.revision ].join('.'),
-		AssemblyInformationalVersion: [ version.major, version.minor, version.build, version.revision ].join('.')
+		AssemblyVersion: [ version.major, version.minor, 0, 0 ].join('.'),
+		AssemblyFileVersion: [ version.major, version.minor, 0, 0 ].join('.'),
+		AssemblyInformationalVersion: [ version.major, version.minor, 0, 0 ].join('.')
 	});
 });
 
@@ -61,9 +61,12 @@ task('test', 'build', function () {
 
 task('release', 'test', function () {
 	fs.deletePath('build');
+	dotnet.deployToNuGet('src/ExtDirectHandler/ExtDirectHandler.csproj', 'build');
+/*
 	dotnet.runMSBuild('src/ExtDirectHandler.sln', [ 'Clean', 'ExtDirectHandler:Rebuild' ]);
-	fs.zipPath('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor, version.build, version.revision ].join('.') + '.zip');
-	version.revision += 1;
+	fs.zipPath('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor ].join('.') + '.zip');
+*/
+	version.minor += 1;
 	fs.writeFile('version.json', JSON.stringify(version));
 });
 
