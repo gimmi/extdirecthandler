@@ -1,4 +1,5 @@
 ﻿using System;
+using ExtDirectHandler.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace SampleWebApplication
@@ -43,6 +44,12 @@ namespace SampleWebApplication
 		public string Exception()
 		{
 			throw new ApplicationException("An error occured");
+		}
+
+		[DirectMethod(NamedArguments = true)]
+		public object NamedArguments(string arg1, double arg2, bool arg3)
+		{
+			return new{ Arg1 = arg1, Arg2 = arg2, Arg3 = arg3 };
 		}
 
 		#region Nested type: ExampleClass
