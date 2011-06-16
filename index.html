@@ -5,29 +5,76 @@
 
   <title>gimmi/extdirecthandler @ GitHub</title>
 
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #19438c;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #ffffff;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #e6bc73; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #e6bc73; }
-    h3 { text-align: center; color: #e6bc73; }
-    a { color: #e6bc73; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
+	<style type="text/css">
+		body {
+			margin-top: 1.0em;
+			background-color: #EEEEEE;
+			font-family: Helvetica, Arial, FreeSans, san-serif;
+			color: #000000;
+		}
+
+		#container {
+			margin: 0 auto;
+			width: 960px;
+		}
+
+		h1 {
+			font-size: 3.8em;
+			color: #000000;
+			margin-bottom: 3px;
+		}
+
+		h1 .small {
+			font-size: 0.4em;
+		}
+
+		h1 a {
+			text-decoration: none
+		}
+
+		h2 {
+			font-size: 1.5em;
+			color: #000000;
+		}
+
+		h3 {
+			text-align: center;
+			color: #BF7130;
+		}
+
+		a {
+			color: #000000;
+		}
+
+		.description {
+			font-size: 1.2em;
+			margin-bottom: 30px;
+			margin-top: 30px;
+			font-style: italic;
+		}
+
+		.download {
+			float: right;
+		}
+
+		pre {
+			background: #000;
+			color: #fff;
+			padding: 15px;
+		}
+
+		hr {
+			border: 0;
+			width: 80%;
+			border-bottom: 1px solid #aaa
+		}
+
+		.footer {
+			text-align: center;
+			padding-top: 30px;
+			font-style: italic;
+		}
+	</style>
 </head>
 
 <body>
@@ -35,49 +82,43 @@
 
   <div id="container">
 
-    <div class="download">
-      <a href="http://github.com/gimmi/extdirecthandler/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/gimmi/extdirecthandler/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/gimmi/extdirecthandler">Ext.Direct Handler</a>
-      <span class="small">by <a href="http://github.com/gimmi">gimmi</a></span></h1>
+    <h1>ExtDirectHandler</h1>
 
     <div class="description">
-      Short Project Description
+      ExtDirectHandler is an Ext Direct router implementation for ASP.NET
     </div>
+	
+	<p>ExtDirectHandler has the following benefits:</p>
 
-    <p>Main Project Text</p><h2>Dependencies</h2>
-<p>Dependencies</p>
-<h2>Install</h2>
-<p>Installation Instructions</p>
-<h2>License</h2>
-<p>Code License</p>
-<h2>Authors</h2>
-<p>Gian Marco Gherardi (gianmarco.gherardi@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Gian Marco Gherardi (gianmarco.gherardi@gmail.com)<br/>      </p>
+<ul>
+<li>It is implemented via a single HttpHandler, so it works well with both classic ASP.NET and ASP.NET MVC.</li>
+<li>Service classes are as simple as POCO objects, even without decorators.</li>
+<li>It is very flexible in terms of JSON serialization options, using <a href="http://json.codeplex.com/">Json.NET</a> with great control on its setup.</li>
+<li>It has framework agnostic support for IoC containers, whith hooks for both object creation and release (a must with <a href="http://docs.castleproject.org/Windsor.Release-Policy.ashx">Castle Windsor release policy</a>).</li>
+<li>It supports all Ext Direct specification options, including form handler and named parameters.</li>
+<li>It is available via <a href="http://nuget.org/">NuGet</a> for painless project setup, <a href="http://nuget.org/List/Packages/ExtDirectHandler">Check it out</a>.</li>
+<li>It has a well tested codebase with a versioning and a release policy, not just a <a href="http://www.sencha.com/forum/showthread.php?68161">reference implementation to compile by yourself and include in your project</a>.</li>
+</ul>
 
+	<h2>Documentation</h2>
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/gimmi/extdirecthandler/zipball/master">zip</a> or
-      <a href="http://github.com/gimmi/extdirecthandler/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/gimmi/extdirecthandler</pre>
-    </p>
+	<p><a href="https://github.com/gimmi/extdirecthandler/wiki">Project Wiki</a> contains all available documentation</p>
 
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/gimmi/extdirecthandler">gimmi/extdirecthandler</a>
-    </div>
+	<h2>Download</h2>
 
+	<p><a href="http://nuget.org/List/Packages/ExtDirectHandler">Download with NuGet</a></p>
+
+	<h2>Source Code</h2>
+
+	<p><a href="http://github.com/gimmi/extdirecthandler">GitHub repository</a></p>
+
+	<h2>License</h2>
+
+	<p>See <a href="https://github.com/gimmi/extdirecthandler/raw/master/LICENSE">LICENSE file</a> included with sources</p>
+
+	<div class="footer">
+		ExtDirectHandler has been developed by Gian Marco Gherardi
+	</div>
   </div>
-
-  
 </body>
 </html>
