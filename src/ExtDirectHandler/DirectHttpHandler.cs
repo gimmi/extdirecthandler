@@ -8,9 +8,8 @@ namespace ExtDirectHandler
 {
 	public class DirectHttpHandler : IHttpHandler
 	{
-		private static Metadata _metadata;
+		private static Metadata _metadata = new Metadata();
 		private static ObjectFactory _objectFactory = new ObjectFactory();
-		private readonly DirectRequestsBuilder _directRequestsBuilder = new DirectRequestsBuilder();
 
 		public bool IsReusable
 		{
@@ -19,19 +18,11 @@ namespace ExtDirectHandler
 
 		public static void SetMetadata(Metadata metadata)
 		{
-			if(_metadata != null)
-			{
-				throw new Exception("Already configured");
-			}
 			_metadata = metadata;
 		}
 
 		public static void SetObjectFactory(ObjectFactory factory)
 		{
-			if(_objectFactory != null)
-			{
-				throw new Exception("Already configured");
-			}
 			_objectFactory = factory;
 		}
 
@@ -50,7 +41,8 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			DirectRequest[] requests = httpRequest.Form.Count > 0 ? _directRequestsBuilder.BuildFromFormData(httpRequest.Form) : _directRequestsBuilder.BuildFromRequestData(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding));
+			var directRequestsBuilder = new DirectRequestsBuilder();
+			DirectRequest[] requests = httpRequest.Form.Count > 0 ? directRequestsBuilder.BuildFromFormData(httpRequest.Form) : directRequestsBuilder.BuildFromRequestData(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding));
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{
