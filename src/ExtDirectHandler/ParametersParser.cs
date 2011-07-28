@@ -13,7 +13,7 @@ namespace ExtDirectHandler
 			{
 				return ParseByPosition(parameterInfos, (JArray)data, jsonSerializer);
 			}
-			if (data.Type == JTokenType.Object)
+			if(data.Type == JTokenType.Object)
 			{
 				return ParseByName(parameterInfos, (JObject)data, jsonSerializer);
 			}
@@ -46,27 +46,10 @@ namespace ExtDirectHandler
 				}
 				else
 				{
-					if (parameterInfos[i].DefaultValue == DBNull.Value)
-					{
-						throw new Exception(string.Format("Method expect a parameter named '{0}', but it has not been found and does not have default value defined", parameterInfos[i].Name));
-					}
-					parameters[i] = parameterInfos[i].DefaultValue;
+					parameters[i] = (parameterInfos[i].ParameterType.IsValueType ? Activator.CreateInstance(parameterInfos[i].ParameterType) : null);
 				}
 			}
 			return parameters;
-		}
-
-		private object GetDefault(ParameterInfo parameterInfo)
-		{
-			if(parameterInfo.DefaultValue != DBNull.Value)
-			{
-				return parameterInfo.DefaultValue;
-			}
-			if (parameterInfo.ParameterType.IsValueType)
-			{
-				return Activator.CreateInstance(parameterInfo.ParameterType);
-			}
-			return null;
 		}
 
 		private static object Deserialize(ParameterInfo parameterInfo, JToken value, JsonSerializer jsonSerializer)

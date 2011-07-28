@@ -227,4 +227,23 @@ describe("Sample.server.DirectAction", function() {
 			expect(this.result).toEqual({ arg1: 'value', arg2: 3.14, arg3: true });
 		});
 	});
+
+	it('should tolerate missing named arguments', function() {
+		runs(function() {
+			target.namedArguments({}, function(result, event) {
+				this.success = event.status;
+				this.done = true;
+				this.result = result;
+			}, this);
+		});
+
+		waitsFor(function() {
+			return this.done;
+		}, 'Server call', 1000);
+
+		runs(function() {
+			expect(this.success).toEqual(true);
+			expect(this.result).toEqual({ arg1: null, arg2: 0, arg3: false });
+		});
+	});
 });
