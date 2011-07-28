@@ -9,12 +9,12 @@ namespace ExtDirectHandler.Tests
 	[TestFixture]
 	public class ParameterValuesParserTest
 	{
-		private ParameterValuesParser _target;
+		private ParameterValueParser _target;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_target = new ParameterValuesParser();
+			_target = new ParameterValueParser();
 		}
 
 		[Test]

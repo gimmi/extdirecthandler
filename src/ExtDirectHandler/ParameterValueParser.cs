@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ExtDirectHandler
 {
-	public class ParameterValuesParser
+	public class ParameterValueParser
 	{
 		public virtual object[] ParseByPosition(ParameterInfo[] parameterInfos, JArray data, JsonSerializer jsonSerializer)
 		{
