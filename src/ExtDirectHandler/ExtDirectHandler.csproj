@@ -54,7 +54,7 @@
     <Compile Include="DirectHttpHandler.cs" />
     <Compile Include="DirectRequest.cs" />
     <Compile Include="DirectResponse.cs" />
-    <Compile Include="ParameterValueParser.cs" />
+    <Compile Include="ParametersParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

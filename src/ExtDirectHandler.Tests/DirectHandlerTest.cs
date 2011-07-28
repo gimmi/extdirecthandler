@@ -15,15 +15,15 @@ namespace ExtDirectHandler.Tests
 		private ObjectFactory _objectFactory;
 		private DirectHandler _target;
 		private Metadata _metadata;
-		private ParameterValueParser _parameterValueParser;
+		private ParametersParser _parametersParser;
 
 		[SetUp]
 		public void SetUp()
 		{
 			_objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			_metadata = MockRepository.GenerateStub<Metadata>();
-			_parameterValueParser = MockRepository.GenerateStub<ParameterValueParser>();
-			_target = new DirectHandler(_objectFactory, _metadata, _parameterValueParser);
+			_parametersParser = MockRepository.GenerateStub<ParametersParser>();
+			_target = new DirectHandler(_objectFactory, _metadata, _parametersParser);
 
 			_metadata.Stub(x => x.GetActionType("Action")).Return(typeof(Action));
 			_metadata.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
@@ -96,7 +96,7 @@ namespace ExtDirectHandler.Tests
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			_parameterValueParser.Stub(x => x.ParseByPosition(Arg<ParameterInfo[]>.Is.Anything, Arg<JArray>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
+			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
 
 			DirectResponse response = _target.Handle(new DirectRequest {
@@ -115,7 +115,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
-			_parameterValueParser.Stub(x => x.ParseByPosition(Arg<ParameterInfo[]>.Is.Anything, Arg<JArray>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
+			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
 
 			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",

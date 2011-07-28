@@ -9,38 +9,47 @@ namespace ExtDirectHandler.Tests
 	[TestFixture]
 	public class ParameterValuesParserTest
 	{
-		private ParameterValueParser _target;
+		private ParametersParser _target;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_target = new ParameterValueParser();
+			_target = new ParametersParser();
 		}
 
 		[Test]
-		public void Should_parse_based_on_argument_position()
+		public void Should_parse_positional_arguments()
 		{
 			object[] actual = _target.ParseByPosition(GetType().GetMethod("ExampleMethod").GetParameters(), new JArray(new JValue("v1"), new JValue(123), new JValue(true)), new JsonSerializer());
 			actual.Should().Have.SameSequenceAs(new object[] { "v1", 123, true });
 		}
 
 		[Test]
-		public void Should_throw_exception_when_argument_count_does_not_match()
+		public void Should_throw_exception_when_positional_argument_count_does_not_match()
 		{
 			Executing.This(() => _target.ParseByPosition(GetType().GetMethod("ExampleMethod").GetParameters(), new JArray(new JValue("v1"), new JValue(123)), new JsonSerializer())).Should().Throw<Exception>().And.Exception.Message.Should().Be.EqualTo("Method expect 3 parameter(s), but passed 2 parameter(s)");
 		}
 
 		[Test]
-		public void Should_parse_based_on_argument_name()
+		public void Should_parse_named_arguments()
 		{
 			object[] actual = _target.ParseByName(GetType().GetMethod("ExampleMethod").GetParameters(), new JObject { { "p3", new JValue(true) }, { "p2", new JValue(123) }, { "p1", new JValue("v1") } }, new JsonSerializer());
 			actual.Should().Have.SameSequenceAs(new object[] { "v1", 123, true });
 		}
 
 		[Test]
-		public void Should_throw_exception_when_some_arguments_are_missing()
+		public void Should_throw_exception_when_named_arguments_are_missing_and_without_default_value()
 		{
-			Executing.This(() => _target.ParseByName(GetType().GetMethod("ExampleMethod").GetParameters(), new JObject { { "p2", new JValue(123) }, { "p1", new JValue("v1") } }, new JsonSerializer())).Should().Throw<Exception>().And.Exception.Message.Should().Be.EqualTo("Method expect a parameter named 'p3', but it has not been found");
+			Executing.This(() => _target.ParseByName(GetType().GetMethod("ExampleMethod").GetParameters(), new JObject { { "p2", new JValue(123) }, { "p1", new JValue("v1") } }, new JsonSerializer())).Should().Throw<Exception>().And.Exception.Message.Should().Be.EqualTo("Method expect a parameter named 'p3', but it has not been found and does not have default value defined");
+		}
+
+		[Test]
+		public void Should_use_parameter_default_value_when_named_arguments_are_missing_but_have_default_value()
+		{
+			object[] actual = _target.ParseByName(GetType().GetMethod("MethodWithDefaults").GetParameters(), new JObject(), new JsonSerializer());
+			actual[0].Should().Be.EqualTo("default string");
+			actual[1].Should().Be.EqualTo(123);
+			actual[2].Should().Be.EqualTo(true);
 		}
 
 		[Test]
@@ -55,6 +64,7 @@ namespace ExtDirectHandler.Tests
 		}
 
 		public void ExampleMethod(string p1, int p2, bool p3) {}
+		public void MethodWithDefaults(string p1 = "default string", int p2 = 123, bool p3 = true) {}
 		public void MethodWithJTokenParam(JObject p1, JArray p2) {}
 	}
 }

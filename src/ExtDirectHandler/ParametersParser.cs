@@ -5,8 +5,21 @@ using Newtonsoft.Json.Linq;
 
 namespace ExtDirectHandler
 {
-	public class ParameterValueParser
+	public class ParametersParser
 	{
+		public virtual object[] Parse(ParameterInfo[] parameterInfos, JToken data, JsonSerializer jsonSerializer)
+		{
+			if(data.Type == JTokenType.Array)
+			{
+				return ParseByPosition(parameterInfos, (JArray)data, jsonSerializer);
+			}
+			if (data.Type == JTokenType.Object)
+			{
+				return ParseByName(parameterInfos, (JObject)data, jsonSerializer);
+			}
+			throw new Exception(string.Format("Cannot extract parameters from a {0}", data.Type));
+		}
+
 		public virtual object[] ParseByPosition(ParameterInfo[] parameterInfos, JArray data, JsonSerializer jsonSerializer)
 		{
 			if(parameterInfos.Length != data.Count)
@@ -33,10 +46,27 @@ namespace ExtDirectHandler
 				}
 				else
 				{
-					throw new Exception(string.Format("Method expect a parameter named '{0}', but it has not been found", parameterInfos[i].Name));
+					if (parameterInfos[i].DefaultValue == DBNull.Value)
+					{
+						throw new Exception(string.Format("Method expect a parameter named '{0}', but it has not been found and does not have default value defined", parameterInfos[i].Name));
+					}
+					parameters[i] = parameterInfos[i].DefaultValue;
 				}
 			}
 			return parameters;
+		}
+
+		private object GetDefault(ParameterInfo parameterInfo)
+		{
+			if(parameterInfo.DefaultValue != DBNull.Value)
+			{
+				return parameterInfo.DefaultValue;
+			}
+			if (parameterInfo.ParameterType.IsValueType)
+			{
+				return Activator.CreateInstance(parameterInfo.ParameterType);
+			}
+			return null;
 		}
 
 		private static object Deserialize(ParameterInfo parameterInfo, JToken value, JsonSerializer jsonSerializer)

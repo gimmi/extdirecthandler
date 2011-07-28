@@ -10,16 +10,16 @@ namespace ExtDirectHandler
 	{
 		private readonly ObjectFactory _objectFactory;
 		private readonly Metadata _metadata;
-		private readonly ParameterValueParser _parameterValueParser;
+		private readonly ParametersParser _parametersParser;
 
 		public DirectHandler(ObjectFactory objectFactory, Metadata metadata)
-			: this(objectFactory, metadata, new ParameterValueParser()) {}
+			: this(objectFactory, metadata, new ParametersParser()) {}
 
-		internal DirectHandler(ObjectFactory objectFactory, Metadata metadata, ParameterValueParser parameterValueParser)
+		internal DirectHandler(ObjectFactory objectFactory, Metadata metadata, ParametersParser parametersParser)
 		{
 			_objectFactory = objectFactory;
 			_metadata = metadata;
-			_parameterValueParser = parameterValueParser;
+			_parametersParser = parametersParser;
 		}
 
 		public DirectResponse Handle(DirectRequest request)
@@ -55,7 +55,7 @@ namespace ExtDirectHandler
 			object result = null;
 			try
 			{
-				object[] parameters = (request.Data.Type == JTokenType.Array ? _parameterValueParser.ParseByPosition(methodInfo.GetParameters(), (JArray)request.Data, jsonSerializer) : _parameterValueParser.ParseByName(methodInfo.GetParameters(), (JObject)request.Data, jsonSerializer));
+				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.Data, jsonSerializer);
 				result = methodInfo.Invoke(actionInstance, parameters);
 			}
 			catch(TargetInvocationException e)
