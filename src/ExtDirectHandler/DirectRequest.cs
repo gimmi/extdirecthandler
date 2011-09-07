@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -20,6 +21,8 @@ namespace ExtDirectHandler
 
 		[JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
 		public JToken JsonData = new JArray();
+
+		public IDictionary<string, string> FormData = new Dictionary<string, string>();
 
 		public bool Upload;
 	}

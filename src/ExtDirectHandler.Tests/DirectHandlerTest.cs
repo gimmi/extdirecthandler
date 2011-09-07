@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using ExtDirectHandler.Configuration;
 using NUnit.Framework;
@@ -96,7 +97,7 @@ namespace ExtDirectHandler.Tests
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
+			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, string>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
 
 			DirectResponse response = _target.Handle(new DirectRequest {
@@ -115,7 +116,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
-			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
+			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, string>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
 
 			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",

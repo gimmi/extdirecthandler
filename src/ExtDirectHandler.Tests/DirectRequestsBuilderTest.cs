@@ -38,11 +38,13 @@ namespace ExtDirectHandler.Tests
 			actual.Method.Should().Be.EqualTo("method");
 			actual.Type.Should().Be.EqualTo("type");
 			actual.Upload.Should().Be.True();
-			JToken.DeepEquals(actual.JsonData, new JObject(new JProperty("field1", new JValue("value1")), new JProperty("field2", new JValue("value2")))).Should().Be.True();
+			JToken.DeepEquals(actual.JsonData, new JArray());
+			actual.FormData["field1"].Should().Be.EqualTo("value1");
+			actual.FormData["field2"].Should().Be.EqualTo("value2");
 		}
 
 		[Test]
-		public void Should_build_from_reader()
+		public void Should_build_from_content()
 		{
 			var actual = _target.Build(new StringReader(@"
 {
@@ -60,6 +62,7 @@ namespace ExtDirectHandler.Tests
 			actual[0].Method.Should().Be.EqualTo("method");
 			actual[0].Upload.Should().Be.False();
 			actual[0].JsonData.Should().Have.SameSequenceAs(new[] { new JValue("value1"), new JValue("value2") });
+			actual[0].FormData.Should().Be.Empty();
 		}
 
 		[Test]
@@ -76,6 +79,7 @@ namespace ExtDirectHandler.Tests
 "), new NameValueCollection());
 			actual.Should().Have.Count.EqualTo(1);
 			JToken.DeepEquals(new JArray(), actual[0].JsonData).Should().Be.True();
+			actual[0].FormData.Should().Be.Empty();
 		}
 
 		[Test]
@@ -98,6 +102,7 @@ namespace ExtDirectHandler.Tests
 "), new NameValueCollection());
 			actual.Should().Have.Count.EqualTo(2);
 			actual.Select(x => x.Tid).Should().Have.SameSequenceAs(new[] { 123, 456 });
+			actual.Select(x => x.FormData.Count).Should().Have.SameSequenceAs(new[] { 0, 0 });
 		}
 	}
 }

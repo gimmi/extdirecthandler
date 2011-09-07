@@ -22,7 +22,6 @@ namespace ExtDirectHandler
 		public DirectRequest[] BuildFromFormData(NameValueCollection form)
 		{
 			var request = new DirectRequest();
-			var data = new JObject();
 			foreach(string key in form.AllKeys)
 			{
 				switch(key)
@@ -43,11 +42,10 @@ namespace ExtDirectHandler
 						request.Upload = Boolean.Parse(form[key]);
 						break;
 					default:
-						data.Add(key, new JValue(form[key]));
+						request.FormData.Add(key, form[key]);
 						break;
 				}
 			}
-			request.JsonData = data;
 			return new[] { request };
 		}
 	}
