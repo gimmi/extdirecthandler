@@ -50,18 +50,22 @@ namespace SampleWebApplication
 		[DirectMethod(NamedArguments = true)]
 		public object NamedArguments(string arg1, double arg2, bool arg3)
 		{
-			return new{ Arg1 = arg1, Arg2 = arg2, Arg3 = arg3 };
+			return new { Arg1 = arg1, Arg2 = arg2, Arg3 = arg3 };
 		}
 
 		[DirectMethod(FormHandler = true)]
 		public object SubmitFile(string textValue, Stream fileValue)
 		{
-			var tempFileName = Path.GetTempFileName();
-			using (FileStream fileStream = File.Create(tempFileName))
+			string tempFileName = Path.GetTempFileName();
+			using(FileStream fileStream = File.Create(tempFileName))
 			{
 				fileValue.CopyTo(fileStream);
 			}
-			return new { Id = tempFileName };
+			return new {
+				Success = true,
+				FilePath = tempFileName,
+				TextValue = textValue
+			};
 		}
 
 		#region Nested type: ExampleClass

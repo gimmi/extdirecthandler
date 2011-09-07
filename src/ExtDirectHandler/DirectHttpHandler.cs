@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -43,18 +43,33 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			var files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n].InputStream);
-			var requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form, files);
+			Dictionary<string, Stream> files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n].InputStream);
+			DirectRequest[] requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form, files);
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{
 				responses[i] = new DirectHandler(_objectFactory, _metadata).Handle(requests[i]);
 			}
-			httpResponse.ContentType = "application/json";
-			using(var jsonWriter = new JsonTextWriter(new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding)))
+			using(var textWriter = new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding))
 			{
-				new JsonSerializer().Serialize(jsonWriter, responses.Length == 1 ? (object)responses[0] : responses);
+				if(requests[0].Upload)
+				{
+					httpResponse.ContentType = "text/html";
+					textWriter.Write("<html><body><textarea>");
+					SerializeResponse(responses, textWriter);
+					textWriter.Write("</textarea></body></html>");
+				}
+				else
+				{
+					httpResponse.ContentType = "application/json";
+					SerializeResponse(responses, textWriter);
+				}
 			}
+		}
+
+		private static void SerializeResponse(DirectResponse[] responses, TextWriter textWriter)
+		{
+			new JsonSerializer().Serialize(textWriter, responses.Length == 1 ? (object)responses[0] : responses);
 		}
 
 		private void DoGet(HttpRequest request, HttpResponse response)

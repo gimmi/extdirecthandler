@@ -1,4 +1,4 @@
-Ext.onReady(function () {
+Ext.onReady(function() {
 	Ext.direct.Manager.addProvider(Sample.server.REMOTING_API);
 
 	var window = Ext.create('Ext.window.Window', {
@@ -28,13 +28,21 @@ Ext.onReady(function () {
 			}],
 			buttons: [{
 				text: 'Save',
-				handler: function () {
+				handler: function() {
 					var form = this.up('form').getForm();
-					form.submit();
+					form.submit({
+						waitMsg: 'Uploading file...',
+						success: function(form, action) {
+							Ext.MessageBox.alert('Success', action.result.textValue + ' - ' + action.result.filePath);
+						},
+						failure: function(form, action) {
+							Ext.MessageBox.alert('Failure', '');
+						}
+					});
 				}
 			}]
 		}]
 	});
-	
+
 	window.show();
 });
