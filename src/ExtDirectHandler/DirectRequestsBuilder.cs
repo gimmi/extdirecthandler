@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using Newtonsoft.Json;
@@ -8,9 +9,9 @@ namespace ExtDirectHandler
 {
 	internal class DirectRequestsBuilder
 	{
-		public DirectRequest[] Build(TextReader content, NameValueCollection formData)
+		public DirectRequest[] Build(TextReader content, NameValueCollection formData, IDictionary<string, Stream> files)
 		{
-			return formData.Count > 0 ? BuildFromFormData(formData) : BuildFromContent(content);
+			return formData.Count > 0 ? BuildFromFormData(formData, files) : BuildFromContent(content);
 		}
 
 		public DirectRequest[] BuildFromContent(TextReader content)
@@ -19,7 +20,7 @@ namespace ExtDirectHandler
 			return new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(json.Type == JTokenType.Array ? json : new JArray(json)));
 		}
 
-		public DirectRequest[] BuildFromFormData(NameValueCollection form)
+		public DirectRequest[] BuildFromFormData(NameValueCollection form, IDictionary<string, Stream> files)
 		{
 			var request = new DirectRequest();
 			foreach(string key in form.AllKeys)
@@ -45,6 +46,10 @@ namespace ExtDirectHandler
 						request.FormData.Add(key, form[key]);
 						break;
 				}
+			}
+			foreach (var kvp in files)
+			{
+				request.FormData.Add(kvp.Key, kvp.Value);
 			}
 			return new[] { request };
 		}

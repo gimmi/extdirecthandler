@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Web;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
@@ -42,7 +43,8 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			var requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form);
+			var files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n].InputStream);
+			var requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form, files);
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{

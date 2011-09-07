@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
@@ -31,7 +32,14 @@ namespace ExtDirectHandler.Tests
 				{"field2", "value2"}
 			};
 
-			var actual = _target.Build(new StringReader(""), form)[0];
+			var file1Stream = new MemoryStream();
+			var file2Stream = new MemoryStream();
+			var files = new Dictionary<string, Stream> {
+				{"file1", file1Stream},
+				{"file2", file2Stream}
+			};
+
+			var actual = _target.Build(new StringReader(""), form, files)[0];
 
 			actual.Tid.Should().Be.EqualTo(123);
 			actual.Action.Should().Be.EqualTo("Action");
@@ -41,6 +49,8 @@ namespace ExtDirectHandler.Tests
 			JToken.DeepEquals(actual.JsonData, new JArray());
 			actual.FormData["field1"].Should().Be.EqualTo("value1");
 			actual.FormData["field2"].Should().Be.EqualTo("value2");
+			actual.FormData["file1"].Should().Be.SameInstanceAs(file1Stream);
+			actual.FormData["file2"].Should().Be.SameInstanceAs(file2Stream);
 		}
 
 		[Test]
@@ -54,7 +64,7 @@ namespace ExtDirectHandler.Tests
 	method: 'method',
 	data: [ 'value1', 'value2' ]
 }
-"), new NameValueCollection());
+"), new NameValueCollection(), new Dictionary<string, Stream>());
 			actual.Should().Have.Count.EqualTo(1);
 			actual[0].Tid.Should().Be.EqualTo(123);
 			actual[0].Type.Should().Be.EqualTo("rpc");
@@ -76,7 +86,7 @@ namespace ExtDirectHandler.Tests
 	method: 'method',
 	data: null
 }
-"), new NameValueCollection());
+"), new NameValueCollection(), new Dictionary<string, Stream>());
 			actual.Should().Have.Count.EqualTo(1);
 			JToken.DeepEquals(new JArray(), actual[0].JsonData).Should().Be.True();
 			actual[0].FormData.Should().Be.Empty();
@@ -99,7 +109,7 @@ namespace ExtDirectHandler.Tests
 	method: 'method2',
 	data: []
 } ]
-"), new NameValueCollection());
+"), new NameValueCollection(), new Dictionary<string, Stream>());
 			actual.Should().Have.Count.EqualTo(2);
 			actual.Select(x => x.Tid).Should().Have.SameSequenceAs(new[] { 123, 456 });
 			actual.Select(x => x.FormData.Count).Should().Have.SameSequenceAs(new[] { 0, 0 });

@@ -56,7 +56,12 @@ namespace SampleWebApplication
 		[DirectMethod(FormHandler = true)]
 		public object SubmitFile(string textValue, Stream fileValue)
 		{
-			return new { Id = Guid.NewGuid() };
+			var tempFileName = Path.GetTempFileName();
+			using (FileStream fileStream = File.Create(tempFileName))
+			{
+				fileValue.CopyTo(fileStream);
+			}
+			return new { Id = tempFileName };
 		}
 
 		#region Nested type: ExampleClass
