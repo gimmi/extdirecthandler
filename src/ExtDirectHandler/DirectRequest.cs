@@ -22,7 +22,7 @@ namespace ExtDirectHandler
 		[JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
 		public JToken JsonData = new JArray();
 
-		public IDictionary<string, string> FormData = new Dictionary<string, string>();
+		public IDictionary<string, object> FormData = new Dictionary<string, object>();
 
 		public bool Upload;
 	}

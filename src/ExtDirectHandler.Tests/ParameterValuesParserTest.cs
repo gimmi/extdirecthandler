@@ -61,7 +61,7 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_handle_form_parameters()
 		{
-			var formData = new Dictionary<string, string> {
+			var formData = new Dictionary<string, object> {
 				{ "p1", "v1" },
 				{ "p2", "v2" }
 			};
@@ -73,7 +73,7 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_use_type_default_value_when_form_arguments_are_missing()
 		{
-			var formData = new Dictionary<string, string> {
+			var formData = new Dictionary<string, object> {
 				{ "p1", "v1" }
 			};
 

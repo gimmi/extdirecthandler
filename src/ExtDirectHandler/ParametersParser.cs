@@ -8,7 +8,7 @@ namespace ExtDirectHandler
 {
 	public class ParametersParser
 	{
-		public virtual object[] Parse(ParameterInfo[] parameterInfos, JToken jsonData, IDictionary<string, string> formData, JsonSerializer jsonSerializer)
+		public virtual object[] Parse(ParameterInfo[] parameterInfos, JToken jsonData, IDictionary<string, object> formData, JsonSerializer jsonSerializer)
 		{
 			if(formData.Count > 0)
 			{
@@ -57,12 +57,12 @@ namespace ExtDirectHandler
 			return parameters;
 		}
 
-		public virtual object[] ParseForm(ParameterInfo[] parameterInfos, IDictionary<string, string> form)
+		public virtual object[] ParseForm(ParameterInfo[] parameterInfos, IDictionary<string, object> form)
 		{
 			var parameters = new object[parameterInfos.Length];
 			for(int i = 0; i < parameterInfos.Length; i++)
 			{
-				string value;
+				object value;
 				if(form.TryGetValue(parameterInfos[i].Name, out value))
 				{
 					parameters[i] = value;
