@@ -82,7 +82,7 @@ namespace ExtDirectHandler.Tests
 		}
 
 		public void ExampleMethod(string p1, int p2, bool p3) {}
-		public void FormDataMethod(string p1, string p2) { }
+		public void FormDataMethod(string p1, string p2) {}
 		public void MethodWithJTokenParam(JObject p1, JArray p2) {}
 	}
 }
