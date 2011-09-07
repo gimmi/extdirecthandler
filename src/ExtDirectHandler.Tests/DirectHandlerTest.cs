@@ -46,7 +46,7 @@ namespace ExtDirectHandler.Tests
 			_target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JArray()
+				JsonData = new JArray()
 			});
 
 			_objectFactory.VerifyAllExpectations();
@@ -58,7 +58,7 @@ namespace ExtDirectHandler.Tests
 			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JArray(),
+				JsonData = new JArray(),
 				Tid = 123,
 				Type = "rpc"
 			}, new JsonSerializer(), new Action());
@@ -78,7 +78,7 @@ namespace ExtDirectHandler.Tests
 			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "methodThatThrowException",
-				Data = new JArray(),
+				JsonData = new JArray(),
 				Tid = 123,
 				Type = "rpc"
 			}, new JsonSerializer(), new Action());
@@ -102,7 +102,7 @@ namespace ExtDirectHandler.Tests
 			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "methodWithParams",
-				Data = new JArray(new JValue(123), new JValue("str"), new JValue(true))
+				JsonData = new JArray(new JValue(123), new JValue("str"), new JValue(true))
 			}, new JsonSerializer(), actionInstance);
 
 			response.Result.ToString().Should().Be.EqualTo("ret");
@@ -120,7 +120,7 @@ namespace ExtDirectHandler.Tests
 			DirectResponse response = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
-				Data = new JArray()
+				JsonData = new JArray()
 			}, new JsonSerializer(), actionInstance);
 
 			response.Result.Should().Be.Null();

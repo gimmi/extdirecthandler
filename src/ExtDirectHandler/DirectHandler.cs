@@ -55,7 +55,7 @@ namespace ExtDirectHandler
 			object result = null;
 			try
 			{
-				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.Data, jsonSerializer);
+				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, jsonSerializer);
 				result = methodInfo.Invoke(actionInstance, parameters);
 			}
 			catch(TargetInvocationException e)

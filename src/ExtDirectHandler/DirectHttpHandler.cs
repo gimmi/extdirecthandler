@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Web;
 using ExtDirectHandler.Configuration;
@@ -41,8 +42,7 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			var directRequestsBuilder = new DirectRequestsBuilder();
-			DirectRequest[] requests = httpRequest.Form.Count > 0 ? directRequestsBuilder.BuildFromFormData(httpRequest.Form) : directRequestsBuilder.BuildFromRequestData(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding));
+			var requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form);
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{

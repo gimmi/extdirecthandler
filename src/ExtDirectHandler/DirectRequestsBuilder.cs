@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -7,10 +8,15 @@ namespace ExtDirectHandler
 {
 	internal class DirectRequestsBuilder
 	{
-		public DirectRequest[] BuildFromRequestData(TextReader reader)
+		public DirectRequest[] Build(TextReader content, NameValueCollection formData)
 		{
-			JToken jToken = JToken.Load(new JsonTextReader(reader));
-			return new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(jToken.Type == JTokenType.Array ? jToken : new JArray(jToken)));
+			return formData.Count > 0 ? BuildFromFormData(formData) : BuildFromContent(content);
+		}
+
+		public DirectRequest[] BuildFromContent(TextReader content)
+		{
+			JToken json = JToken.Load(new JsonTextReader(content));
+			return new JsonSerializer().Deserialize<DirectRequest[]>(new JTokenReader(json.Type == JTokenType.Array ? json : new JArray(json)));
 		}
 
 		public DirectRequest[] BuildFromFormData(NameValueCollection form)
@@ -22,7 +28,7 @@ namespace ExtDirectHandler
 				switch(key)
 				{
 					case "extTID":
-						request.Tid = int.Parse(form[key]);
+						request.Tid = Int32.Parse(form[key]);
 						break;
 					case "extAction":
 						request.Action = form[key];
@@ -34,14 +40,14 @@ namespace ExtDirectHandler
 						request.Type = form[key];
 						break;
 					case "extUpload":
-						request.Upload = bool.Parse(form[key]);
+						request.Upload = Boolean.Parse(form[key]);
 						break;
 					default:
 						data.Add(key, new JValue(form[key]));
 						break;
 				}
 			}
-			request.Data = data;
+			request.JsonData = data;
 			return new[] { request };
 		}
 	}
