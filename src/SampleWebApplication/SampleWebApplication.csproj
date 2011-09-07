@@ -43,7 +43,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app.js" />
     <Content Include="fileupload.js" />
     <Content Include="fileupload.html" />
     <Content Include="Global.asax" />
