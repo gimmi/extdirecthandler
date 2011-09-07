@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json.Linq;
 
@@ -50,6 +51,12 @@ namespace SampleWebApplication
 		public object NamedArguments(string arg1, double arg2, bool arg3)
 		{
 			return new{ Arg1 = arg1, Arg2 = arg2, Arg3 = arg3 };
+		}
+
+		[DirectMethod(FormHandler = true)]
+		public object SubmitFile(string textValue, Stream fileValue)
+		{
+			return new { Id = Guid.NewGuid() };
 		}
 
 		#region Nested type: ExampleClass
