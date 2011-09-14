@@ -44,7 +44,7 @@ namespace ExtDirectHandler
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(ns) },
 				{ "actions", BuildActions() },
-				{ "descriptor", new JValue((ns ?? "ext.app") + ".REMOTING_API") }
+				{ "descriptor", new JValue((ns ?? "Ext.app") + ".REMOTING_API") }
 			};
 			return api;
 		}
