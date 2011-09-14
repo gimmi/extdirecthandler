@@ -75,9 +75,20 @@ namespace ExtDirectHandler
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
 			string ns = request.QueryString["ns"];
-			response.ContentType = "text/javascript";
+			string format = request.QueryString["format"];
 			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
-			response.Write(new DirectApiBuilder(_metadata).BuildApi(ns, url));
+			DirectApiBuilder apiBuilder = new DirectApiBuilder(_metadata);
+
+			if (format == "json")
+			{
+				response.ContentType = "application/json";
+				response.Write(apiBuilder.BuildApiDescriptor(ns, ns, url));
+			}
+			else
+			{
+				response.ContentType = "text/javascript";
+				response.Write(apiBuilder.BuildApi(ns, url));
+			}
 		}
 	}
 }
