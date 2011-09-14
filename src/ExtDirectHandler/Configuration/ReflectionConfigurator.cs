@@ -17,6 +17,16 @@ namespace ExtDirectHandler.Configuration
 
 		public ReflectionConfigurator() : this(new ReflectionHelpers()) {}
 
+		public ReflectionConfigurator AutoRegister()
+		{
+			var types = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+				from type in assembly.GetTypes()
+				where type.IsDefined(typeof(DirectAttribute), false)
+				select type;
+
+			return this.RegisterTypes(types);
+		}
+
 		public ReflectionConfigurator RegisterTypes(params Type[] types)
 		{
 			return RegisterTypes(types.AsEnumerable());
