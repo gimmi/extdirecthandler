@@ -36,6 +36,20 @@ namespace ExtDirectHandler
 			return api;
 		}
 
+		internal JObject BuildApiDescriptor(string id, string ns, string url)
+		{
+			var api = new JObject {
+				{ "id", new JValue(id) },
+				{ "url", new JValue(url) },
+				{ "type", new JValue("remoting") },
+				{ "namespace", new JValue(ns) },
+				{ "actions", BuildActions() },
+				{ "descriptor", new JValue((ns ?? "Ext.app") + ".REMOTING_API") }
+			};
+			return api;
+		}
+
+
 		private JObject BuildActions()
 		{
 			var actions = new JObject();
