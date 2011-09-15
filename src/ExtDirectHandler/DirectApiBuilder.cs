@@ -20,14 +20,14 @@ namespace ExtDirectHandler
 		{
 			return new StringBuilder()
 				.AppendFormat("Ext.ns('{0}');", BuildNamespace(ns)).Append(Environment.NewLine)
-				.AppendFormat("{0} = {1};", BuildDescriptor(ns), BuildJson(ns, ns, url))
+				.AppendFormat("{0} = {1};", BuildDescriptor(ns), BuildJson(ns, url))
 				.ToString();
 		}
 
-		internal string BuildJson(string id, string ns, string url)
+		internal string BuildJson(string ns, string url)
 		{
 			return new JObject {
-				{ "id", new JValue(id) },
+				{ "id", new JValue(ns) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(ns) },
