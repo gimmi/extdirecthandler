@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace ExtDirectHandler.Configuration
 {
-	public class ReflectionConfigurator
+	public class ReflectionConfigurator : IMetadata
 	{
-		private readonly ReflectionHelpers _reflectionHelpers;
-		private readonly IList<Type> _types = new List<Type>();
+		private readonly IDictionary<string, ActionMetadata> _cache = new Dictionary<string, ActionMetadata>();
 		private string _namespace;
+		private readonly ReflectionHelpers _reflectionHelpers;
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -39,30 +39,14 @@ namespace ExtDirectHandler.Configuration
 
 		public ReflectionConfigurator RegisterType(Type type)
 		{
-			_types.Add(type);
-			return this;
-		}
-
-		public IMetadata BuildMetadata()
-		{
-			var metadata = new Metadata();
-			FillMetadata(metadata);
-			return metadata;
-		}
-
-		internal void FillMetadata(Metadata ret)
-		{
-			ret.SetNamespace(_namespace);
-			foreach(Type type in _types)
+			string actionName = type.Name;
+			AddAction(actionName, type);
+			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 			{
-				string actionName = type.Name;
-				ret.AddAction(actionName, type);
-				foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
-				{
-					var directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
-					ret.AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
-				}
+				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
+				AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
+			return this;
 		}
 
 		private string pascalizeName(string name)
@@ -75,5 +59,85 @@ namespace ExtDirectHandler.Configuration
 			_namespace = ns;
 			return this;
 		}
+
+		private void AddAction(string actionName, Type type)
+		{
+			_cache.Add(actionName, new ActionMetadata { Type = type });
+		}
+
+		private void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
+		{
+			_cache[actionName].Methods.Add(methodName, new MethodMetadata {
+				MethodInfo = methodInfo,
+				IsFormHandler = isFormHandler,
+				HasNamedArguments = hasNamedArguments
+			});
+		}
+
+		public string GetNamespace()
+		{
+			return _namespace;
+		}
+
+		public Type GetActionType(string actionName)
+		{
+			return _cache[actionName].Type;
+		}
+
+		public IEnumerable<string> GetActionNames()
+		{
+			return _cache.Keys;
+		}
+
+		public IEnumerable<string> GetMethodNames(string actionName)
+		{
+			return _cache[actionName].Methods.Keys;
+		}
+
+		public MethodInfo GetMethodInfo(string actionName, string methodName)
+		{
+			return _cache[actionName].Methods[methodName].MethodInfo;
+		}
+
+		public int GetNumberOfParameters(string actionName, string methodName)
+		{
+			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Length;
+		}
+
+		public bool IsFormHandler(string actionName, string methodName)
+		{
+			return _cache[actionName].Methods[methodName].IsFormHandler;
+		}
+
+		public bool HasNamedArguments(string actionName, string methodName)
+		{
+			return _cache[actionName].Methods[methodName].HasNamedArguments;
+		}
+
+		public IEnumerable<string> GetArgumentNames(string actionName, string methodName)
+		{
+			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Select(p => p.Name);
+		}
+
+		#region Nested type: ActionMetadata
+
+		private class ActionMetadata
+		{
+			public readonly IDictionary<string, MethodMetadata> Methods = new Dictionary<string, MethodMetadata>();
+			public Type Type;
+		}
+
+		#endregion
+
+		#region Nested type: MethodMetadata
+
+		private class MethodMetadata
+		{
+			public MethodInfo MethodInfo;
+			public bool IsFormHandler;
+			public bool HasNamedArguments;
+		}
+
+		#endregion
 	}
 }

@@ -20,61 +20,58 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_return_null_if_no_namespace_defined()
 		{
-			IMetadata actual = _target.BuildMetadata();
-
-			actual.GetNamespace().Should().Be.Null();
+			_target.GetNamespace().Should().Be.Null();
 		}
 
 		[Test]
 		public void Should_configure_namespace()
 		{
-			IMetadata actual = _target.SetNamespace("ns").BuildMetadata();
+			_target.SetNamespace("ns");
 
-			actual.GetNamespace().Should().Be.EqualTo("ns");
+			_target.GetNamespace().Should().Be.EqualTo("ns");
 		}
 
 		[Test]
 		public void Should_configure_all_registered_types()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass1>()
-				.RegisterType<ActionClass2>()
-				.BuildMetadata();
+			_target.RegisterType<ActionClass1>()
+				.RegisterType<ActionClass2>();
 
-			actual.GetActionNames().Should().Have.SameValuesAs(new[] { "ActionClass1", "ActionClass2" });
-			actual.GetActionType("ActionClass1").Should().Be.EqualTo<ActionClass1>();
-			actual.GetActionType("ActionClass2").Should().Be.EqualTo<ActionClass2>();
+			_target.GetActionNames().Should().Have.SameValuesAs(new[] { "ActionClass1", "ActionClass2" });
+			_target.GetActionType("ActionClass1").Should().Be.EqualTo<ActionClass1>();
+			_target.GetActionType("ActionClass2").Should().Be.EqualTo<ActionClass2>();
 		}
 
 		[Test]
 		public void Should_configure_methods()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass1>().BuildMetadata();
+			IMetadata actual = _target.RegisterType<ActionClass1>();
 
-			actual.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters" });
+			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters" });
 
-			actual.GetMethodInfo("ActionClass1", "publicInstanceMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("PublicInstanceMethod"));
-			actual.IsFormHandler("ActionClass1", "publicInstanceMethod").Should().Be.False();
-			actual.HasNamedArguments("ActionClass1", "publicInstanceMethod").Should().Be.False();
+			_target.GetMethodInfo("ActionClass1", "publicInstanceMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("PublicInstanceMethod"));
+			_target.IsFormHandler("ActionClass1", "publicInstanceMethod").Should().Be.False();
+			_target.HasNamedArguments("ActionClass1", "publicInstanceMethod").Should().Be.False();
 
-			actual.GetMethodInfo("ActionClass1", "methodWithParameters").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("MethodWithParameters"));
-			actual.IsFormHandler("ActionClass1", "methodWithParameters").Should().Be.False();
-			actual.HasNamedArguments("ActionClass1", "methodWithParameters").Should().Be.False();
+			_target.GetMethodInfo("ActionClass1", "methodWithParameters").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("MethodWithParameters"));
+			_target.IsFormHandler("ActionClass1", "methodWithParameters").Should().Be.False();
+			_target.HasNamedArguments("ActionClass1", "methodWithParameters").Should().Be.False();
 		}
 
 		[Test]
 		public void Should_configure_formhandler_from_attribute()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass3>().BuildMetadata();
+			IMetadata actual = _target.RegisterType<ActionClass3>();
 
-			actual.IsFormHandler("ActionClass3", "formHandlerMethod").Should().Be.True();
+			_target.IsFormHandler("ActionClass3", "formHandlerMethod").Should().Be.True();
 		}
 
 		[Test]
 		public void Should_configure_named_arguments_from_attribute()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass3>().BuildMetadata();
+			IMetadata actual = _target.RegisterType<ActionClass3>();
 
-			actual.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
+			_target.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
 		}
 
 		private class ActionClass3

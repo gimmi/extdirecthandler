@@ -11,8 +11,7 @@ namespace SampleWebApplication
 		{
 			DirectHttpHandler.SetMetadata(new ReflectionConfigurator()
 			                              	.SetNamespace("Sample.server")
-			                              	.RegisterType<DirectAction>()
-			                              	.BuildMetadata());
+			                              	.RegisterType<DirectAction>());
 		}
 
 		protected void Session_Start(object sender, EventArgs e) {}

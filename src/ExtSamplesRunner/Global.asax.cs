@@ -11,8 +11,7 @@ namespace ExtSamplesRunner
 		{
 			DirectHttpHandler.SetMetadata(new ReflectionConfigurator()
 			                                     	.RegisterType<TestAction>()
-			                                     	.RegisterType<Profile>()
-			                                     	.BuildMetadata());
+			                                     	.RegisterType<Profile>());
 		}
 
 		protected void Session_Start(object sender, EventArgs e) {}

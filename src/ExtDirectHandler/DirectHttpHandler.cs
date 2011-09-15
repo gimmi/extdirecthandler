@@ -10,7 +10,7 @@ namespace ExtDirectHandler
 {
 	public class DirectHttpHandler : IHttpHandler
 	{
-		private static IMetadata _metadata = new Metadata();
+		private static IMetadata _metadata = new ReflectionConfigurator();
 		private static ObjectFactory _objectFactory = new ObjectFactory();
 
 		public bool IsReusable

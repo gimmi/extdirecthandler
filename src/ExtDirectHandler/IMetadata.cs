@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace ExtDirectHandler.Configuration
+namespace ExtDirectHandler
 {
 	public interface IMetadata
 	{
