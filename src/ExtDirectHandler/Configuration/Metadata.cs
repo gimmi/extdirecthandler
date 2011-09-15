@@ -7,16 +7,16 @@ namespace ExtDirectHandler.Configuration
 {
 	public class Metadata
 	{
-		private static readonly IDictionary<string, ActionMetadata> Cache = new Dictionary<string, ActionMetadata>();
+		private readonly IDictionary<string, ActionMetadata> _cache = new Dictionary<string, ActionMetadata>();
 
 		public virtual void AddAction(string actionName, Type type)
 		{
-			Cache.Add(actionName, new ActionMetadata{ Type = type });
+			_cache.Add(actionName, new ActionMetadata{ Type = type });
 		}
 
 		public virtual void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
 		{
-			Cache[actionName].Methods.Add(methodName, new MethodMetadata{
+			_cache[actionName].Methods.Add(methodName, new MethodMetadata{
 				MethodInfo = methodInfo, 
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
@@ -25,42 +25,42 @@ namespace ExtDirectHandler.Configuration
 
 		public virtual Type GetActionType(string actionName)
 		{
-			return Cache[actionName].Type;
+			return _cache[actionName].Type;
 		}
 
 		public virtual IEnumerable<string> GetActionNames()
 		{
-			return Cache.Keys;
+			return _cache.Keys;
 		}
 
 		public virtual IEnumerable<string> GetMethodNames(string actionName)
 		{
-			return Cache[actionName].Methods.Keys;
+			return _cache[actionName].Methods.Keys;
 		}
 
 		public virtual MethodInfo GetMethodInfo(string actionName, string methodName)
 		{
-			return Cache[actionName].Methods[methodName].MethodInfo;
+			return _cache[actionName].Methods[methodName].MethodInfo;
 		}
 
 		public virtual int GetNumberOfParameters(string actionName, string methodName)
 		{
-			return Cache[actionName].Methods[methodName].MethodInfo.GetParameters().Length;
+			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Length;
 		}
 
 		public virtual bool IsFormHandler(string actionName, string methodName)
 		{
-			return Cache[actionName].Methods[methodName].IsFormHandler;
+			return _cache[actionName].Methods[methodName].IsFormHandler;
 		}
 
 		public virtual bool HasNamedArguments(string actionName, string methodName)
 		{
-			return Cache[actionName].Methods[methodName].HasNamedArguments;
+			return _cache[actionName].Methods[methodName].HasNamedArguments;
 		}
 
 		public virtual IEnumerable<string> GetArgumentNames(string actionName, string methodName)
 		{
-			return Cache[actionName].Methods[methodName].MethodInfo.GetParameters().Select(p => p.Name);
+			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Select(p => p.Name);
 		}
 
 		#region Nested type: ActionMetadata
