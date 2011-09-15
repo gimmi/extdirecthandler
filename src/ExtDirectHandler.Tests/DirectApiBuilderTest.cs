@@ -8,13 +8,13 @@ namespace ExtDirectHandler.Tests
 	[TestFixture]
 	public class DirectApiBuilderTest
 	{
-		private Metadata _metadata;
+		private IMetadata _metadata;
 		private DirectApiBuilder _target;
 
 		[SetUp]
 		public void SetUp()
 		{
-			_metadata = MockRepository.GenerateStub<Metadata>();
+			_metadata = MockRepository.GenerateStub<IMetadata>();
 			_target = new DirectApiBuilder(_metadata);
 		}
 

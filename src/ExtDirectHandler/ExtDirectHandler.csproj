@@ -44,6 +44,7 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\DirectMethodAttribute.cs" />
+    <Compile Include="Configuration\IMetadata.cs" />
     <Compile Include="Configuration\Metadata.cs" />
     <Compile Include="Configuration\ReflectionConfigurator.cs" />
     <Compile Include="Configuration\ReflectionHelpers.cs" />

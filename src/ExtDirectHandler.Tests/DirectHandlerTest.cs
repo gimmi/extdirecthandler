@@ -15,14 +15,14 @@ namespace ExtDirectHandler.Tests
 	{
 		private ObjectFactory _objectFactory;
 		private DirectHandler _target;
-		private Metadata _metadata;
+		private IMetadata _metadata;
 		private ParametersParser _parametersParser;
 
 		[SetUp]
 		public void SetUp()
 		{
 			_objectFactory = MockRepository.GenerateStub<ObjectFactory>();
-			_metadata = MockRepository.GenerateStub<Metadata>();
+			_metadata = MockRepository.GenerateStub<IMetadata>();
 			_parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			_target = new DirectHandler(_objectFactory, _metadata, _parametersParser);
 

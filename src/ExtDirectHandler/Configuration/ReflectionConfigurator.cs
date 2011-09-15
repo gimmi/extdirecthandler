@@ -43,7 +43,7 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public Metadata BuildMetadata()
+		public IMetadata BuildMetadata()
 		{
 			var metadata = new Metadata();
 			FillMetadata(metadata);

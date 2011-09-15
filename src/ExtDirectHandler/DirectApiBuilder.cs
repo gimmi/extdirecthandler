@@ -9,9 +9,9 @@ namespace ExtDirectHandler
 {
 	internal class DirectApiBuilder
 	{
-		private readonly Metadata _metadata;
+		private readonly IMetadata _metadata;
 
-		public DirectApiBuilder(Metadata metadata)
+		public DirectApiBuilder(IMetadata metadata)
 		{
 			_metadata = metadata;
 		}

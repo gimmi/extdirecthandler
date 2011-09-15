@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ExtDirectHandler.Configuration
 {
-	public class Metadata
+	public class Metadata : IMetadata
 	{
 		private readonly IDictionary<string, ActionMetadata> _cache = new Dictionary<string, ActionMetadata>();
 		private string _namespace;

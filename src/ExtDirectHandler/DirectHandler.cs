@@ -9,13 +9,13 @@ namespace ExtDirectHandler
 	internal class DirectHandler
 	{
 		private readonly ObjectFactory _objectFactory;
-		private readonly Metadata _metadata;
+		private readonly IMetadata _metadata;
 		private readonly ParametersParser _parametersParser;
 
-		public DirectHandler(ObjectFactory objectFactory, Metadata metadata)
+		public DirectHandler(ObjectFactory objectFactory, IMetadata metadata)
 			: this(objectFactory, metadata, new ParametersParser()) {}
 
-		internal DirectHandler(ObjectFactory objectFactory, Metadata metadata, ParametersParser parametersParser)
+		internal DirectHandler(ObjectFactory objectFactory, IMetadata metadata, ParametersParser parametersParser)
 		{
 			_objectFactory = objectFactory;
 			_metadata = metadata;
