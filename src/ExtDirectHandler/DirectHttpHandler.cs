@@ -82,12 +82,12 @@ namespace ExtDirectHandler
 			if (format == "json")
 			{
 				response.ContentType = "application/json";
-				response.Write(apiBuilder.BuildApiDescriptor(ns, ns, url));
+				response.Write(apiBuilder.BuildJson(ns, ns, url));
 			}
 			else
 			{
 				response.ContentType = "text/javascript";
-				response.Write(apiBuilder.BuildApi(ns, url));
+				response.Write(apiBuilder.BuildJavascript(ns, url));
 			}
 		}
 	}

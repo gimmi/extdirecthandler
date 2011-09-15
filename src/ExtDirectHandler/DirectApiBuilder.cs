@@ -16,39 +16,38 @@ namespace ExtDirectHandler
 			_metadata = metadata;
 		}
 
-		internal string BuildApi(string ns, string url)
+		internal string BuildJavascript(string ns, string url)
 		{
 			return new StringBuilder()
-				.AppendFormat("Ext.ns('{0}');", ns ?? "Ext.app").Append(Environment.NewLine)
-				.AppendFormat("{0}.REMOTING_API = {1};", ns ?? "Ext.app", BuildApi(ns, ns, url).ToString(Formatting.Indented))
+				.AppendFormat("Ext.ns('{0}');", BuildNamespace(ns)).Append(Environment.NewLine)
+				.AppendFormat("{0} = {1};", BuildDescriptor(ns), BuildJson(ns, ns, url))
 				.ToString();
 		}
 
-		internal JObject BuildApi(string id, string ns, string url)
+		internal string BuildJson(string id, string ns, string url)
 		{
-			var api = new JObject {
-				{ "id", new JValue(id) },
-				{ "url", new JValue(url) },
-				{ "type", new JValue("remoting") },
-				{ "namespace", new JValue(ns) },
-				{ "actions", BuildActions() }
-			};
-			return api;
-		}
-
-		internal JObject BuildApiDescriptor(string id, string ns, string url)
-		{
-			var api = new JObject {
+			return new JObject {
 				{ "id", new JValue(id) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(ns) },
 				{ "actions", BuildActions() },
-				{ "descriptor", new JValue((ns ?? "Ext.app") + ".REMOTING_API") }
-			};
-			return api;
+				// "descriptor" is needed for integrating with Ext Designer
+				// see http://davehiren.blogspot.com/2011/03/configure-extdirect-api-with-ext.html
+				// see http://www.sencha.com/forum/showthread.php?102357#post_message_480214
+				{ "descriptor", new JValue(BuildDescriptor(ns)) }
+			}.ToString(Formatting.Indented);
 		}
 
+		private string BuildDescriptor(string ns)
+		{
+			return string.Format("{0}.REMOTING_API", BuildNamespace(ns));
+		}
+
+		private string BuildNamespace(string ns)
+		{
+			return ns ?? "Ext.app";
+		}
 
 		private JObject BuildActions()
 		{
