@@ -77,9 +77,9 @@ namespace ExtDirectHandler
 			string ns = request.QueryString["ns"];
 			string format = request.QueryString["format"];
 			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
-			DirectApiBuilder apiBuilder = new DirectApiBuilder(_metadata);
+			var apiBuilder = new DirectApiBuilder(_metadata);
 
-			if (format == "json")
+			if (string.Equals(format, "json", StringComparison.InvariantCultureIgnoreCase))
 			{
 				response.ContentType = "application/json";
 				response.Write(apiBuilder.BuildJson(ns, url));
