@@ -9,6 +9,7 @@ namespace ExtDirectHandler.Configuration
 	{
 		private readonly ReflectionHelpers _reflectionHelpers;
 		private readonly IList<Type> _types = new List<Type>();
+		private string _namespace;
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -51,6 +52,7 @@ namespace ExtDirectHandler.Configuration
 
 		internal void FillMetadata(Metadata ret)
 		{
+			ret.SetNamespace(_namespace);
 			foreach(Type type in _types)
 			{
 				string actionName = type.Name;
@@ -66,6 +68,12 @@ namespace ExtDirectHandler.Configuration
 		private string pascalizeName(string name)
 		{
 			return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
+		}
+
+		public ReflectionConfigurator SetNamespace(string ns)
+		{
+			_namespace = ns;
+			return this;
 		}
 	}
 }

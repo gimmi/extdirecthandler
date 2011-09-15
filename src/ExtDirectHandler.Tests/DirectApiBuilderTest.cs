@@ -22,7 +22,7 @@ namespace ExtDirectHandler.Tests
 		public void Should_use_default_place_for_api_and_no_namespace_when_no_namespace_provided()
 		{
 			_metadata.Stub(x => x.GetActionNames()).Return(new string[0]);
-			string actual = _target.BuildJavascript(null, "http://localhost:8080/rpc").Replace('"', '\'');
+			string actual = _target.BuildJavascript("http://localhost:8080/rpc").Replace('"', '\'');
 
 			actual.Should().Be.EqualTo(@"Ext.ns('Ext.app');
 Ext.app.REMOTING_API = {
@@ -38,6 +38,8 @@ Ext.app.REMOTING_API = {
 		[Test]
 		public void Should_build_api()
 		{
+			_metadata.Stub(x => x.GetNamespace()).Return("App.server");
+
 			_metadata.Stub(x => x.GetActionNames()).Return(new[] { "Action1", "Action2" });
 			_metadata.Stub(x => x.GetMethodNames("Action1")).Return(new[] { "method1", "method2" });
 
@@ -56,7 +58,7 @@ Ext.app.REMOTING_API = {
 			_metadata.Stub(x => x.HasNamedArguments("Action2", "method1")).Return(true);
 			_metadata.Stub(x => x.GetArgumentNames("Action2", "method1")).Return(new[] { "arg1", "arg2" });
 
-			string actual = _target.BuildJavascript("App.server", "http://localhost:8080/rpc").Replace('"', '\'');
+			string actual = _target.BuildJavascript("http://localhost:8080/rpc").Replace('"', '\'');
 
 			actual.Should().Be.EqualTo(@"Ext.ns('App.server');
 App.server.REMOTING_API = {

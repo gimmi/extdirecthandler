@@ -18,6 +18,17 @@ namespace ExtDirectHandler.Tests.Configuration
 		}
 
 		[Test]
+		public void Should_configure_namespace()
+		{
+			var metadata = MockRepository.GenerateMock<Metadata>();
+			metadata.Expect(x => x.SetNamespace("ns"));
+
+			_target.SetNamespace("ns").FillMetadata(metadata);
+
+			metadata.VerifyAllExpectations();
+		}
+
+		[Test]
 		public void Should_configure_all_registered_types()
 		{
 			var metadata = MockRepository.GenerateMock<Metadata>();

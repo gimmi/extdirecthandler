@@ -8,6 +8,7 @@ namespace ExtDirectHandler.Configuration
 	public class Metadata
 	{
 		private readonly IDictionary<string, ActionMetadata> _cache = new Dictionary<string, ActionMetadata>();
+		private string _namespace;
 
 		public virtual void AddAction(string actionName, Type type)
 		{
@@ -21,6 +22,16 @@ namespace ExtDirectHandler.Configuration
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
 			});
+		}
+
+		public virtual void SetNamespace(string ns)
+		{
+			_namespace = ns;
+		}
+
+		public virtual string GetNamespace()
+		{
+			return _namespace;
 		}
 
 		public virtual Type GetActionType(string actionName)

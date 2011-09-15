@@ -10,6 +10,7 @@ namespace SampleWebApplication
 		protected void Application_Start(object sender, EventArgs e)
 		{
 			DirectHttpHandler.SetMetadata(new ReflectionConfigurator()
+			                              	.SetNamespace("Sample.server")
 			                              	.RegisterType<DirectAction>()
 			                              	.BuildMetadata());
 		}
