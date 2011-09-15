@@ -1,6 +1,6 @@
 ﻿using ExtDirectHandler.Configuration;
 using NUnit.Framework;
-using Rhino.Mocks;
+using SharpTestsEx;
 
 namespace ExtDirectHandler.Tests.Configuration
 {
@@ -18,62 +18,63 @@ namespace ExtDirectHandler.Tests.Configuration
 		}
 
 		[Test]
+		public void Should_return_null_if_no_namespace_defined()
+		{
+			IMetadata actual = _target.BuildMetadata();
+
+			actual.GetNamespace().Should().Be.Null();
+		}
+
+		[Test]
 		public void Should_configure_namespace()
 		{
-			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.SetNamespace("ns"));
+			IMetadata actual = _target.SetNamespace("ns").BuildMetadata();
 
-			_target.SetNamespace("ns").FillMetadata(metadata);
-
-			metadata.VerifyAllExpectations();
+			actual.GetNamespace().Should().Be.EqualTo("ns");
 		}
 
 		[Test]
 		public void Should_configure_all_registered_types()
 		{
-			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddAction("ActionClass1", typeof(ActionClass1)));
-			metadata.Expect(x => x.AddAction("ActionClass2", typeof(ActionClass2)));
-
-			_target.RegisterType<ActionClass1>()
+			IMetadata actual = _target.RegisterType<ActionClass1>()
 				.RegisterType<ActionClass2>()
-				.FillMetadata(metadata);
+				.BuildMetadata();
 
-			metadata.VerifyAllExpectations();
+			actual.GetActionNames().Should().Have.SameValuesAs(new[] { "ActionClass1", "ActionClass2" });
+			actual.GetActionType("ActionClass1").Should().Be.EqualTo<ActionClass1>();
+			actual.GetActionType("ActionClass2").Should().Be.EqualTo<ActionClass2>();
 		}
 
 		[Test]
 		public void Should_configure_methods()
 		{
-			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass1", "publicInstanceMethod", typeof(ActionClass1).GetMethod("PublicInstanceMethod"), false, false));
-			metadata.Expect(x => x.AddMethod("ActionClass1", "methodWithParameters", typeof(ActionClass1).GetMethod("MethodWithParameters"), false, false));
+			IMetadata actual = _target.RegisterType<ActionClass1>().BuildMetadata();
 
-			_target.RegisterType<ActionClass1>().FillMetadata(metadata);
+			actual.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters" });
 
-			metadata.VerifyAllExpectations();
+			actual.GetMethodInfo("ActionClass1", "publicInstanceMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("PublicInstanceMethod"));
+			actual.IsFormHandler("ActionClass1", "publicInstanceMethod").Should().Be.False();
+			actual.HasNamedArguments("ActionClass1", "publicInstanceMethod").Should().Be.False();
+
+			actual.GetMethodInfo("ActionClass1", "methodWithParameters").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("MethodWithParameters"));
+			actual.IsFormHandler("ActionClass1", "methodWithParameters").Should().Be.False();
+			actual.HasNamedArguments("ActionClass1", "methodWithParameters").Should().Be.False();
 		}
 
 		[Test]
 		public void Should_configure_formhandler_from_attribute()
 		{
-			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass3", "formHandlerMethod", typeof(ActionClass3).GetMethod("FormHandlerMethod"), true, false));
+			IMetadata actual = _target.RegisterType<ActionClass3>().BuildMetadata();
 
-			_target.RegisterType<ActionClass3>().FillMetadata(metadata);
-
-			metadata.VerifyAllExpectations();
+			actual.IsFormHandler("ActionClass3", "formHandlerMethod").Should().Be.True();
 		}
 
 		[Test]
 		public void Should_configure_named_arguments_from_attribute()
 		{
-			var metadata = MockRepository.GenerateMock<Metadata>();
-			metadata.Expect(x => x.AddMethod("ActionClass3", "namedArgumentsMethod", typeof(ActionClass3).GetMethod("NamedArgumentsMethod"), false, true));
+			IMetadata actual = _target.RegisterType<ActionClass3>().BuildMetadata();
 
-			_target.RegisterType<ActionClass3>().FillMetadata(metadata);
-
-			metadata.VerifyAllExpectations();
+			actual.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
 		}
 
 		private class ActionClass3
