@@ -27,7 +27,7 @@ namespace ExtDirectHandler
 		[JsonProperty("result")]
 		public JToken Result;
 
-		public DirectResponse(DirectRequest request)
+		private DirectResponse(DirectRequest request)
 		{
 			Action = request.Action;
 			Method = request.Method;
@@ -35,11 +35,16 @@ namespace ExtDirectHandler
 			Type = request.Type;
 		}
 
-		public void SetException(Exception e)
+		public DirectResponse(DirectRequest request, Exception e) : this(request)
 		{
 			Type = "exception";
 			Message = e.Message;
 			Where = e.ToString();
+		}
+
+		public DirectResponse(DirectRequest request, JToken result) : this(request)
+		{
+			Result = result;
 		}
 	}
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -50,9 +49,8 @@ namespace ExtDirectHandler
 
 		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, object actionInstance)
 		{
-			var response = new DirectResponse(request);
 			MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
-			object result = null;
+			object result;
 			try
 			{
 				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
@@ -60,14 +58,13 @@ namespace ExtDirectHandler
 			}
 			catch(TargetInvocationException e)
 			{
-				response.SetException(e.InnerException);
+				return new DirectResponse(request, e.InnerException);
 			}
 			catch(Exception e)
 			{
-				response.SetException(e);
+				return new DirectResponse(request, e);
 			}
-			response.Result = SerializeResult(result, jsonSerializer);
-			return response;
+			return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 		}
 
 		private JToken SerializeResult(object result, JsonSerializer jsonSerializer)
