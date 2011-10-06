@@ -49,22 +49,25 @@ namespace ExtDirectHandler
 
 		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, object actionInstance)
 		{
-			MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
-			object result;
 			try
 			{
+				MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
 				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
-				result = methodInfo.Invoke(actionInstance, parameters);
-			}
-			catch(TargetInvocationException e)
-			{
-				return new DirectResponse(request, e.InnerException);
+				object result;
+				try
+				{
+					result = methodInfo.Invoke(actionInstance, parameters);
+				}
+				catch(TargetInvocationException e)
+				{
+					return new DirectResponse(request, e.InnerException);
+				}
+				return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 			}
 			catch(Exception e)
 			{
 				return new DirectResponse(request, e);
 			}
-			return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 		}
 
 		private JToken SerializeResult(object result, JsonSerializer jsonSerializer)
