@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ExtDirectHandler.Configuration;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -56,13 +55,16 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_response_based_on_request_data()
 		{
+			_objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(new Action());
+			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
+
 			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
 				JsonData = new JArray(),
 				Tid = 123,
 				Type = "rpc"
-			}, new JsonSerializer(), new Action());
+			});
 
 			actual.Action.Should().Be.EqualTo("Action");
 			actual.Method.Should().Be.EqualTo("method");
@@ -76,13 +78,16 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_expected_response_when_target_method_throws_exception()
 		{
+			_objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(new Action());
+			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
+
 			DirectResponse actual = _target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "methodThatThrowException",
 				JsonData = new JArray(),
 				Tid = 123,
 				Type = "rpc"
-			}, new JsonSerializer(), new Action());
+			});
 
 			actual.Action.Should().Be.EqualTo("Action");
 			actual.Method.Should().Be.EqualTo("methodThatThrowException");
@@ -97,6 +102,8 @@ namespace ExtDirectHandler.Tests
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
+			_objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(actionInstance);
+			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
 			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
 
@@ -104,7 +111,7 @@ namespace ExtDirectHandler.Tests
 				Action = "Action",
 				Method = "methodWithParams",
 				JsonData = new JArray(new JValue(123), new JValue("str"), new JValue(true))
-			}, new JsonSerializer(), actionInstance);
+			});
 
 			response.Result.ToString().Should().Be.EqualTo("ret");
 
@@ -115,6 +122,8 @@ namespace ExtDirectHandler.Tests
 		public void Should_return_error_when_fail_to_parse_parameters()
 		{
 			var actionInstance = MockRepository.GenerateMock<Action>();
+			_objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(actionInstance);
+			_objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
 			_parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
 
@@ -122,7 +131,7 @@ namespace ExtDirectHandler.Tests
 				Action = "Action",
 				Method = "method",
 				JsonData = new JArray()
-			}, new JsonSerializer(), actionInstance);
+			});
 
 			response.Result.Should().Be.Null();
 			response.Type.Should().Be.EqualTo("exception");
