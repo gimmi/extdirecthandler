@@ -78,13 +78,13 @@ namespace ExtDirectHandler.Tests
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, delegate(Type type, MethodInfo methodInfo, DirectHandlerInvoker directHandlerInvoker) {
-				directHandlerInvoker.Invoke(actionInstance);
+			var target = new DirectHandler(metadata, parametersParser, delegate(Type type, MethodInfo method, DirectHandlerInvoker invoker) {
+				invoker.Invoke(actionInstance);
 			});
 
 			actionInstance.Expect(x => x.Method());
 
-			DirectResponse actual = target.Handle(new DirectRequest {
+			target.Handle(new DirectRequest {
 				Action = "Action",
 				Method = "method",
 				JsonData = new JArray(),
@@ -124,7 +124,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
+			var target = new DirectHandler(metadata, parametersParser, (type, method, invoker) => invoker.Invoke());
 
 			DirectResponse actual = target.Handle(new DirectRequest {
 				Action = "Action",
@@ -149,7 +149,7 @@ namespace ExtDirectHandler.Tests
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke(actionInstance));
+			var target = new DirectHandler(metadata, parametersParser, (type, method, invoker) => invoker.Invoke(actionInstance));
 
 			parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
