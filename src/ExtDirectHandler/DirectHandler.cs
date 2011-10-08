@@ -2,6 +2,7 @@
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace ExtDirectHandler
 {
@@ -23,51 +24,47 @@ namespace ExtDirectHandler
 
 		public DirectResponse Handle(DirectRequest request)
 		{
-			JsonSerializer jsonSerializer = _objectFactory.GetJsonSerializer();
 			try
 			{
-				return Handle(request, jsonSerializer);
-			}
-			finally
-			{
-				_objectFactory.Release(jsonSerializer);
-			}
-		}
-
-		private DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer)
-		{
-			object actionInstance = _objectFactory.GetInstance(_metadata.GetActionType(request.Action));
-			try
-			{
-				return Handle(request, jsonSerializer, actionInstance);
-			}
-			finally
-			{
-				_objectFactory.Release(actionInstance);
-			}
-		}
-
-		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, object actionInstance)
-		{
-			try
-			{
+				Type type = _metadata.GetActionType(request.Action);
 				MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
-				object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
-				object result;
+				JsonSerializer jsonSerializer = _objectFactory.GetJsonSerializer();
 				try
 				{
-					result = methodInfo.Invoke(actionInstance, parameters);
+					object actionInstance = _objectFactory.GetInstance(type);
+					try
+					{
+						return Handle(request, jsonSerializer, methodInfo, actionInstance);
+					}
+					finally
+					{
+						_objectFactory.Release(actionInstance);
+					}
 				}
-				catch(TargetInvocationException e)
+				finally
 				{
-					return new DirectResponse(request, e.InnerException);
+					_objectFactory.Release(jsonSerializer);
 				}
-				return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 			}
 			catch(Exception e)
 			{
 				return new DirectResponse(request, e);
 			}
+		}
+
+		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, MethodInfo methodInfo, object actionInstance)
+		{
+			object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
+			object result;
+			try
+			{
+				result = methodInfo.Invoke(actionInstance, parameters);
+			}
+			catch(TargetInvocationException e)
+			{
+				return new DirectResponse(request, e.InnerException);
+			}
+			return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 		}
 
 		private JToken SerializeResult(object result, JsonSerializer jsonSerializer)

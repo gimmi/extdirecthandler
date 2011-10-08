@@ -139,6 +139,41 @@ namespace ExtDirectHandler.Tests
 			response.Where.Should().Contain("stubexc");
 		}
 
+		[Test]
+		public void Should_return_error_when_fail_to_get_action_type()
+		{
+			_metadata.Stub(x => x.GetActionType("NonExistentAction")).Throw(new Exception("Action not found"));
+
+			DirectResponse response = _target.Handle(new DirectRequest {
+				Action = "NonExistentAction",
+				Method = "method",
+				JsonData = new JArray()
+			});
+
+			response.Result.Should().Be.Null();
+			response.Type.Should().Be.EqualTo("exception");
+			response.Message.Should().Be.EqualTo("Action not found");
+			response.Where.Should().Contain("Action not found");
+		}
+
+		[Test]
+		public void Should_return_error_when_fail_to_get_methodinfo()
+		{
+			_metadata.Stub(x => x.GetMethodInfo("Action", "nonExistentMethod")).Throw(new Exception("Method not found"));
+
+			DirectResponse response = _target.Handle(new DirectRequest
+			{
+				Action = "Action",
+				Method = "nonExistentMethod",
+				JsonData = new JArray()
+			});
+
+			response.Result.Should().Be.Null();
+			response.Type.Should().Be.EqualTo("exception");
+			response.Message.Should().Be.EqualTo("Method not found");
+			response.Where.Should().Contain("Method not found");
+		}
+
 		public class Action
 		{
 			public virtual void Method() {}
