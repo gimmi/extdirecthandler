@@ -11,7 +11,7 @@ namespace ExtDirectHandler
 	public class DirectHttpHandler : IHttpHandler
 	{
 		private static IMetadata _metadata = new ReflectionConfigurator();
-		private static ObjectFactory _objectFactory = new ObjectFactory();
+		private static DirectHandlerInterceptor _directHandlerInterceptor = (type, info, invoker) => invoker.Invoke();
 
 		public bool IsReusable
 		{
@@ -23,9 +23,9 @@ namespace ExtDirectHandler
 			_metadata = metadata;
 		}
 
-		public static void SetObjectFactory(ObjectFactory factory)
+		public static void SetDirectHandlerInterceptor(DirectHandlerInterceptor directHandlerInterceptor)
 		{
-			_objectFactory = factory;
+			_directHandlerInterceptor = directHandlerInterceptor;
 		}
 
 		public void ProcessRequest(HttpContext context)
@@ -48,7 +48,7 @@ namespace ExtDirectHandler
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
 			{
-				responses[i] = new DirectHandler(_objectFactory, _metadata).Handle(requests[i]);
+				responses[i] = new DirectHandler(_metadata, _directHandlerInterceptor).Handle(requests[i]);
 			}
 			using(var textWriter = new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding))
 			{
@@ -78,7 +78,7 @@ namespace ExtDirectHandler
 			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
 			var apiBuilder = new DirectApiBuilder(_metadata);
 
-			if (string.Equals(format, "json", StringComparison.InvariantCultureIgnoreCase))
+			if(string.Equals(format, "json", StringComparison.InvariantCultureIgnoreCase))
 			{
 				response.ContentType = "application/json";
 				response.Write(apiBuilder.BuildJson(url));

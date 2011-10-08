@@ -27,7 +27,7 @@ namespace ExtDirectHandler
 		[JsonProperty("result")]
 		public JToken Result;
 
-		private DirectResponse(DirectRequest request)
+		public DirectResponse(DirectRequest request)
 		{
 			Action = request.Action;
 			Method = request.Method;

@@ -13,20 +13,14 @@ namespace ExtDirectHandler.Tests
 	public class DirectHandlerTest
 	{
 		[Test]
-		public void Should_use_objectfactory_to_obtain_and_release_object_instances()
+		public void Should_call_interceptor_with_expected_parameters()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
+			IMetadata metadata = BuildMockMetadata();
+			var directHandlerInterceptor = MockRepository.GenerateMock<DirectHandlerInterceptor>();
+			var target = new DirectHandler(metadata, parametersParser, directHandlerInterceptor);
 
-			var actionInstance = MockRepository.GenerateStub<Action>();
-			objectFactory.Expect(x => x.GetInstance(typeof(Action))).Return(actionInstance);
-			objectFactory.Expect(x => x.Release(actionInstance));
-
-			var jsonSerializer = new JsonSerializer();
-			objectFactory.Expect(x => x.GetJsonSerializer()).Return(jsonSerializer);
-			objectFactory.Expect(x => x.Release(jsonSerializer));
+			directHandlerInterceptor.Expect(x => x.Invoke(Arg<Type>.Is.Same(typeof(Action)), Arg<MethodInfo>.Is.Same(typeof(Action).GetMethod("Method")), Arg<DirectHandlerInvoker>.Is.Anything));
 
 			target.Handle(new DirectRequest {
 				Action = "Action",
@@ -34,19 +28,15 @@ namespace ExtDirectHandler.Tests
 				JsonData = new JArray()
 			});
 
-			objectFactory.VerifyAllExpectations();
+			directHandlerInterceptor.VerifyAllExpectations();
 		}
 
 		[Test]
 		public void Should_build_response_based_on_request_data()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
-
-			objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(new Action());
-			objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			DirectResponse actual = target.Handle(new DirectRequest {
 				Action = "Action",
@@ -68,13 +58,9 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_build_expected_response_when_target_method_throws_exception()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
-
-			objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(new Action());
-			objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			DirectResponse actual = target.Handle(new DirectRequest {
 				Action = "Action",
@@ -96,14 +82,11 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
-
+			IMetadata metadata = BuildMockMetadata();
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(actionInstance);
-			objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke(actionInstance));
+
 			parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
 
@@ -121,14 +104,11 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_return_error_when_fail_to_parse_parameters()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			objectFactory.Expect(x => x.GetInstance(Arg<Type>.Is.Anything)).Return(actionInstance);
-			objectFactory.Expect(x => x.GetJsonSerializer()).Return(new JsonSerializer());
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
 			parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Throw(new Exception("stubexc"));
 
@@ -147,10 +127,9 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_return_error_when_fail_to_get_action_type()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			metadata.Stub(x => x.GetActionType("NonExistentAction")).Throw(new Exception("Action not found"));
 
@@ -169,10 +148,9 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_return_error_when_fail_to_get_methodinfo()
 		{
-			var objectFactory = MockRepository.GenerateStub<ObjectFactory>();
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
-			var metadata = BuildMockMetadata();
-			var target = new DirectHandler(objectFactory, metadata, parametersParser);
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			metadata.Stub(x => x.GetMethodInfo("Action", "nonExistentMethod")).Throw(new Exception("Method not found"));
 
