@@ -45,7 +45,11 @@ namespace ExtDirectHandler
 					_objectFactory.Release(jsonSerializer);
 				}
 			}
-			catch(Exception e)
+			catch (TargetInvocationException e)
+			{
+				return new DirectResponse(request, e.InnerException);
+			}
+			catch (Exception e)
 			{
 				return new DirectResponse(request, e);
 			}
@@ -54,15 +58,7 @@ namespace ExtDirectHandler
 		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, MethodInfo methodInfo, object actionInstance)
 		{
 			object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
-			object result;
-			try
-			{
-				result = methodInfo.Invoke(actionInstance, parameters);
-			}
-			catch(TargetInvocationException e)
-			{
-				return new DirectResponse(request, e.InnerException);
-			}
+			object result = methodInfo.Invoke(actionInstance, parameters);
 			return new DirectResponse(request, SerializeResult(result, jsonSerializer));
 		}
 
