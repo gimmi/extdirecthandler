@@ -32,6 +32,70 @@ namespace ExtDirectHandler.Tests
 		}
 
 		[Test]
+		public void Should_return_null_result_if_interceptor_does_not_invoke_handler()
+		{
+			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, delegate { });
+
+			DirectResponse actual = target.Handle(new DirectRequest {
+				Action = "Action",
+				Method = "methodThatThrowException",
+				JsonData = new JArray(),
+				Tid = 123,
+				Type = "rpc"
+			});
+
+			actual.Type.Should().Be.EqualTo("rpc");
+			actual.Result.Should().Be.Null();
+		}
+
+		[Test]
+		public void Should_return_error_if_interceptor_throws_exceptions()
+		{
+			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, delegate {
+				throw new Exception("error from interceptor");
+			});
+
+			DirectResponse actual = target.Handle(new DirectRequest {
+				Action = "Action",
+				Method = "method",
+				JsonData = new JArray(),
+				Tid = 123,
+				Type = "rpc"
+			});
+
+			actual.Type.Should().Be.EqualTo("exception");
+			actual.Message.Should().Be.EqualTo("error from interceptor");
+			actual.Where.Should().Contain("error from interceptor");
+		}
+
+		[Test]
+		public void Should_use_actioninstance_from_interceptor()
+		{
+			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
+			var actionInstance = MockRepository.GenerateMock<Action>();
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, delegate(Type type, MethodInfo methodInfo, DirectHandlerInvoker directHandlerInvoker) {
+				directHandlerInvoker.Invoke(actionInstance);
+			});
+
+			actionInstance.Expect(x => x.Method());
+
+			DirectResponse actual = target.Handle(new DirectRequest {
+				Action = "Action",
+				Method = "method",
+				JsonData = new JArray(),
+				Tid = 123,
+				Type = "rpc"
+			});
+
+			actionInstance.VerifyAllExpectations();
+		}
+
+		[Test]
 		public void Should_build_response_based_on_request_data()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
