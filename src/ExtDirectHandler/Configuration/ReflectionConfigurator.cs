@@ -39,12 +39,11 @@ namespace ExtDirectHandler.Configuration
 
 		public ReflectionConfigurator RegisterType(Type type)
 		{
-			string actionName = type.Name;
-			AddAction(actionName, type);
+			AddAction(type.Name);
 			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
-				AddMethod(actionName, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
+				AddMethod(type.Name, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
 			return this;
 		}
@@ -60,9 +59,9 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		private void AddAction(string actionName, Type type)
+		private void AddAction(string actionName)
 		{
-			_cache.Add(actionName, new ActionMetadata { Type = type });
+			_cache.Add(actionName, new ActionMetadata());
 		}
 
 		private void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
@@ -119,7 +118,6 @@ namespace ExtDirectHandler.Configuration
 		private class ActionMetadata
 		{
 			public readonly IDictionary<string, MethodMetadata> Methods = new Dictionary<string, MethodMetadata>();
-			public Type Type;
 		}
 
 		#endregion
