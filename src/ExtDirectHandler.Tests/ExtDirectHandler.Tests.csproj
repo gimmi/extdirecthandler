@@ -51,6 +51,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Configuration\LambdaConfiguratorTest.cs" />
     <Compile Include="Configuration\ReflectionConfiguratorTest.cs" />
     <Compile Include="Configuration\ReflectionHelpersTest.cs" />
     <Compile Include="DirectApiBuilderTest.cs" />
