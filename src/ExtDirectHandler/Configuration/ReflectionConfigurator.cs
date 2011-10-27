@@ -7,7 +7,7 @@ namespace ExtDirectHandler.Configuration
 {
 	public class ReflectionConfigurator : IMetadata
 	{
-		private readonly IDictionary<string, ActionMetadata> _cache = new Dictionary<string, ActionMetadata>();
+		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private string _namespace;
 		private readonly ReflectionHelpers _reflectionHelpers;
 
@@ -61,12 +61,12 @@ namespace ExtDirectHandler.Configuration
 
 		private void AddAction(string actionName)
 		{
-			_cache.Add(actionName, new ActionMetadata());
+			_cache.Add(actionName, new Dictionary<string, MethodMetadata>());
 		}
 
 		private void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
 		{
-			_cache[actionName].Methods.Add(methodName, new MethodMetadata {
+			_cache[actionName].Add(methodName, new MethodMetadata {
 				MethodInfo = methodInfo,
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
@@ -85,42 +85,33 @@ namespace ExtDirectHandler.Configuration
 
 		public IEnumerable<string> GetMethodNames(string actionName)
 		{
-			return _cache[actionName].Methods.Keys;
+			return _cache[actionName].Keys;
 		}
 
 		public MethodInfo GetMethodInfo(string actionName, string methodName)
 		{
-			return _cache[actionName].Methods[methodName].MethodInfo;
+			return _cache[actionName][methodName].MethodInfo;
 		}
 
 		public int GetNumberOfParameters(string actionName, string methodName)
 		{
-			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Length;
+			return _cache[actionName][methodName].MethodInfo.GetParameters().Length;
 		}
 
 		public bool IsFormHandler(string actionName, string methodName)
 		{
-			return _cache[actionName].Methods[methodName].IsFormHandler;
+			return _cache[actionName][methodName].IsFormHandler;
 		}
 
 		public bool HasNamedArguments(string actionName, string methodName)
 		{
-			return _cache[actionName].Methods[methodName].HasNamedArguments;
+			return _cache[actionName][methodName].HasNamedArguments;
 		}
 
 		public IEnumerable<string> GetArgumentNames(string actionName, string methodName)
 		{
-			return _cache[actionName].Methods[methodName].MethodInfo.GetParameters().Select(p => p.Name);
+			return _cache[actionName][methodName].MethodInfo.GetParameters().Select(p => p.Name);
 		}
-
-		#region Nested type: ActionMetadata
-
-		private class ActionMetadata
-		{
-			public readonly IDictionary<string, MethodMetadata> Methods = new Dictionary<string, MethodMetadata>();
-		}
-
-		#endregion
 
 		#region Nested type: MethodMetadata
 
