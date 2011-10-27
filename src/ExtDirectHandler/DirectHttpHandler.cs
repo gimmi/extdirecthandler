@@ -11,7 +11,7 @@ namespace ExtDirectHandler
 	public class DirectHttpHandler : IHttpHandler
 	{
 		private static IMetadata _metadata = new ReflectionConfigurator();
-		private static DirectHandlerInterceptor _directHandlerInterceptor = (type, info, invoker) => invoker.Invoke();
+		private static DirectHandlerInterceptor _directHandlerInterceptor = (info, invoker) => invoker.Invoke();
 
 		public bool IsReusable
 		{

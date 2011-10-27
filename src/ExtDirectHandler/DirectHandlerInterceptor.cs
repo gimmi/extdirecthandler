@@ -3,5 +3,5 @@ using System.Reflection;
 
 namespace ExtDirectHandler
 {
-	public delegate void DirectHandlerInterceptor(Type type, MethodInfo method, DirectHandlerInvoker invoker);
+	public delegate void DirectHandlerInterceptor(MethodInfo method, DirectHandlerInvoker invoker);
 }

@@ -38,8 +38,6 @@ namespace ExtDirectHandler.Tests.Configuration
 				.RegisterType<ActionClass2>();
 
 			_target.GetActionNames().Should().Have.SameValuesAs(new[] { "ActionClass1", "ActionClass2" });
-			_target.GetActionType("ActionClass1").Should().Be.EqualTo<ActionClass1>();
-			_target.GetActionType("ActionClass2").Should().Be.EqualTo<ActionClass2>();
 		}
 
 		[Test]

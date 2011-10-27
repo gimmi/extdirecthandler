@@ -26,12 +26,11 @@ namespace ExtDirectHandler
 		{
 			try
 			{
-				Type type = _metadata.GetActionType(request.Action);
 				MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
 
 				var response = new DirectResponse(request);
-				_directHandlerInterceptor.Invoke(type, methodInfo, delegate(object actionInstance, JsonSerializer jsonSerializer) {
-					response = Handle(request, jsonSerializer, methodInfo, actionInstance, type);
+				_directHandlerInterceptor.Invoke(methodInfo, delegate(object actionInstance, JsonSerializer jsonSerializer) {
+					response = Handle(request, jsonSerializer, methodInfo, actionInstance);
 				});
 				return response;
 
@@ -63,9 +62,9 @@ namespace ExtDirectHandler
 			}
 		}
 
-		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, MethodInfo methodInfo, object actionInstance, Type type)
+		internal DirectResponse Handle(DirectRequest request, JsonSerializer jsonSerializer, MethodInfo methodInfo, object actionInstance)
 		{
-			actionInstance = actionInstance ?? Activator.CreateInstance(type);
+			actionInstance = actionInstance ?? Activator.CreateInstance(methodInfo.DeclaringType);
 			jsonSerializer = jsonSerializer ?? new JsonSerializer { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 			object[] parameters = _parametersParser.Parse(methodInfo.GetParameters(), request.JsonData, request.FormData, jsonSerializer);
 			object result = methodInfo.Invoke(actionInstance, parameters);

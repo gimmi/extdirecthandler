@@ -79,11 +79,6 @@ namespace ExtDirectHandler.Configuration
 			return _namespace;
 		}
 
-		public Type GetActionType(string actionName)
-		{
-			return _cache[actionName].Type;
-		}
-
 		public IEnumerable<string> GetActionNames()
 		{
 			return _cache.Keys;
