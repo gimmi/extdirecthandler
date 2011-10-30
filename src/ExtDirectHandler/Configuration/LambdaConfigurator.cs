@@ -111,7 +111,7 @@ namespace ExtDirectHandler.Configuration
 			{
 				return _cache[actionName][methodName];
 			}
-			catch (KeyNotFoundException e)
+			catch (KeyNotFoundException)
 			{
 				throw new ArgumentException(string.Format("Method '{0}.{1}' not registered", actionName, methodName));
 			}
