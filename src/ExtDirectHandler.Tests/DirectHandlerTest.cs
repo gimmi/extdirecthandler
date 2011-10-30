@@ -20,7 +20,7 @@ namespace ExtDirectHandler.Tests
 			var directHandlerInterceptor = MockRepository.GenerateMock<DirectHandlerInterceptor>();
 			var target = new DirectHandler(metadata, parametersParser, directHandlerInterceptor);
 
-			directHandlerInterceptor.Expect(x => x.Invoke(Arg<MethodInfo>.Is.Same(typeof(Action).GetMethod("Method")), Arg<DirectHandlerInvoker>.Is.Anything));
+			directHandlerInterceptor.Expect(x => x.Invoke(Arg<Type>.Is.Same(typeof(Action)), Arg<MethodInfo>.Is.Same(typeof(Action).GetMethod("Method")), Arg<DirectHandlerInvoker>.Is.Anything));
 
 			target.Handle(new DirectRequest {
 				Action = "Action",
@@ -78,7 +78,7 @@ namespace ExtDirectHandler.Tests
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, delegate(MethodInfo method, DirectHandlerInvoker invoker) {
+			var target = new DirectHandler(metadata, parametersParser, delegate(Type type, MethodInfo method, DirectHandlerInvoker invoker) {
 				invoker.Invoke(actionInstance);
 			});
 
@@ -100,7 +100,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, (info, invoker) => invoker.Invoke());
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			DirectResponse actual = target.Handle(new DirectRequest {
 				Action = "Action",
@@ -124,7 +124,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, (method, invoker) => invoker.Invoke());
+			var target = new DirectHandler(metadata, parametersParser, (type, method, invoker) => invoker.Invoke());
 
 			DirectResponse actual = target.Handle(new DirectRequest {
 				Action = "Action",
@@ -149,7 +149,7 @@ namespace ExtDirectHandler.Tests
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
 			var actionInstance = MockRepository.GenerateMock<Action>();
-			var target = new DirectHandler(metadata, parametersParser, (method, invoker) => invoker.Invoke(actionInstance));
+			var target = new DirectHandler(metadata, parametersParser, (type, method, invoker) => invoker.Invoke(actionInstance));
 
 			parametersParser.Stub(x => x.Parse(Arg<ParameterInfo[]>.Is.Anything, Arg<JToken>.Is.Anything, Arg<IDictionary<string, object>>.Is.Anything, Arg<JsonSerializer>.Is.Anything)).Return(new object[] { 123, "str", true });
 			actionInstance.Expect(x => x.MethodWithParams(123, "str", true)).Return("ret");
@@ -170,7 +170,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, (info, invoker) => invoker.Invoke());
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			var actionInstance = MockRepository.GenerateMock<Action>();
 			actionInstance.Expect(x => x.MethodWithRawParameters(Arg<JToken>.Matches(y => y.ToString() == "value"))).Return(new JValue("ret"));
@@ -193,7 +193,7 @@ namespace ExtDirectHandler.Tests
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
 			IMetadata metadata = BuildMockMetadata();
-			var target = new DirectHandler(metadata, parametersParser, (info, invoker) => invoker.Invoke());
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
 
 			metadata.Stub(x => x.GetMethodInfo("Action", "nonExistentMethod")).Throw(new Exception("Method not found"));
 
