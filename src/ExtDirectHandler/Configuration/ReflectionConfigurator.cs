@@ -43,7 +43,7 @@ namespace ExtDirectHandler.Configuration
 			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
-				AddMethod(type.Name, pascalizeName(methodInfo.Name), methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
+				AddMethod(type.Name, pascalizeName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
 			return this;
 		}
@@ -64,9 +64,10 @@ namespace ExtDirectHandler.Configuration
 			_cache.Add(actionName, new Dictionary<string, MethodMetadata>());
 		}
 
-		private void AddMethod(string actionName, string methodName, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
+		private void AddMethod(string actionName, string methodName, Type type, MethodInfo methodInfo, bool isFormHandler, bool hasNamedArguments)
 		{
 			_cache[actionName].Add(methodName, new MethodMetadata {
+				Type = type,
 				MethodInfo = methodInfo,
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
@@ -90,7 +91,7 @@ namespace ExtDirectHandler.Configuration
 
 		public Type GetActionType(string actionName, string methodName)
 		{
-			return _cache[actionName][methodName].MethodInfo.DeclaringType;
+			return _cache[actionName][methodName].Type;
 		}
 
 		public MethodInfo GetMethodInfo(string actionName, string methodName)
@@ -122,6 +123,7 @@ namespace ExtDirectHandler.Configuration
 
 		private class MethodMetadata
 		{
+			public Type Type;
 			public MethodInfo MethodInfo;
 			public bool IsFormHandler;
 			public bool HasNamedArguments;

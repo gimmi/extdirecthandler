@@ -233,6 +233,7 @@ namespace ExtDirectHandler.Tests
 		private IMetadata BuildMockMetadata()
 		{
 			var ret = MockRepository.GenerateStub<IMetadata>();
+			ret.Stub(x => x.GetActionType(Arg<string>.Is.Equal("Action"), Arg<string>.Is.Anything)).Return(typeof(Action));
 			ret.Stub(x => x.GetMethodInfo("Action", "method")).Return(typeof(Action).GetMethod("Method"));
 			ret.Stub(x => x.GetMethodInfo("Action", "methodWithParams")).Return(typeof(Action).GetMethod("MethodWithParams"));
 			ret.Stub(x => x.GetMethodInfo("Action", "methodThatThrowException")).Return(typeof(Action).GetMethod("MethodThatThrowException"));
