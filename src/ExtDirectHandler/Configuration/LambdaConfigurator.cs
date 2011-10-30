@@ -30,7 +30,7 @@ namespace ExtDirectHandler.Configuration
 
 		public Type GetActionType(string actionName, string methodName)
 		{
-			return GetMethodMetadata(actionName, methodName).MethodInfo.DeclaringType;
+			return GetMethodMetadata(actionName, methodName).Type;
 		}
 
 		public MethodInfo GetMethodInfo(string actionName, string methodName)
@@ -60,22 +60,17 @@ namespace ExtDirectHandler.Configuration
 
 		#endregion
 
-		public LambdaConfigurator Register(string name, Expression<Action> expression, bool namedArguments = false, bool formHandler = false)
-		{
-			return Register(name, (LambdaExpression)expression, namedArguments, formHandler);
-		}
-
 		public LambdaConfigurator Register<T>(string name, Expression<Action<T>> expression, bool namedArguments = false, bool formHandler = false)
 		{
-			return Register(name, (LambdaExpression)expression, namedArguments, formHandler);
+			return Register(name, typeof(T), expression, namedArguments, formHandler);
 		}
 
 		public LambdaConfigurator Register<T, TResult>(string name, Expression<Func<T, TResult>> expression, bool namedArguments = false, bool formHandler = false)
 		{
-			return Register(name, (LambdaExpression)expression, namedArguments, formHandler);
+			return Register(name, typeof(T), expression, namedArguments, formHandler);
 		}
 
-		public LambdaConfigurator Register(string name, LambdaExpression expression, bool namedArguments = false, bool formHandler = false)
+		public LambdaConfigurator Register(string name, Type type, LambdaExpression expression, bool namedArguments = false, bool formHandler = false)
 		{
 			var outermostExpression = expression.Body as MethodCallExpression;
 			if(outermostExpression == null)
@@ -96,6 +91,7 @@ namespace ExtDirectHandler.Configuration
 				throw new ArgumentException(string.Format("Method '{0}.{1}' already registered", nameParts[0], nameParts[1]));
 			}
 			_cache[nameParts[0]].Add(nameParts[1], new MethodMetadata {
+				Type = type,
 				MethodInfo = outermostExpression.Method,
 				HasNamedArguments = namedArguments,
 				IsFormHandler = formHandler
@@ -125,6 +121,7 @@ namespace ExtDirectHandler.Configuration
 
 		private class MethodMetadata
 		{
+			public Type Type;
 			public bool HasNamedArguments;
 			public bool IsFormHandler;
 			public MethodInfo MethodInfo;

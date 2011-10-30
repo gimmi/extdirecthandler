@@ -64,6 +64,15 @@ namespace ExtDirectHandler.Tests.Configuration
 			Executing.This(() => _target.Register<TestClass>("Action.method", x => x.NoParNoRet())).Should().Throw<ArgumentException>().And.ValueOf.Message.Should().Be.EqualTo("Method 'Action.method' already registered");
 		}
 
+		[Test]
+		public void Should_register_passed_type()
+		{
+			_target.Register<TestClass>("Action.methodFromBase", x => x.ToString());
+			_target.Register<TestClass>("Action.overriddenMethod", x => x.GetHashCode());
+			_target.GetActionType("Action", "methodFromBase").Should().Be.EqualTo(typeof(TestClass));
+			_target.GetActionType("Action", "overriddenMethod").Should().Be.EqualTo(typeof(TestClass));
+		}
+
 		public class TestClass
 		{
 			public void NoParNoRet() {}
@@ -78,6 +87,11 @@ namespace ExtDirectHandler.Tests.Configuration
 			public string WithParWithRet(int p1, string p2)
 			{
 				return null;
+			}
+
+			public override int GetHashCode()
+			{
+				return 1;
 			}
 		}
 	}
