@@ -28,6 +28,11 @@ namespace ExtDirectHandler.Configuration
 			return _cache[actionName].Keys;
 		}
 
+		public Type GetActionType(string actionName, string methodName)
+		{
+			return GetMethodMetadata(actionName, methodName).MethodInfo.DeclaringType;
+		}
+
 		public MethodInfo GetMethodInfo(string actionName, string methodName)
 		{
 			return GetMethodMetadata(actionName, methodName).MethodInfo;

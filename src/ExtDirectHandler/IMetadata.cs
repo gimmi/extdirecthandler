@@ -9,6 +9,7 @@ namespace ExtDirectHandler
 		string GetNamespace();
 		IEnumerable<string> GetActionNames();
 		IEnumerable<string> GetMethodNames(string actionName);
+		Type GetActionType(string actionName, string methodName);
 		MethodInfo GetMethodInfo(string actionName, string methodName);
 		int GetNumberOfParameters(string actionName, string methodName);
 		bool IsFormHandler(string actionName, string methodName);

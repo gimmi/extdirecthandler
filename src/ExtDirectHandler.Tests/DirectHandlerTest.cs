@@ -189,6 +189,27 @@ namespace ExtDirectHandler.Tests
 		}
 
 		[Test]
+		public void Should_return_error_when_fail_to_get_action_type()
+		{
+			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
+			IMetadata metadata = BuildMockMetadata();
+			var target = new DirectHandler(metadata, parametersParser, (type, info, invoker) => invoker.Invoke());
+
+			metadata.Stub(x => x.GetActionType("NonExistentAction", "method")).Throw(new Exception("Action not found"));
+
+			DirectResponse response = target.Handle(new DirectRequest {
+				Action = "NonExistentAction",
+				Method = "method",
+				JsonData = new JArray()
+			});
+
+			response.Result.Should().Be.Null();
+			response.Type.Should().Be.EqualTo("exception");
+			response.Message.Should().Be.EqualTo("Action not found");
+			response.Where.Should().Contain("Action not found");
+		}
+
+		[Test]
 		public void Should_return_error_when_fail_to_get_methodinfo()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();

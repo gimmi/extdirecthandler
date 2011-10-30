@@ -88,6 +88,11 @@ namespace ExtDirectHandler.Configuration
 			return _cache[actionName].Keys;
 		}
 
+		public Type GetActionType(string actionName, string methodName)
+		{
+			return _cache[actionName][methodName].MethodInfo.DeclaringType;
+		}
+
 		public MethodInfo GetMethodInfo(string actionName, string methodName)
 		{
 			return _cache[actionName][methodName].MethodInfo;

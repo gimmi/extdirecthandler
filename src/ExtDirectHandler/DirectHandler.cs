@@ -26,8 +26,8 @@ namespace ExtDirectHandler
 		{
 			try
 			{
+				Type type = _metadata.GetActionType(request.Action, request.Method);
 				MethodInfo methodInfo = _metadata.GetMethodInfo(request.Action, request.Method);
-				Type type = methodInfo.DeclaringType;
 
 				var response = new DirectResponse(request);
 				_directHandlerInterceptor.Invoke(type, methodInfo, delegate(object actionInstance, JsonSerializer jsonSerializer) {
