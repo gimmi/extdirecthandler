@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using System.Web.SessionState;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json;
 
 namespace ExtDirectHandler
 {
-	public class DirectHttpHandler : IHttpHandler
+	public class DirectHttpHandler : IHttpHandler, IRequiresSessionState // See http://stackoverflow.com/questions/1382791
 	{
 		private static IMetadata _metadata = new ReflectionConfigurator();
 		private static DirectHandlerInterceptor _directHandlerInterceptor = (type, info, invoker) => invoker.Invoke();
