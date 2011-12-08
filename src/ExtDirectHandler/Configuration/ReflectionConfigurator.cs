@@ -10,6 +10,7 @@ namespace ExtDirectHandler.Configuration
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private string _namespace;
 		private readonly ReflectionHelpers _reflectionHelpers;
+		private bool _preserveMethodCase = false;    //camelize method names by default
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -43,14 +44,20 @@ namespace ExtDirectHandler.Configuration
 			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
-				AddMethod(type.Name, pascalizeName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
+				AddMethod(type.Name, _preserveMethodCase ? methodInfo.Name : camelizeName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
 			return this;
 		}
 
-		private string pascalizeName(string name)
+		private string camelizeName(string name)
 		{
 			return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
+		}
+
+		public ReflectionConfigurator SetPreserveMethodCase(bool preserveCase)
+		{
+			_preserveMethodCase = preserveCase;
+			return this;
 		}
 
 		public ReflectionConfigurator SetNamespace(string ns)
@@ -72,6 +79,11 @@ namespace ExtDirectHandler.Configuration
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
 			});
+		}
+
+		public bool GetPreserveMethodCase()
+		{
+			return _preserveMethodCase;
 		}
 
 		public string GetNamespace()
