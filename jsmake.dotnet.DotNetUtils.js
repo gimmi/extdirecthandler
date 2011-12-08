@@ -17,12 +17,15 @@ jsmake.dotnet.DotNetUtils.prototype = {
 				.run();
 		}, this);
 	},
-	deployToNuGet: function (projFile, outputDirectory) {
-		jsmake.Sys.createRunner(this._nugetPath)
-			.args('pack', '-sym')
-			.args('-OutputDirectory', outputDirectory)
-			.args(projFile)
-			.run();
+	deployToNuGet: function (projFile, outputDirectory, deploySymbols) {
+		var runner = jsmake.Sys.createRunner(this._nugetPath);
+		runner.args('pack');
+		runner.args('-OutputDirectory', outputDirectory);
+		if (deploySymbols) {
+			runner.args('-sym');
+		}
+		runner.args(projFile);
+		runner.run();
 		var packages = jsmake.Fs.createScanner(outputDirectory)
 			.include('*.nupkg')
 			.exclude('*.symbols.nupkg')
