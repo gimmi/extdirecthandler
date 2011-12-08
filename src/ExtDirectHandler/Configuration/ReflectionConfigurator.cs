@@ -8,9 +8,9 @@ namespace ExtDirectHandler.Configuration
 	public class ReflectionConfigurator : IMetadata
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
-		private string _namespace;
 		private readonly ReflectionHelpers _reflectionHelpers;
-		private bool _preserveMethodCase = false;    //camelize method names by default
+		private string _namespace;
+		private bool _preserveMethodCase;
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -44,19 +44,14 @@ namespace ExtDirectHandler.Configuration
 			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
-				AddMethod(type.Name, _preserveMethodCase ? methodInfo.Name : camelizeName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
+				AddMethod(type.Name, BuildMethodName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
 			return this;
 		}
 
-		private string camelizeName(string name)
+		public ReflectionConfigurator PreserveMethodCase(bool preserveMethodCase)
 		{
-			return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
-		}
-
-		public ReflectionConfigurator SetPreserveMethodCase(bool preserveCase)
-		{
-			_preserveMethodCase = preserveCase;
+			_preserveMethodCase = preserveMethodCase;
 			return this;
 		}
 
@@ -79,11 +74,6 @@ namespace ExtDirectHandler.Configuration
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
 			});
-		}
-
-		public bool GetPreserveMethodCase()
-		{
-			return _preserveMethodCase;
 		}
 
 		public string GetNamespace()
@@ -131,14 +121,23 @@ namespace ExtDirectHandler.Configuration
 			return _cache[actionName][methodName].MethodInfo.GetParameters().Select(p => p.Name);
 		}
 
+		private string BuildMethodName(string name)
+		{
+			if(_preserveMethodCase)
+			{
+				return name;
+			}
+			return name.Substring(0, 1).ToLowerInvariant() + name.Substring(1);
+		}
+
 		#region Nested type: MethodMetadata
 
 		private class MethodMetadata
 		{
-			public Type Type;
-			public MethodInfo MethodInfo;
-			public bool IsFormHandler;
 			public bool HasNamedArguments;
+			public bool IsFormHandler;
+			public MethodInfo MethodInfo;
+			public Type Type;
 		}
 
 		#endregion

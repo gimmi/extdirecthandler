@@ -72,6 +72,14 @@ namespace ExtDirectHandler.Tests.Configuration
 			_target.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
 		}
 
+		[Test]
+		public void Should_preserve_method_case()
+		{
+			_target.PreserveMethodCase(true).RegisterType<ActionClass1>();
+
+			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "PublicInstanceMethod", "MethodWithParameters" });
+		}
+
 		private class ActionClass3
 		{
 			[DirectMethod(FormHandler = true)]
