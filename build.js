@@ -61,7 +61,7 @@ task('test', 'build', function () {
 
 task('release', 'test', function () {
 	fs.deletePath('build');
-	dotnet.deployToNuGet('src/ExtDirectHandler/ExtDirectHandler.csproj', 'build', false);
+	dotnet.deployToNuGet('src/ExtDirectHandler/ExtDirectHandler.csproj', 'build', true);
 /*
 	dotnet.runMSBuild('src/ExtDirectHandler.sln', [ 'Clean', 'ExtDirectHandler:Rebuild' ]);
 	fs.zipPath('build/bin', 'build/extdirecthandler-' + [ version.major, version.minor, version.build, version.revision ].join('.') + '.zip');
