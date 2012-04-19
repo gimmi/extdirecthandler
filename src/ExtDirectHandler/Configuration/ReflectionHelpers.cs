@@ -11,9 +11,19 @@ namespace ExtDirectHandler.Configuration
 			return FindAttribute<T>(member) ?? def;
 		}
 
+		public T FindAttribute<T>(MemberInfo member, T def, bool inherit) where T : Attribute
+		{
+			return FindAttribute<T>(member, inherit) ?? def;
+		}
+
 		public T FindAttribute<T>(MemberInfo member) where T : Attribute
 		{
 			return (T)member.GetCustomAttributes(typeof(T), false).FirstOrDefault();
+		}
+
+		public T FindAttribute<T>(MemberInfo member, bool inherit) where T : Attribute
+		{
+			return (T)member.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 		}
 
 		public bool HasAttribute<T>(MemberInfo member) where T : Attribute
