@@ -46,8 +46,10 @@ namespace ExtDirectHandler.Configuration
 		public ReflectionConfigurator RegisterType(Type type, bool inherit)
 		{
 			AddAction(type.Name);
-			BindingFlags declaredOnly = inherit ? BindingFlags.Default : BindingFlags.DeclaredOnly;
-			foreach(MethodInfo methodInfo in type.GetMethods(declaredOnly | BindingFlags.Public | BindingFlags.Instance ))
+			var methods = inherit ? 
+				_reflectionHelpers.GetInheritedMethods(type) : 
+				type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+			foreach (MethodInfo methodInfo in methods)
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute(), inherit);
 				AddMethod(type.Name, BuildMethodName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);

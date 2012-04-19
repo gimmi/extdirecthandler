@@ -40,5 +40,14 @@ namespace ExtDirectHandler.Configuration
 			}
 			return attribute;
 		}
+
+		public MethodInfo[] GetInheritedMethods(Type type)
+		{
+			MethodInfo[] objectMethods = typeof(Object).GetMethods();
+			MethodInfo[] result = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+				.TakeWhile(tm => !objectMethods.Contains(tm.GetBaseDefinition()))
+				.ToArray();
+			return result;
+		}
 	}
 }

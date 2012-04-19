@@ -61,6 +61,8 @@ namespace ExtDirectHandler.Tests.Configuration
 		{
 			IMetadata actual = _target.RegisterType<ActionClass1>(true);
 			_target.GetMethodNames("ActionClass1").Should().Contain("baseMethod");
+			_target.GetMethodNames("ActionClass1").Should().Not.Contain("getHashCode");
+			_target.GetMethodNames("ActionClass1").Should().Not.Contain("getType");
 		}
 
 		[Test]
