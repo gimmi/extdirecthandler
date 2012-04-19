@@ -29,6 +29,11 @@ namespace ExtDirectHandler.Configuration
 			return RegisterType(typeof(T));
 		}
 
+		public ReflectionConfigurator RegisterType<T>(bool inherit)
+		{
+			return RegisterType(typeof(T), inherit);
+		}
+
 		public ReflectionConfigurator RegisterTypes(IEnumerable<Type> types)
 		{
 			foreach(Type type in types)
@@ -38,15 +43,21 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public ReflectionConfigurator RegisterType(Type type)
+		public ReflectionConfigurator RegisterType(Type type, bool inherit)
 		{
 			AddAction(type.Name);
-			foreach(MethodInfo methodInfo in type.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance))
+			BindingFlags declaredOnly = inherit ? BindingFlags.Default : BindingFlags.DeclaredOnly;
+			foreach(MethodInfo methodInfo in type.GetMethods(declaredOnly | BindingFlags.Public | BindingFlags.Instance ))
 			{
-				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
+				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute(), inherit);
 				AddMethod(type.Name, BuildMethodName(methodInfo.Name), type, methodInfo, directMethodAttribute.FormHandler, directMethodAttribute.NamedArguments);
 			}
 			return this;
+		}
+
+		public ReflectionConfigurator RegisterType(Type type)
+		{
+			return this.RegisterType(type, false);
 		}
 
 		public ReflectionConfigurator PreserveMethodCase(bool preserveMethodCase)
