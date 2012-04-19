@@ -57,6 +57,15 @@ namespace ExtDirectHandler.Tests.Configuration
 		}
 
 		[Test]
+		public void Should_configure_methods_with_inheritance()
+		{
+			IMetadata actual = _target.RegisterType<ActionClass1>(true);
+			_target.GetMethodNames("ActionClass1").Should().Contain("baseMethod");
+			_target.GetMethodNames("ActionClass1").Should().Not.Contain("getHashCode");
+			_target.GetMethodNames("ActionClass1").Should().Not.Contain("getType");
+		}
+
+		[Test]
 		public void Should_configure_formhandler_from_attribute()
 		{
 			IMetadata actual = _target.RegisterType<ActionClass3>();
