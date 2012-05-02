@@ -13,7 +13,7 @@ namespace ExtDirectHandler.Configuration
 
 		public T FindAttribute<T>(MemberInfo member) where T : Attribute
 		{
-			return (T)member.GetCustomAttributes(typeof(T), false).FirstOrDefault();
+			return (T)member.GetCustomAttributes(typeof(T), true).FirstOrDefault();
 		}
 
 		public bool HasAttribute<T>(MemberInfo member) where T : Attribute
