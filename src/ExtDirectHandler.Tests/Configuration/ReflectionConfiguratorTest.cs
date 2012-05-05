@@ -43,7 +43,7 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_configure_methods()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass1>();
+			_target.RegisterType<ActionClass1>();
 
 			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters", "baseDirectAttributeMethod" });
 
@@ -63,7 +63,7 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_configure_formhandler_from_attribute()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass3>();
+			_target.RegisterType<ActionClass3>();
 
 			_target.IsFormHandler("ActionClass3", "formHandlerMethod").Should().Be.True();
 		}
@@ -71,7 +71,7 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_configure_named_arguments_from_attribute()
 		{
-			IMetadata actual = _target.RegisterType<ActionClass3>();
+			_target.RegisterType<ActionClass3>();
 
 			_target.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
 		}
