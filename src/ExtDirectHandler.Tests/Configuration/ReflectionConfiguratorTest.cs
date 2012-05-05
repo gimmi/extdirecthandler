@@ -45,7 +45,7 @@ namespace ExtDirectHandler.Tests.Configuration
 		{
 			_target.RegisterType<ActionClass1>();
 
-			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters", "baseDirectAttributeMethod" });
+			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters" });
 
 			_target.GetMethodInfo("ActionClass1", "publicInstanceMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("PublicInstanceMethod"));
 			_target.IsFormHandler("ActionClass1", "publicInstanceMethod").Should().Be.False();
@@ -54,10 +54,14 @@ namespace ExtDirectHandler.Tests.Configuration
 			_target.GetMethodInfo("ActionClass1", "methodWithParameters").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("MethodWithParameters"));
 			_target.IsFormHandler("ActionClass1", "methodWithParameters").Should().Be.False();
 			_target.HasNamedArguments("ActionClass1", "methodWithParameters").Should().Be.False();
+		}
 
-			_target.GetMethodInfo("ActionClass1", "baseDirectAttributeMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("BaseDirectAttributeMethod"));
-			_target.IsFormHandler("ActionClass1", "baseDirectAttributeMethod").Should().Be.False();
-			_target.HasNamedArguments("ActionClass1", "baseDirectAttributeMethod").Should().Be.False();
+		[Test]
+		public void Should_include_decorated_inherited_methods()
+		{
+			_target.RegisterType<InheritedAction>();
+
+			_target.GetMethodNames("InheritedAction").Should().Have.SameValuesAs(new[] { "decoratedBaseMethod" });
 		}
 
 		[Test]
@@ -81,27 +85,10 @@ namespace ExtDirectHandler.Tests.Configuration
 		{
 			_target.PreserveMethodCase(true).RegisterType<ActionClass1>();
 
-			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "PublicInstanceMethod", "MethodWithParameters", "BaseDirectAttributeMethod" });
+			_target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "PublicInstanceMethod", "MethodWithParameters" });
 		}
 
-		private class ActionClass3
-		{
-			[DirectMethod(FormHandler = true)]
-			public void FormHandlerMethod() {}
-
-			[DirectMethod(NamedArguments = true)]
-			public void NamedArgumentsMethod() {}
-		}
-
-		private class BaseClass
-		{
-			public void BaseMethod() {}
-			
-			[DirectMethod]
-			public void BaseDirectAttributeMethod() {}
-		}
-
-		private class ActionClass1 : BaseClass
+		private class ActionClass1
 		{
 			public static void StaticMethod() {}
 			public void PublicInstanceMethod() {}
@@ -112,5 +99,24 @@ namespace ExtDirectHandler.Tests.Configuration
 		}
 
 		private class ActionClass2 {}
+
+		private class ActionClass3
+		{
+			[DirectMethod(FormHandler = true)]
+			public void FormHandlerMethod() {}
+
+			[DirectMethod(NamedArguments = true)]
+			public void NamedArgumentsMethod() {}
+		}
+
+		private class BaseAction
+		{
+			public void BaseMethod() {}
+
+			[DirectMethod]
+			public void DecoratedBaseMethod() {}
+		}
+
+		private class InheritedAction : BaseAction {}
 	}
 }
