@@ -20,15 +20,5 @@ namespace ExtDirectHandler.Configuration
 		{
 			return FindAttribute<T>(member) != default(T);
 		}
-
-		public T GetAttribute<T>(MemberInfo member) where T : Attribute
-		{
-			var attribute = FindAttribute<T>(member);
-			if(attribute == default(T))
-			{
-				throw new InvalidOperationException(string.Format("Member {0} must be decorated with {1}", member, typeof(T)));
-			}
-			return attribute;
-		}
 	}
 }

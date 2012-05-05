@@ -19,22 +19,40 @@ namespace ExtDirectHandler.Tests.Configuration
 		[Test]
 		public void Should_find_attribute_when_present()
 		{
-			_target.HasAttribute<MyAttribute>(typeof(MyClass)).Should().Be.True();
-			_target.FindAttribute<MyAttribute>(typeof(MyClass)).Should().Be.OfType<MyAttribute>();
+			_target.HasAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("DecoratedMethod")).Should().Be.True();
+			_target.FindAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("DecoratedMethod")).Should().Be.OfType<SampleAttribute>();
 		}
 
 		[Test]
 		public void Should_not_find_attribute_when_absent()
 		{
-			_target.HasAttribute<MyAttribute>(typeof(MyUndecoratedClass)).Should().Be.False();
-			_target.FindAttribute<MyAttribute>(typeof(MyUndecoratedClass)).Should().Be.Null();
+			_target.HasAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("UndecoratedMethod")).Should().Be.False();
+			_target.FindAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("UndecoratedMethod")).Should().Be.Null();
 		}
 
-		public class MyAttribute : Attribute {}
+		[Test]
+		public void Should_find_inherited_attributes()
+		{
+			_target.HasAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("OverriddenMethod")).Should().Be.True();
+			_target.FindAttribute<SampleAttribute>(typeof(SampleClass).GetMethod("OverriddenMethod")).Should().Be.OfType<SampleAttribute>();
+		}
 
-		[My]
-		private class MyClass {}
+		public class SampleAttribute : Attribute {}
 
-		private class MyUndecoratedClass {}
+		private class SampleBaseClass
+		{
+			[Sample]
+			public virtual void OverriddenMethod() {}
+		}
+
+		private class SampleClass : SampleBaseClass
+		{
+			[Sample]
+			public void DecoratedMethod() {}
+
+			public void UndecoratedMethod() {}
+
+			public override void OverriddenMethod() {}
+		}
 	}
 }
