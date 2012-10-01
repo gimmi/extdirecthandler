@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Web;
 using ExtDirectHandler.Configuration;
 using Newtonsoft.Json.Linq;
 
@@ -54,12 +55,12 @@ namespace SampleWebApplication
 		}
 
 		[DirectMethod(FormHandler = true)]
-		public object SubmitFile(string textValue, Stream fileValue)
+		public object SubmitFile(string textValue, HttpPostedFile fileValue)
 		{
 			string tempFileName = Path.GetTempFileName();
 			using(FileStream fileStream = File.Create(tempFileName))
 			{
-				fileValue.CopyTo(fileStream);
+				fileValue.InputStream.CopyTo(fileStream);
 			}
 			return new {
 				Success = true,

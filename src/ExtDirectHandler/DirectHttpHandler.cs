@@ -44,7 +44,7 @@ namespace ExtDirectHandler
 
 		private void DoPost(HttpRequest httpRequest, HttpResponse httpResponse)
 		{
-			Dictionary<string, Stream> files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n].InputStream);
+			Dictionary<string, HttpPostedFile> files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n]);
 			DirectRequest[] requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form, files);
 			var responses = new DirectResponse[requests.Length];
 			for(int i = 0; i < requests.Length; i++)
