@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -65,6 +67,10 @@ namespace ExtDirectHandler
 				object value;
 				if(form.TryGetValue(parameterInfos[i].Name, out value))
 				{
+					if (value is HttpPostedFile && parameterInfos[i].ParameterType.IsAssignableFrom(typeof(Stream)))
+					{
+						value = ((HttpPostedFile)value).InputStream;
+					}
 					parameters[i] = value;
 				}
 				else

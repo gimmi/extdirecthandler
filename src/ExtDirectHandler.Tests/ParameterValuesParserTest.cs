@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Web;
 using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,15 +63,17 @@ namespace ExtDirectHandler.Tests
 		[Test]
 		public void Should_handle_form_parameters()
 		{
-			var file = new MemoryStream(); 
+			var httpInputStream = TestUtils.StubHttpInputStream();
+			var httpPostedFile = TestUtils.StubHttpPostedFile(httpInputStream);
 			var formData = new Dictionary<string, object> {
 				{ "p1", "v1" },
 				{ "p2", "v2" },
-				{ "p3", file }
+				{ "p3", httpPostedFile },
+				{ "p4", httpPostedFile }
 			};
 
 			object[] actual = _target.Parse(GetType().GetMethod("FormDataMethod").GetParameters(), new JArray(), formData, new JsonSerializer());
-			actual.Should().Have.SameSequenceAs(new object[] { "v1", "v2", file });
+			actual.Should().Have.SameSequenceAs(new object[] { "v1", "v2", httpInputStream, httpPostedFile });
 		}
 
 		[Test]
@@ -81,11 +84,11 @@ namespace ExtDirectHandler.Tests
 			};
 
 			object[] actual = _target.Parse(GetType().GetMethod("FormDataMethod").GetParameters(), new JArray(), formData, new JsonSerializer());
-			actual.Should().Have.SameSequenceAs(new object[] { "v1", null, null });
+			actual.Should().Have.SameSequenceAs(new object[] { "v1", null, null, null });
 		}
 
 		public void ExampleMethod(string p1, int p2, bool p3) {}
-		public void FormDataMethod(string p1, string p2, Stream p3) {}
+		public void FormDataMethod(string p1, string p2, Stream p3, HttpPostedFile p4) {}
 		public void MethodWithJTokenParam(JObject p1, JArray p2) {}
 	}
 }

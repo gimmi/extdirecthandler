@@ -12,3 +12,4 @@
 /src/SampleWebApplication/extjs/
 src/ExtSamplesRunner/extjs/
 src/**/*.user
+src/_ReSharper.*/
