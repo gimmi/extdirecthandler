@@ -1,5 +1,7 @@
 /*
-JSMake version 0.8.26
+JSMake version 0.8.42
+
+http://gimmi.github.com/jsmake/
 
 Copyright 2011 Gian Marco Gherardi
 
@@ -18,6 +20,20 @@ limitations under the License.
 /** @namespace Top level namespace for JSMake  */
 jsmake = this.jsmake || {};
 
+jsmake.Rhino = {
+	runCommand: function (command, opts) {
+		return runCommand(command, opts);
+	},
+	translateJavaString: function (javaString) {
+		if (javaString === null) {
+			return null;
+		}
+		if (javaString === undefined) {
+			return undefined;
+		}
+		return String(javaString);
+	}
+};
 /** @class Various helper methods to make working with Javascript easier */
 jsmake.Utils = {
 	/**
@@ -85,6 +101,13 @@ jsmake.Utils = {
 	 */
 	isFunction : function (v) {
 		return Object.prototype.toString.apply(v) === '[object Function]';
+	},
+	/**
+	 * @param v
+	 * @returns {Boolean} true if passed value is a string
+	 */
+	isString: function (value) {
+		return typeof value === 'string';
 	},
 	/**
 	 * @param {String} str string to trim
@@ -237,9 +260,8 @@ jsmake.Utils = {
 	}
 };
 
-jsmake.Project = function (body, logger) {
+jsmake.Project = function (logger) {
 	this._tasks = {};
-	this._body = body;
 	this._logger = logger;
 };
 jsmake.Project.prototype = {
@@ -402,32 +424,73 @@ jsmake.Sys = {
 	isWindowsOs: function () {
 		return jsmake.Fs.getPathSeparator() === '\\';
 	},
-	runCommand: function (command, opts) {
-		return runCommand(command, opts);
-	},
 	/**
-	 * Create a runner object, used to define and invoke an external program
-	 * @param {String} command the path of the command executable
-	 * @return {jsmake.CommandRunner} CommandRunner instance to fluently configure and run command
-	 * @see jsmake.CommandRunner
-	 * @example
-	 * // runs '/path/to/cmd.exe par1 par2 par3 par4'
-	 * jsmake.Sys.createRunner('/path/to/cmd.exe')
-	 *     .args('par1', 'par2')
-	 *     .args([ 'par3', 'par4' ])
-	 *     .run();
+	 * @deprecated Use {@link jsmake.Sys.run}
 	 */
 	createRunner: function (command) {
 		return new jsmake.CommandRunner(command);
 	},
 	/**
+	 * Stops execution for the specified amount of seconds
+	 */
+	wait: function (seconds) {
+		this.log('Waiting ' + seconds + ' seconds...');
+		java.lang.Thread.sleep(seconds * 1000);
+	},
+	/**
+	 * Run an external program
+	 * This method can be called in two ways: 
+	 * @example
+	 * // Simple call pattern
+	 * jsmake.Sys.run('COMMAND_TO_RUN'); // Just invoke the command, throwing error if return code of the command is not 0
+	 * jsmake.Sys.run('COMMAND_TO_RUN', 'PARAMETER 1', 'PARAMETER 2', ...); // Same as above, with command line parameters
+	 * @example
+	 * // Complex call pattern
+	 * jsmake.Sys.run({
+	 *     cmd: 'COMMAND_TO_RUN', // Same as simple call
+	 *     args: [ 'PARAMETER 1', 'PARAMETER 2' ], // (Optional, default to []) Command parameters.
+	 *     successCodes: [0, 1, 2], // (Optional, default to [0]) Command exit codes that are considered a succesful execution.
+	 *     failOnError: false, // (Optional, default to true) Indicate if an error must be thrown when execution fail.
+	 *                         // A command execution is considered failed when the return code is not one of the successCodes.
+	 *     captureOutput: true, // (Optional, default to false) Indicate if the output of the commend must be captured and returned to the caller.
+	 *                          // Note that if captureOutput=true, the output of the command is not printed to the console during JSMake execution.
+	 * });
+	 * @return If called with captureOutput=false the return value is just the command return code, otherwise is an object containig the following fields:
+	 * 'code' (the command return code), 'out' (the command stdout) and 'err' (the command stderr)
+	 */
+	run: function () {
+		var cfg = this._buildRunConfig.apply(this, arguments),
+			options = { args: cfg.args },
+			exitCode;
+			
+		if (cfg.captureOutput) {
+			options.output = '';
+			options.err = '';
+		}
+
+		this.log(cfg.cmd + ' ' + cfg.args.join(' '));
+		exitCode = jsmake.Rhino.runCommand(cfg.cmd, options);
+
+		if (cfg.failOnError && !jsmake.Utils.contains(cfg.successCodes, exitCode)) {
+			throw 'Command failed with exit status ' + exitCode;
+		}
+
+		return cfg.captureOutput ? {
+			out: options.output,
+			err: options.err,
+			code: exitCode
+		} : exitCode;
+	},
+	/**
 	 * Returns environment variable value
 	 * @param {String} name name of the environment variable
-	 * @param {String} def default value to return if environment variable not defined
-	 * @returns {String} environment variable value or def
+	 * @param {String} [def] default value to return if environment variable not defined.
+	 * @returns {String} environment variable value if found, or default value.
+	 * @throws {Error} if environment variable is not found and no default value passed.
 	 */
 	getEnvVar: function (name, def) {
-		return java.lang.System.getenv(name) || def;
+		var val = jsmake.Rhino.translateJavaString(java.lang.System.getenv(name));
+		return this._getEnvVar(name, val, def);
 	},
 	/**
 	 * Log message to the console
@@ -435,6 +498,35 @@ jsmake.Sys = {
 	 */
 	log: function (msg) {
 		print(msg);
+	},
+	_getEnvVar: function (name, val, def) {
+		if (val !== null) {
+			return val;
+		}
+		if (def !== undefined) {
+			return def;
+		}
+		throw 'Environment variable "' + name + '" not defined.';
+	},
+	_buildRunConfig: function () {
+		var args = jsmake.Utils.flatten(arguments);
+
+		if (jsmake.Utils.isString(args[0])) {
+			args = {
+				cmd: args.shift(),
+				args: args
+			};
+		} else {
+			args = args[0];
+		}
+		
+		return {
+			cmd: jsmake.Utils.isString(args.cmd) ? args.cmd : '',
+			args: jsmake.Utils.flatten(args.args),
+			successCodes: jsmake.Utils.isEmpty(args.successCodes) ? [0] : jsmake.Utils.flatten(args.successCodes),
+			failOnError: jsmake.Utils.isEmpty(args.failOnError) ? true : !!args.failOnError,
+			captureOutput: jsmake.Utils.isEmpty(args.captureOutput) ? false : !!args.captureOutput
+		};
 	}
 };
 
@@ -476,7 +568,7 @@ jsmake.Fs = {
 	 * @returns {String} path separator, e.g. '/' or '\'
 	 */
 	getPathSeparator: function () {
-		return java.io.File.separator;
+		return jsmake.Rhino.translateJavaString(java.io.File.separator);
 	},
 	/**
 	 * Returns true if OS has case sensitive filesystem
@@ -523,7 +615,7 @@ jsmake.Fs = {
 	 * jsmake.Fs.getName('/users/gimmi/file.txt'); // returns 'file.txt'
 	 */
 	getName: function (path) {
-		return this._translateJavaString(new java.io.File(path).getName());
+		return jsmake.Rhino.translateJavaString(new java.io.File(path).getName());
 	},
 	/**
 	 * Copy file or directory to another directory
@@ -598,7 +690,7 @@ jsmake.Fs = {
 	 * jsmake.Fs.getCanonicalPath('../file.txt'); // returns '/users/file.txt'
 	 */
 	getCanonicalPath: function (path) {
-		return this._translateJavaString(new java.io.File(path).getCanonicalPath());
+		return jsmake.Rhino.translateJavaString(new java.io.File(path).getCanonicalPath());
 	},
 	/**
 	 * Returns parent path
@@ -606,7 +698,7 @@ jsmake.Fs = {
 	 * @returns {String} parent path
 	 */
 	getParentDirectory: function (path) {
-		return this._translateJavaString(new java.io.File(path).getCanonicalFile().getParent());
+		return jsmake.Rhino.translateJavaString(new java.io.File(path).getCanonicalFile().getParent());
 	},
 	/**
 	 * Combine all passed path fragments into one, using OS path separator. Supports any number of parameters.
@@ -616,6 +708,9 @@ jsmake.Fs = {
 	 */
 	combinePaths: function () {
 		var paths = jsmake.Utils.flatten(arguments);
+		paths = jsmake.Utils.filter(paths, function (path) {
+			return !!path;
+		}, this);
 		return jsmake.Utils.reduce(paths, function (memo, path) {
 			return (memo ? this._javaCombine(memo, path) : path);
 		}, null, this);
@@ -636,7 +731,7 @@ jsmake.Fs = {
 		});
 	},
 	_javaCombine: function (path1, path2) {
-		return this._translateJavaString(new java.io.File(path1, path2).getPath());
+		return jsmake.Rhino.translateJavaString(new java.io.File(path1, path2).getPath());
 	},
 	_copyDirectory: function (srcDirectory, destDirectory) {
 		this.deletePath(destDirectory);
@@ -676,7 +771,7 @@ jsmake.Fs = {
 		fileFilter = new java.io.FileFilter({ accept: filter });
 		files = this._translateJavaArray(new java.io.File(basePath).listFiles(fileFilter));
 		return jsmake.Utils.map(files, function (file) {
-			return this._translateJavaString(file.getName());
+			return jsmake.Rhino.translateJavaString(file.getName());
 		}, this);
 	},
 	_translateJavaArray: function (javaArray) {
@@ -688,9 +783,6 @@ jsmake.Fs = {
 			ary.push(javaArray[i]);
 		}
 		return ary;
-	},
-	_translateJavaString: function (javaString) {
-		return String(javaString);
 	}
 };
 /**
@@ -774,32 +866,19 @@ jsmake.FsScanner.prototype = {
 	}
 };
 
-/**
- * Don't instantiate it directly, use {@link jsmake.Sys.createRunner}
- * @constructor
- */
 jsmake.CommandRunner = function (command) {
 	this._command = command;
 	this._arguments = [];
 	this._logger = jsmake.Sys;
 };
 jsmake.CommandRunner.prototype = {
-	/**
-	 * Add all passed arguments. Supports any number of parameters.
-	 * @returns {jsmake.CommandRunner} this instance, for chaining calls
-	 * @example
-	 * jsmake.Sys.createRunner('cmd.exe').args('par1', 'par2', [ 'par3', 'par4' ]).run();
-	 */
 	args: function () {
 		this._arguments = this._arguments.concat(jsmake.Utils.flatten(arguments));
 		return this;
 	},
-	/**
-	 * Run configured command. if exitstatus of the command is 0 then execution is considered succesful, otherwise an exception is thrown
-	 */
 	run: function () {
 		this._logger.log(this._command + ' ' + this._arguments.join(' '));
-		var exitStatus = jsmake.Sys.runCommand(this._command, { args: this._arguments });
+		var exitStatus = jsmake.Rhino.runCommand(this._command, { args: this._arguments });
 		if (exitStatus !== 0) {
 			throw 'Command failed with exit status ' + exitStatus;
 		}
@@ -807,9 +886,19 @@ jsmake.CommandRunner.prototype = {
 };
 jsmake.PathZipper = {
 	zip: function (srcPath, destFile) {
-		var zipOutputStream = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(destFile));
+		var basePath, relativePath, 
+			zipOutputStream = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(destFile));
+		if (jsmake.Fs.fileExists(srcPath)) {
+			basePath = jsmake.Fs.getParentDirectory(srcPath);
+			relativePath = jsmake.Fs.getName(srcPath);
+		} else if (jsmake.Fs.directoryExists(srcPath)) {
+			basePath = srcPath;
+			relativePath = '';
+		} else {
+			throw "Cannot zip source path '" + srcPath + "', it does not exists";
+		}
 		try {
-			this._zip(jsmake.Fs.getParentDirectory(srcPath), jsmake.Fs.getName(srcPath), zipOutputStream);
+			this._zip(basePath, relativePath, zipOutputStream);
 		} finally {
 			zipOutputStream.close(); // This raise exception "java.util.zip.ZipException: ZIP file must have at least one entry"
 		}
@@ -817,14 +906,12 @@ jsmake.PathZipper = {
 	_zip: function (basePath, relativePath, zipOutputStream) {
 		var names, path;
 		path = jsmake.Fs.combinePaths(basePath, relativePath);
-		if (jsmake.Fs.fileExists(path)) {
-			this._addFile(basePath, relativePath, zipOutputStream);
-		} else if (jsmake.Fs.directoryExists(path)) {
+		if (jsmake.Fs.directoryExists(path)) {
 			jsmake.Utils.each(jsmake.Fs.getChildPathNames(path), function (name) {
 				this._zip(basePath, jsmake.Fs.combinePaths(relativePath, name), zipOutputStream);
 			}, this);
 		} else {
-			throw "Cannot zip source path '" + path + "', it does not exists";
+			this._addFile(basePath, relativePath, zipOutputStream);
 		}
 	},
 	_addFile: function (basePath, relativePath, zipOutputStream) {
@@ -842,14 +929,82 @@ jsmake.PathZipper = {
 		zipOutputStream.closeEntry();
 	}
 };
+/** @class Various helper methods for manipulating XML files */
+jsmake.Xml = {
+	/**
+	 * Search nodes that match XPath in XML file.
+	 * @param {String} file XML file path
+	 * @param {String} xpath XPath query to search for
+	 * @returns {String[]} an array of values of matching nodes
+	 * @example
+	 * var values = jsmake.Xml.getValues('temp/file.xml', '//series/season/episode/text()');
+	 */
+	getValues: function (file, xpath) {
+		var i, ret = [], nodeList;
+		nodeList = this._getNodeList(this._loadDocument(file), xpath);
+		for (i = 0; i < nodeList.getLength(); i += 1) {
+			ret.push(jsmake.Rhino.translateJavaString(nodeList.item(i).getNodeValue()));
+		}
+		return ret;
+	},
+	/**
+	 * Like {@link jsmake.Xml.getValues}, but expect a single match, throwing exception otherwise.
+	 * @param {String} file XML file path
+	 * @param {String} xpath XPath query to search for
+	 * @returns {String} value of matching node
+	 * @example
+	 * var episode = jsmake.Xml.getValue('temp/file.xml', '//series/season[@id="1"]/episode/text()');
+	 */
+	getValue: function (file, xpath) {
+		var values = this.getValues(file, xpath);
+		if (values.length !== 1) {
+			throw "Unable to find a single element for xpath '" + xpath + "' in file '" + file + "'";
+		}
+		return values[0];
+	},
+	/**
+	 * Set value of matching node in XML file. throw exception if multiple nodes match XPath.
+	 * @param {String} file XML file path
+	 * @param {String} xpath XPath query to search for
+	 * @param {String} value value to set
+	 * @example
+	 * jsmake.Xml.setValue('temp/file.xml', '//series/season[@id="1"]/episode', 'new episode value');
+	 * jsmake.Xml.setValue('Web.config', '/configuration/connectionStrings/add[@name="MyConnStr"]/@connectionString', 'data source=(local);initial catalog=MyDb;integrated security=true');
+	 */
+	setValue: function (file, xpath, value) {
+		var nodeList, document;
+		document = this._loadDocument(file);
+		nodeList = this._getNodeList(document, xpath);
+		if (nodeList.getLength() !== 1) {
+			throw "Unable to find a single element for xpath '" + xpath + "' in file '" + file + "'";
+		}
+		nodeList.item(0).setTextContent(value);
+		this._saveDocument(document, file);
+	},
+	_getNodeList: function (document, xpath) {
+		return javax.xml.xpath.XPathFactory.newInstance().newXPath().evaluate(xpath, document, javax.xml.xpath.XPathConstants.NODESET);
+	},
+	_loadDocument: function (file) {
+		var documentBuilderFactory, document;
+		documentBuilderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
+		document = documentBuilderFactory.newDocumentBuilder().parse(file);
+		return document;
+	},
+	_saveDocument: function (document, file) {
+		var transformer;
+		transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+		transformer.transform(new javax.xml.transform.dom.DOMSource(document), new javax.xml.transform.stream.StreamResult(new java.io.File(file)));
+	}
+};
+
 jsmake.Main = function () {
 	this._project = null;
 	this._logger = jsmake.Sys;
 };
 jsmake.Main.prototype = {
 	init: function (global) {
-		this._project = new jsmake.Project(function () {
-		}, this._logger);
+		this._project = new jsmake.Project(this._logger);
 		global.task = this._bind(this._task, this);
 	},
 	runTask: function (name, args) {
