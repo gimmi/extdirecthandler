@@ -42,7 +42,7 @@ namespace ExtDirectHandler.Configuration
 		{
 			AddAction(type.Name);
 			var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-				.Where(mi => mi.DeclaringType == type || _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi));
+				.Where(mi => mi.DeclaringType == type && _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi));
 			foreach(MethodInfo methodInfo in methods)
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
