@@ -12,20 +12,49 @@ namespace ExtDirectHandler
 {
 	public class DirectHttpHandler : IHttpHandler, IRequiresSessionState // See http://stackoverflow.com/questions/1382791
 	{
-		private static IMetadata _metadata = new ReflectionConfigurator();
-		private static DirectHandlerInterceptor _directHandlerInterceptor = (type, info, invoker) => invoker.Invoke();
+		private IMetadata _metadata;
+		private DirectHandlerInterceptor _directHandlerInterceptor;
 
 		public bool IsReusable
 		{
 			get { return false; }
 		}
 
-		public static void SetMetadata(IMetadata metadata)
+		public DirectHttpHandler(IMetadata metadata, DirectHandlerInterceptor directHandlerInterceptor)
 		{
-			_metadata = metadata;
+			_metadata = metadata ?? GetMetadata();
+			_directHandlerInterceptor = directHandlerInterceptor ?? GetDirectHandlerInterceptor();
 		}
 
-		public static void SetDirectHandlerInterceptor(DirectHandlerInterceptor directHandlerInterceptor)
+		public DirectHttpHandler(IMetadata metadata)
+			: this(metadata, null)
+		{
+
+		}
+
+		public DirectHttpHandler(DirectHandlerInterceptor directHandlerInterceptor)
+			: this(null, directHandlerInterceptor)
+		{
+
+		}
+
+		public DirectHttpHandler()
+			: this(null, null)
+		{
+
+		}
+
+		protected virtual IMetadata GetMetadata()
+		{
+			return new ReflectionConfigurator();
+		}
+
+		protected virtual DirectHandlerInterceptor GetDirectHandlerInterceptor()
+		{
+			return (type, info, invoker) => invoker.Invoke();
+		}
+
+		public void SetDirectHandlerInterceptor(DirectHandlerInterceptor directHandlerInterceptor)
 		{
 			_directHandlerInterceptor = directHandlerInterceptor;
 		}
@@ -77,7 +106,7 @@ namespace ExtDirectHandler
 		private void DoGet(HttpRequest request, HttpResponse response)
 		{
 			string format = request.QueryString["format"];
-			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path, UriFormat.Unescaped);
+			string url = request.Url.GetComponents(UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path | UriComponents.Query, UriFormat.Unescaped);
 			var apiBuilder = new DirectApiBuilder(_metadata);
 
 			if(string.Equals(format, "json", StringComparison.InvariantCultureIgnoreCase))

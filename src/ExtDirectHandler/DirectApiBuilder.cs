@@ -20,14 +20,14 @@ namespace ExtDirectHandler
 		{
 			return new StringBuilder()
 				.AppendFormat("Ext.ns('{0}');", GetApiDescriptorNamespace(_metadata.GetNamespace())).Append(Environment.NewLine)
-				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.GetNamespace()), BuildJson(url))
+				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.GetNamespace(), _metadata.GetId()), BuildJson(url))
 				.ToString();
 		}
 
 		internal string BuildJson(string url)
 		{
 			return new JObject {
-				{ "id", new JValue(_metadata.GetNamespace()) },
+				{ "id", new JValue(GetApiDescriptorId(_metadata.GetId())) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(_metadata.GetNamespace()) },
@@ -35,18 +35,23 @@ namespace ExtDirectHandler
 				// "descriptor" is needed for integrating with Ext Designer
 				// see http://davehiren.blogspot.com/2011/03/configure-extdirect-api-with-ext.html
 				// see http://www.sencha.com/forum/showthread.php?102357#post_message_480214
-				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.GetNamespace())) }
+				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.GetNamespace(), _metadata.GetId())) }
 			}.ToString(Formatting.Indented);
 		}
 
-		private string GetApiDescriptorName(string ns)
+		private string GetApiDescriptorName(string ns, string id)
 		{
-			return string.Format("{0}.REMOTING_API", GetApiDescriptorNamespace(ns));
+			return string.Format("{0}.{1}", GetApiDescriptorNamespace(ns), GetApiDescriptorId(id));
 		}
 
 		private string GetApiDescriptorNamespace(string ns)
 		{
 			return ns ?? "Ext.app";
+		}
+
+		private string GetApiDescriptorId(string id)
+		{
+			return id ?? "REMOTING_API";
 		}
 
 		private JObject BuildActions()

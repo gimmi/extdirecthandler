@@ -7,6 +7,7 @@ namespace ExtDirectHandler
 	public interface IMetadata
 	{
 		string GetNamespace();
+		string GetId();
 		IEnumerable<string> GetActionNames();
 		IEnumerable<string> GetMethodNames(string actionName);
 		Type GetActionType(string actionName, string methodName);

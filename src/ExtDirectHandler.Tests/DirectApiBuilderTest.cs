@@ -26,7 +26,7 @@ namespace ExtDirectHandler.Tests
 
 			actual.Should().Be.EqualTo(@"Ext.ns('Ext.app');
 Ext.app.REMOTING_API = {
-  'id': null,
+  'id': 'REMOTING_API',
   'url': 'http://localhost:8080/rpc',
   'type': 'remoting',
   'namespace': null,
@@ -39,6 +39,7 @@ Ext.app.REMOTING_API = {
 		public void Should_build_api()
 		{
 			_metadata.Stub(x => x.GetNamespace()).Return("App.server");
+			_metadata.Stub(x => x.GetId()).Return("CUSTOM_API");
 
 			_metadata.Stub(x => x.GetActionNames()).Return(new[] { "Action1", "Action2" });
 			_metadata.Stub(x => x.GetMethodNames("Action1")).Return(new[] { "method1", "method2" });
@@ -61,8 +62,8 @@ Ext.app.REMOTING_API = {
 			string actual = _target.BuildJavascript("http://localhost:8080/rpc").Replace('"', '\'');
 
 			actual.Should().Be.EqualTo(@"Ext.ns('App.server');
-App.server.REMOTING_API = {
-  'id': 'App.server',
+App.server.CUSTOM_API = {
+  'id': 'CUSTOM_API',
   'url': 'http://localhost:8080/rpc',
   'type': 'remoting',
   'namespace': 'App.server',
@@ -88,7 +89,7 @@ App.server.REMOTING_API = {
       }
     ]
   },
-  'descriptor': 'App.server.REMOTING_API'
+  'descriptor': 'App.server.CUSTOM_API'
 };");
 		}
 	}

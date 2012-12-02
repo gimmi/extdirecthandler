@@ -10,12 +10,18 @@ namespace ExtDirectHandler.Configuration
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private string _namespace;
+		private string _id;
 
 		#region IMetadata Members
 
 		public string GetNamespace()
 		{
 			return _namespace;
+		}
+
+		public string GetId()
+		{
+			return _id;
 		}
 
 		public IEnumerable<string> GetActionNames()
@@ -102,6 +108,12 @@ namespace ExtDirectHandler.Configuration
 		public LambdaConfigurator SetNamespace(string ns)
 		{
 			_namespace = ns;
+			return this;
+		}
+
+		public LambdaConfigurator SetId(string id)
+		{
+			_id = id;
 			return this;
 		}
 

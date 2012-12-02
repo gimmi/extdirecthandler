@@ -10,6 +10,7 @@ namespace ExtDirectHandler.Configuration
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private readonly ReflectionHelpers _reflectionHelpers;
 		private string _namespace;
+		private string _id;
 		private bool _preserveMethodCase;
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
@@ -42,7 +43,7 @@ namespace ExtDirectHandler.Configuration
 		{
 			AddAction(type.Name);
 			var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-				.Where(mi => mi.DeclaringType == type && _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi));
+				.Where(mi => mi.DeclaringType == type || _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi));
 			foreach(MethodInfo methodInfo in methods)
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());
@@ -60,6 +61,12 @@ namespace ExtDirectHandler.Configuration
 		public ReflectionConfigurator SetNamespace(string ns)
 		{
 			_namespace = ns;
+			return this;
+		}
+
+		public ReflectionConfigurator SetId(string id)
+		{
+			_id = id;
 			return this;
 		}
 
@@ -81,6 +88,11 @@ namespace ExtDirectHandler.Configuration
 		public string GetNamespace()
 		{
 			return _namespace;
+		}
+
+		public string GetId()
+		{
+			return _id;
 		}
 
 		public IEnumerable<string> GetActionNames()
