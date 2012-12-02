@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Multiple actions demo</title>
+    <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.2a/ext-all-debug-w-comments.js"></script>
+    
+    <script type="text/javascript" src="/rpc?api=PublicApi"></script>
+    <script type="text/javascript" src="/rpc?api=PrivateApi"></script>
+</head>
+<body>
+    <script type="text/javascript">
+        Ext.require('Ext.direct.*');
+
+        Ext.onReady(function () {
+            Ext.direct.Manager.addProvider(Server.PublicApi);
+            Ext.direct.Manager.addProvider(Server.PrivateApi);
+
+            Server.PublicAction.hello(function (result) {
+                var div = document.createElement('div');
+                div.innerText = result;
+                document.body.appendChild(div);
+            });
+
+            Server.PrivateAction.hello(function (result) {
+                var div = document.createElement('div');
+                div.innerText = result;
+                document.body.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>
