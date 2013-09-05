@@ -41,8 +41,14 @@ namespace ExtDirectHandler.Configuration
 		public ReflectionConfigurator RegisterType(Type type)
 		{
 			AddAction(type.Name);
-			var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-				.Where(mi => mi.DeclaringType == type || _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi));
+			
+			var methods = new List<MethodInfo>();
+			
+            methods.AddRange(type.GetMethods(BindingFlags.Public|BindingFlags.Instance)
+                    .Where(mi => mi.DeclaringType == type || _reflectionHelpers.HasAttribute<DirectMethodAttribute>(mi)));
+
+            if (type.IsInterface) type.GetInterfaces().ToList().ForEach(x => methods.AddRange(x.GetMethods()));
+			
 			foreach(MethodInfo methodInfo in methods)
 			{
 				DirectMethodAttribute directMethodAttribute = _reflectionHelpers.FindAttribute(methodInfo, new DirectMethodAttribute());

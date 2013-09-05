@@ -60,8 +60,10 @@ namespace ExtDirectHandler.Tests.Configuration
 		public void Should_include_decorated_inherited_methods()
 		{
 			_target.RegisterType<InheritedAction>();
-
 			_target.GetMethodNames("InheritedAction").Should().Have.SameValuesAs(new[] { "decoratedBaseMethod" });
+			
+			_target.RegisterType<InheritedInterface>();
+            _target.GetMethodNames("InheritedInterface").Should().Have.SameValuesAs(new[] { "inheritedMethod", "classMethod" }); 
 		}
 
 		[Test]
@@ -118,5 +120,14 @@ namespace ExtDirectHandler.Tests.Configuration
 		}
 
 		private class InheritedAction : BaseAction {}
+		
+		private interface IClass
+        {
+            int classMethod();
+        }
+
+        private interface InheritedInterface : IClass {
+            int inheritedMethod();
+        }
 	}
 }
