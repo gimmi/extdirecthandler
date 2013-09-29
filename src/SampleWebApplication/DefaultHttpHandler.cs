@@ -19,8 +19,7 @@ namespace SampleWebApplication
             }
             .RegisterType<DirectAction>();
 
-            //return new LambdaConfigurator()
-            //    .SetNamespace("Sample.server")
+            //return new LambdaConfigurator() { Namespace = "Sample.server" }
             //    .Register<DirectAction>("DirectAction.stringEcho", x => x.StringEcho(default(string)))
             //    .Register<DirectAction>("DirectAction.numberEcho", x => x.NumberEcho(default(double)))
             //    .Register<DirectAction>("DirectAction.boolEcho", x => x.BoolEcho(default(bool)))

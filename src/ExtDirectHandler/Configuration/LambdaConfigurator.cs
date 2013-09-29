@@ -9,19 +9,20 @@ namespace ExtDirectHandler.Configuration
 	public class LambdaConfigurator : IMetadata
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
-		private string _namespace;
-		private string _id;
+
+		public string Namespace { get; set; }
+		public string Id { get; set; }
 
 		#region IMetadata Members
 
 		public string GetNamespace()
 		{
-			return _namespace;
+			return Namespace;
 		}
 
 		public string GetId()
 		{
-			return _id;
+			return Id;
 		}
 
 		public IEnumerable<string> GetActionNames()
@@ -102,18 +103,6 @@ namespace ExtDirectHandler.Configuration
 				HasNamedArguments = namedArguments,
 				IsFormHandler = formHandler
 			});
-			return this;
-		}
-
-		public LambdaConfigurator SetNamespace(string ns)
-		{
-			_namespace = ns;
-			return this;
-		}
-
-		public LambdaConfigurator SetId(string id)
-		{
-			_id = id;
 			return this;
 		}
 

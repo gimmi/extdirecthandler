@@ -10,9 +10,9 @@ namespace ExtDirectHandler.Configuration
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private readonly ReflectionHelpers _reflectionHelpers;
 
-		public string Namespace;
-		public string Id;
-		public bool PreserveMethodCase;
+        public string Namespace { get; set; }
+        public string Id { get; set; }
+        public bool PreserveMethodCase { get; set; }
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
