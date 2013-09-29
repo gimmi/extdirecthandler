@@ -14,8 +14,10 @@ namespace SampleWebApplication
         protected override IMetadata GetMetadata()
         {
             return new ReflectionConfigurator()
-                .SetNamespace("Sample.server")
-                .RegisterType<DirectAction>();
+            {
+                Namespace = "Sample.server"
+            }
+            .RegisterType<DirectAction>();
 
             //return new LambdaConfigurator()
             //    .SetNamespace("Sample.server")

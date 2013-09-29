@@ -1,17 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Web;
-using MultipleDirectApi;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MultipleDirectApi")]
+[assembly: AssemblyTitle("ExtDirectHandler.VsTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("MultipleDirectApi")]
+[assembly: AssemblyProduct("ExtDirectHandler.VsTests")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,7 +20,7 @@ using MultipleDirectApi;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e590af89-8f7e-4688-9f71-c72f8ea09f84")]
+[assembly: Guid("12f69efd-0074-4c6e-89d0-d53638a22ebf")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,9 +29,7 @@ using MultipleDirectApi;
 //      Build Number
 //      Revision
 //
-// You can specify all the values or you can default the Revision and Build Numbers 
+// You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-//[assembly: PreApplicationStartMethod(typeof(ApiManager), "Start")]

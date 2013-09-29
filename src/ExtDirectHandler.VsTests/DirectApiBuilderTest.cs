@@ -1,24 +1,24 @@
 ﻿using ExtDirectHandler.Configuration;
-using NUnit.Framework;
 using Rhino.Mocks;
 using SharpTestsEx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ExtDirectHandler.Tests
+namespace ExtDirectHandler.VsTests
 {
-	[TestFixture]
+	[TestClass]
 	public class DirectApiBuilderTest
 	{
 		private IMetadata _metadata;
 		private DirectApiBuilder _target;
 
-		[SetUp]
+        [TestInitialize]
 		public void SetUp()
 		{
 			_metadata = MockRepository.GenerateStub<IMetadata>();
 			_target = new DirectApiBuilder(_metadata);
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_use_default_place_for_api_and_no_namespace_when_no_namespace_provided()
 		{
 			_metadata.Stub(x => x.GetActionNames()).Return(new string[0]);
@@ -35,11 +35,11 @@ Ext.app.REMOTING_API = {
 };");
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_build_api()
 		{
 			_metadata.Stub(x => x.GetNamespace()).Return("App.server");
-			_metadata.Stub(x => x.GetId()).Return("CUSTOM_API");
+            _metadata.Stub(x => x.GetId()).Return("CUSTOM_API");
 
 			_metadata.Stub(x => x.GetActionNames()).Return(new[] { "Action1", "Action2" });
 			_metadata.Stub(x => x.GetMethodNames("Action1")).Return(new[] { "method1", "method2" });

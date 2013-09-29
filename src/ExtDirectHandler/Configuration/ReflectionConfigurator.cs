@@ -9,9 +9,10 @@ namespace ExtDirectHandler.Configuration
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private readonly ReflectionHelpers _reflectionHelpers;
-		private string _namespace;
-		private string _id;
-		private bool _preserveMethodCase;
+
+		public string Namespace;
+		public string Id;
+		public bool PreserveMethodCase;
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -52,24 +53,6 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public ReflectionConfigurator PreserveMethodCase(bool preserveMethodCase)
-		{
-			_preserveMethodCase = preserveMethodCase;
-			return this;
-		}
-
-		public ReflectionConfigurator SetNamespace(string ns)
-		{
-			_namespace = ns;
-			return this;
-		}
-
-		public ReflectionConfigurator SetId(string id)
-		{
-			_id = id;
-			return this;
-		}
-
 		private void AddAction(string actionName)
 		{
 			_cache.Add(actionName, new Dictionary<string, MethodMetadata>());
@@ -87,12 +70,12 @@ namespace ExtDirectHandler.Configuration
 
 		public string GetNamespace()
 		{
-			return _namespace;
+			return Namespace;
 		}
 
 		public string GetId()
 		{
-			return _id;
+			return Id;
 		}
 
 		public IEnumerable<string> GetActionNames()
@@ -137,7 +120,7 @@ namespace ExtDirectHandler.Configuration
 
 		private string BuildMethodName(string name)
 		{
-			if(_preserveMethodCase)
+			if(PreserveMethodCase)
 			{
 				return name;
 			}

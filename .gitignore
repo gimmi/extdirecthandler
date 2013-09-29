@@ -9,6 +9,7 @@
 /src/*.suo
 /src/SharedAssemblyInfo.cs
 /TestResult.xml
+[Tt]est[Rr]esult*
 /src/SampleWebApplication/extjs/
 src/ExtSamplesRunner/extjs/
 src/**/*.user

@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using NUnit.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Rhino.Mocks;
 using SharpTestsEx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ExtDirectHandler.Tests
+namespace ExtDirectHandler.VsTests
 {
-	[TestFixture]
+	[TestClass]
 	public class DirectHandlerTest
 	{
-		[Test]
+		[TestMethod]
 		public void Should_call_interceptor_with_expected_parameters()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -31,7 +31,7 @@ namespace ExtDirectHandler.Tests
 			directHandlerInterceptor.VerifyAllExpectations();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_return_null_result_if_interceptor_does_not_invoke_handler()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -50,7 +50,7 @@ namespace ExtDirectHandler.Tests
 			actual.Result.Should().Be.Null();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_return_error_if_interceptor_throws_exceptions()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -72,7 +72,7 @@ namespace ExtDirectHandler.Tests
 			actual.Where.Should().Contain("error from interceptor");
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_use_actioninstance_from_interceptor()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -95,7 +95,7 @@ namespace ExtDirectHandler.Tests
 			actionInstance.VerifyAllExpectations();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_build_response_based_on_request_data()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -119,7 +119,7 @@ namespace ExtDirectHandler.Tests
 			actual.Result.Should().Be.Null();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_build_expected_response_when_target_method_throws_exception()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -143,7 +143,7 @@ namespace ExtDirectHandler.Tests
 			actual.Result.Should().Be.Null();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_invoke_expected_method_passing_parameters_and_returning_result()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -165,7 +165,7 @@ namespace ExtDirectHandler.Tests
 			actionInstance.VerifyAllExpectations();
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_return_error_when_fail_to_parse_parameters()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -188,7 +188,7 @@ namespace ExtDirectHandler.Tests
 			response.Where.Should().Contain("stubexc");
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_return_error_when_fail_to_get_action_type()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();
@@ -209,7 +209,7 @@ namespace ExtDirectHandler.Tests
 			response.Where.Should().Contain("Action not found");
 		}
 
-		[Test]
+		[TestMethod]
 		public void Should_return_error_when_fail_to_get_methodinfo()
 		{
 			var parametersParser = MockRepository.GenerateStub<ParametersParser>();

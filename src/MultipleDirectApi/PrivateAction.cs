@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace MultipleDirectActions
+namespace MultipleDirectApi
 {
     public class PrivateAction
     {
