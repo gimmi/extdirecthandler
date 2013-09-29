@@ -15,17 +15,20 @@
             Ext.direct.Manager.addProvider(Server.PublicApi);
             Ext.direct.Manager.addProvider(Server.PrivateApi);
 
-            Server.PublicAction.hello(function (result) {
+            function appendResult(result) {
                 var div = document.createElement('div');
                 div.innerText = result;
                 document.body.appendChild(div);
-            });
+            }
 
-            Server.PrivateAction.hello(function (result) {
-                var div = document.createElement('div');
-                div.innerText = result;
-                document.body.appendChild(div);
-            });
+            Server.PublicAction.hello(appendResult);
+            Server.PrivateAction.hello(appendResult);
+
+            Server.PublicAction.longMethod1(appendResult);
+            Server.PublicAction.longMethod2(appendResult);
+
+            Server.PrivateAction.longMethod1(appendResult);
+            Server.PrivateAction.longMethod2(appendResult);
         });
     </script>
 </body>

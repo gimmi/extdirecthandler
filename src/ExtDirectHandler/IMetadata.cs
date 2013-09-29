@@ -16,5 +16,6 @@ namespace ExtDirectHandler
 		bool IsFormHandler(string actionName, string methodName);
 		bool HasNamedArguments(string actionName, string methodName);
 		IEnumerable<string> GetArgumentNames(string actionName, string methodName);
+		bool GetAllowParallel();
 	}
 }

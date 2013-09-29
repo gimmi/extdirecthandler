@@ -12,6 +12,7 @@ namespace ExtDirectHandler.Configuration
 
 		public string Namespace { get; set; }
 		public string Id { get; set; }
+		public bool AllowParallel { get; set; }
 
 		#region IMetadata Members
 
@@ -23,6 +24,11 @@ namespace ExtDirectHandler.Configuration
 		public string GetId()
 		{
 			return Id;
+		}
+
+		public bool GetAllowParallel()
+		{
+			return AllowParallel;
 		}
 
 		public IEnumerable<string> GetActionNames()
@@ -129,5 +135,6 @@ namespace ExtDirectHandler.Configuration
 		}
 
 		#endregion
+
 	}
 }

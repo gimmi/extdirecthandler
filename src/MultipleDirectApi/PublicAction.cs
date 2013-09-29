@@ -11,5 +11,17 @@ namespace MultipleDirectApi
         {
             return "Public action hello!";
         }
+
+        public string LongMethod1()
+        {
+            System.Threading.Thread.Sleep(1000);
+            return "Public action slept 1000ms";
+        }
+
+        public string LongMethod2()
+        {
+            System.Threading.Thread.Sleep(1000);
+            return "Public action slept 1000ms";
+        }
     }
 }

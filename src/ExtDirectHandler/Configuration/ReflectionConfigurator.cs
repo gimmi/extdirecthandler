@@ -10,9 +10,10 @@ namespace ExtDirectHandler.Configuration
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private readonly ReflectionHelpers _reflectionHelpers;
 
-        public string Namespace { get; set; }
-        public string Id { get; set; }
-        public bool PreserveMethodCase { get; set; }
+		public string Namespace { get; set; }
+		public string Id { get; set; }
+		public bool PreserveMethodCase { get; set; }
+		public bool AllowParallel { get; set; }
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -78,6 +79,11 @@ namespace ExtDirectHandler.Configuration
 			return Id;
 		}
 
+		public bool GetAllowParallel()
+		{
+			return AllowParallel;
+		}
+
 		public IEnumerable<string> GetActionNames()
 		{
 			return _cache.Keys;
@@ -138,5 +144,6 @@ namespace ExtDirectHandler.Configuration
 		}
 
 		#endregion
+		
 	}
 }

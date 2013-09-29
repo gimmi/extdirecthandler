@@ -14,7 +14,8 @@ namespace MultipleDirectApi
             return new ReflectionConfigurator() 
             { 
                 Namespace = "Server",
-                Id = this.GetType().Name
+                Id = this.GetType().Name,
+                AllowParallel = false
             }
             .RegisterType(typeof(PrivateAction));
         }
