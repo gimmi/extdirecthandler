@@ -7,21 +7,31 @@ namespace MultipleDirectApi
 {
     public class PrivateAction
     {
-        public string Hello()
+        public string PrivateHello()
         {
             return "Private action hello!";
         }
 
-        public string LongMethod1()
+        public string PrivateLongMethod1()
         {
             System.Threading.Thread.Sleep(1000);
             return "Private action slept 1000ms";
         }
 
-        public string LongMethod2()
+        public string PrivateLongMethod2()
         {
             System.Threading.Thread.Sleep(1000);
             return "Private action slept 1000ms";
+        }
+
+        public void SomeMethod1()
+        {
+
+        }
+
+        public void SomeMethod2()
+        {
+
         }
     }
 }

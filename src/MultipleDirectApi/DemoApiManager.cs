@@ -11,14 +11,13 @@ namespace MultipleDirectApi
     /// </summary>
     public class DemoApiManager : DirectApiManager
     {
-        protected override IDictionary<string, Type> GetConfiguration()
+        protected override IEnumerable<Type> GetAPIs()
         {
-            var result = new Dictionary<string, Type>()
+            return new []
             { 
-                { "PublicApi", typeof(PublicApi) },
-                { "PrivateApi", typeof(PrivateApi) }
+                typeof(PublicApi), 
+                typeof(PrivateApi)
             };
-            return result;
         }
     }
 }

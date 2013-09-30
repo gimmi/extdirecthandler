@@ -22,13 +22,13 @@
             }
 
             Server.PublicAction.hello(appendResult);
-            Server.PrivateAction.hello(appendResult);
+            Server.PrivateAction.privateHello(appendResult);
 
             Server.PublicAction.longMethod1(appendResult);
             Server.PublicAction.longMethod2(appendResult);
 
-            Server.PrivateAction.longMethod1(appendResult);
-            Server.PrivateAction.longMethod2(appendResult);
+            Server.PrivateAction.privateLongMethod1(appendResult);
+            Server.PrivateAction.privateLongMethod2(appendResult);
         });
     </script>
 </body>

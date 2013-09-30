@@ -18,7 +18,7 @@ namespace ExtDirectHandler
             }
         }
 
-        protected IDictionary<string, Type> Configuration { get; set; }
+        protected IEnumerable<Type> APIs { get; set; }
 
         protected HttpApplication Context { get; set; }
 
@@ -36,7 +36,7 @@ namespace ExtDirectHandler
         /// </example>
         public void Init(HttpApplication context)
         {
-            Configuration = this.GetConfiguration();
+            APIs = this.GetAPIs();
             Context = context;
             context.BeginRequest += Context_BeginRequest;
         }
@@ -52,13 +52,13 @@ namespace ExtDirectHandler
 
             if (request.Url.AbsolutePath == this.Path)
             {
-                var api = request.QueryString["api"];
-                if (!String.IsNullOrEmpty(api))
+                var apiName = request.QueryString["api"];
+                if (!String.IsNullOrEmpty(apiName))
                 {
-                    if (Configuration.ContainsKey(api))
+                    Type apiType = APIs.Where(t => t.Name == apiName).FirstOrDefault();
+                    if (apiType != null)
                     {
-                        Type type = Configuration[api];
-                        var handler = CreateInstance(type);
+                        var handler = CreateInstance(apiType);
                         if (handler is IHttpHandler)
                         {
                             (handler as IHttpHandler).ProcessRequest(app.Context);
@@ -66,13 +66,13 @@ namespace ExtDirectHandler
                         }
                         else
                         {
-                            response.Write(String.Format("'{0}' is not an IHttpHandler", type.Name));
+                            response.Write(String.Format("'{0}' is not an IHttpHandler", apiType.Name));
                             response.End();
                         }
                     }
                     else
                     {
-                        response.Write(String.Format("Unknown API: '{0}'", api));
+                        response.Write(String.Format("Unknown API: '{0}'", apiName));
                         response.End();
                     }
                 }
@@ -85,10 +85,10 @@ namespace ExtDirectHandler
         }
 
         /// <summary>
-        /// Retreiving dictionary of API's names to their types. Should be overriden in descendands.
+        /// Returns collection of APIs. Should be overriden in descendands.
         /// </summary>
         /// <returns></returns>
-        protected abstract IDictionary<string, Type> GetConfiguration();
+        protected abstract IEnumerable<Type> GetAPIs();
 
         /// <summary>
         /// Type instance creation. Can be overriden for custom dependency injection.
