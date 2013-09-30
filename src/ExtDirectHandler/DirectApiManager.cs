@@ -10,7 +10,7 @@ namespace ExtDirectHandler
     /// </summary>
     public abstract class DirectApiManager : IHttpModule 
     {
-        protected string Path
+        protected virtual string Path
         {
             get
             {
@@ -50,7 +50,7 @@ namespace ExtDirectHandler
             var request = app.Request;
             var response = app.Response;
 
-            if (request.Url.AbsolutePath == this.Path)
+            if (request.Url.AbsolutePath == request.ApplicationPath + this.Path)
             {
                 var apiName = request.QueryString["api"];
                 if (!String.IsNullOrEmpty(apiName))
