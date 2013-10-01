@@ -11,7 +11,7 @@ namespace ExtDirectHandler.VsTests
 		private IMetadata _metadata;
 		private DirectApiBuilder _target;
 
-        [TestInitialize]
+		[TestInitialize]
 		public void SetUp()
 		{
 			_metadata = MockRepository.GenerateStub<IMetadata>();
@@ -38,8 +38,8 @@ Ext.app.REMOTING_API = {
 		[TestMethod]
 		public void Should_build_api()
 		{
-			_metadata.Stub(x => x.GetNamespace()).Return("App.server");
-            _metadata.Stub(x => x.GetId()).Return("CUSTOM_API");
+			_metadata.Stub(x => x.Namespace).Return("App.server");
+			_metadata.Stub(x => x.Id).Return("CUSTOM_API");
 
 			_metadata.Stub(x => x.GetActionNames()).Return(new[] { "Action1", "Action2" });
 			_metadata.Stub(x => x.GetMethodNames("Action1")).Return(new[] { "method1", "method2" });
@@ -68,26 +68,26 @@ App.server.CUSTOM_API = {
   'type': 'remoting',
   'namespace': 'App.server',
   'actions': {
-    'Action1': [
-      {
-        'name': 'method1',
-        'len': 2
-      },
-      {
-        'name': 'method2',
-        'formHandler': true,
-        'len': 1
-      }
-    ],
-    'Action2': [
-      {
-        'name': 'method1',
-        'params': [
-          'arg1',
-          'arg2'
-        ]
-      }
-    ]
+	'Action1': [
+	  {
+		'name': 'method1',
+		'len': 2
+	  },
+	  {
+		'name': 'method2',
+		'formHandler': true,
+		'len': 1
+	  }
+	],
+	'Action2': [
+	  {
+		'name': 'method1',
+		'params': [
+		  'arg1',
+		  'arg2'
+		]
+	  }
+	]
   },
   'descriptor': 'App.server.CUSTOM_API'
 };");

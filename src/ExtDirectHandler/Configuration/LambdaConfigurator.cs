@@ -15,22 +15,7 @@ namespace ExtDirectHandler.Configuration
 		public bool AllowParallel { get; set; }
 
 		#region IMetadata Members
-
-		public string GetNamespace()
-		{
-			return Namespace;
-		}
-
-		public string GetId()
-		{
-			return Id;
-		}
-
-		public bool GetAllowParallel()
-		{
-			return AllowParallel;
-		}
-
+		
 		public IEnumerable<string> GetActionNames()
 		{
 			return _cache.Keys;

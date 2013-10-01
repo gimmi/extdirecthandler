@@ -22,7 +22,7 @@ namespace ExtDirectHandler.VsTests.Configuration
         [TestMethod]
         public void Should_return_null_if_no_namespace_defined()
         {
-            _target.GetNamespace().Should().Be.Null();
+            _target.Namespace.Should().Be.Null();
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace ExtDirectHandler.VsTests.Configuration
         {
             _target.Namespace = "ns";
 
-            _target.GetNamespace().Should().Be.EqualTo("ns");
+            _target.Namespace.Should().Be.EqualTo("ns");
         }
 
         [TestMethod]

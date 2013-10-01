@@ -6,8 +6,9 @@ namespace ExtDirectHandler
 {
 	public interface IMetadata
 	{
-		string GetNamespace();
-		string GetId();
+		string Namespace { get; }
+		string Id { get; }
+		bool AllowParallel { get; }
 		IEnumerable<string> GetActionNames();
 		IEnumerable<string> GetMethodNames(string actionName);
 		Type GetActionType(string actionName, string methodName);
@@ -16,6 +17,5 @@ namespace ExtDirectHandler
 		bool IsFormHandler(string actionName, string methodName);
 		bool HasNamedArguments(string actionName, string methodName);
 		IEnumerable<string> GetArgumentNames(string actionName, string methodName);
-		bool GetAllowParallel();
 	}
 }

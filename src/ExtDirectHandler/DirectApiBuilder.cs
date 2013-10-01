@@ -19,23 +19,23 @@ namespace ExtDirectHandler
 		internal string BuildJavascript(string url)
 		{
 			return new StringBuilder()
-				.AppendFormat("Ext.ns('{0}');", GetApiDescriptorNamespace(_metadata.GetNamespace())).Append(Environment.NewLine)
-				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.GetNamespace(), _metadata.GetId()), BuildJson(url))
+				.AppendFormat("Ext.ns('{0}');", GetApiDescriptorNamespace(_metadata.Namespace)).Append(Environment.NewLine)
+				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.Namespace, _metadata.Id), BuildJson(url))
 				.ToString();
 		}
 
 		internal string BuildJson(string url)
 		{
 			return new JObject {
-				{ "id", new JValue(GetApiDescriptorId(_metadata.GetId())) },
+				{ "id", new JValue(GetApiDescriptorId(_metadata.Id)) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
-				{ "namespace", new JValue(_metadata.GetNamespace()) },
+				{ "namespace", new JValue(_metadata.Namespace) },
 				{ "actions", BuildActions() },
 				// "descriptor" is needed for integrating with Ext Designer
 				// see http://davehiren.blogspot.com/2011/03/configure-extdirect-api-with-ext.html
 				// see http://www.sencha.com/forum/showthread.php?102357#post_message_480214
-				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.GetNamespace(), _metadata.GetId())) }
+				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.Namespace, _metadata.Id)) }
 			}.ToString(Formatting.Indented);
 		}
 

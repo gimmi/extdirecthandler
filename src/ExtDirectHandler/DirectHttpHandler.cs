@@ -88,7 +88,7 @@ namespace ExtDirectHandler
 				}, i);
 			}
 
-			if (_metadata.GetAllowParallel())
+			if (_metadata.AllowParallel)
 			{
 				tasks.ToList().ForEach(t => t.Start());
 				Task.WaitAll(tasks);
