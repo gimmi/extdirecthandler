@@ -7,9 +7,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWebApplication", "Sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtSamplesRunner", "ExtSamplesRunner\ExtSamplesRunner.csproj", "{599F012D-0BDF-4FDB-996F-982ACCD3998D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDirectApi", "MultipleDirectApi\MultipleDirectApi.csproj", "{8D93B5B9-DEEE-40CD-B8D2-0D8174BD4B61}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.VsTests", "ExtDirectHandler.VsTests\ExtDirectHandler.VsTests.csproj", "{07255498-63D6-4E21-B2D5-43464042781B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDirectApi.MVC4", "MultipleDirectApi.MVC4\MultipleDirectApi.MVC4.csproj", "{5E5C05EF-F704-45D7-9680-83105950B904}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0EA5DDB5-7654-4721-BF5A-A89BB04D92CA}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +34,14 @@ Global
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D93B5B9-DEEE-40CD-B8D2-0D8174BD4B61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D93B5B9-DEEE-40CD-B8D2-0D8174BD4B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D93B5B9-DEEE-40CD-B8D2-0D8174BD4B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D93B5B9-DEEE-40CD-B8D2-0D8174BD4B61}.Release|Any CPU.Build.0 = Release|Any CPU
 		{07255498-63D6-4E21-B2D5-43464042781B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{07255498-63D6-4E21-B2D5-43464042781B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07255498-63D6-4E21-B2D5-43464042781B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07255498-63D6-4E21-B2D5-43464042781B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

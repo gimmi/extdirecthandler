@@ -5,19 +5,19 @@ using System.Web;
 using ExtDirectHandler;
 using ExtDirectHandler.Configuration;
 
-namespace MultipleDirectApi
+namespace MultipleDirectApi.MVC4.Direct.Api
 {
-    public class PublicApi : DirectHttpHandler
+    public class PublicApi: DirectHttpHandler
     {
         protected override IMetadata GetMetadata()
         {
             return new ReflectionConfigurator()
             {
                 Namespace = "Server",
-                Id = this.GetType().Name,
-                AllowParallel = true
+                Id = this.GetType().Name
             }
-            .RegisterType(typeof(PublicAction));
+            .RegisterType<Actions.ProductsAction>()
+            .RegisterType<Actions.OrdersAction>();
         }
     }
 }

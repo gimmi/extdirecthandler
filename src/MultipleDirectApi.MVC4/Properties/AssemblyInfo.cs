@@ -1,18 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Web;
-using MultipleDirectApi;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MultipleDirectApi")]
+[assembly: AssemblyTitle("MultipleDirectApi.MVC4")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("MultipleDirectApi")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
+[assembly: AssemblyProduct("MultipleDirectApi.MVC4")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -22,7 +20,7 @@ using MultipleDirectApi;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("e590af89-8f7e-4688-9f71-c72f8ea09f84")]
+[assembly: Guid("47155df3-6f94-44b2-b920-9f9595648e44")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,5 +33,3 @@ using MultipleDirectApi;
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-//[assembly: PreApplicationStartMethod(typeof(ApiManager), "Start")]
