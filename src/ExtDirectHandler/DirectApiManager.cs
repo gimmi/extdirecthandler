@@ -10,11 +10,25 @@ namespace ExtDirectHandler
     /// </summary>
     public abstract class DirectApiManager : IHttpModule 
     {
-        protected virtual string Path
+        /// <summary>
+        /// Path for RPC requests
+        /// </summary>
+        protected virtual string RpcPath
         {
             get
             {
                 return "/rpc";
+            }
+        }
+
+        /// <summary>
+        /// Default API name when no API is specified ('DefaultApi').
+        /// </summary>
+        protected virtual string DefaultApiName
+        {
+            get
+            {
+                return "DefaultApi";
             }
         }
 
@@ -50,42 +64,44 @@ namespace ExtDirectHandler
             var request = app.Request;
             var response = app.Response;
 
-            if (request.Url.AbsolutePath == request.ApplicationPath + this.Path)
+            if ((request.ApplicationPath == "/" && request.Url.AbsolutePath == this.RpcPath)
+                || (request.Url.AbsolutePath == request.ApplicationPath + this.RpcPath))
             {
                 var apiName = request.QueryString["api"];
-                if (!String.IsNullOrEmpty(apiName))
+
+                if (String.IsNullOrEmpty(apiName))
                 {
-                    Type apiType = APIs.Where(t => t.Name == apiName).FirstOrDefault();
-                    if (apiType != null)
+                    apiName = DefaultApiName;
+                }
+
+                Type apiType = APIs
+                    .Where(t => t.Name == apiName)
+                    .FirstOrDefault();
+                
+                if (apiType != null)
+                {
+                    var handler = CreateInstance(apiType);
+                    if (handler is IHttpHandler)
                     {
-                        var handler = CreateInstance(apiType);
-                        if (handler is IHttpHandler)
-                        {
-                            (handler as IHttpHandler).ProcessRequest(app.Context);
-                            response.End();
-                        }
-                        else
-                        {
-                            response.Write(String.Format("'{0}' is not an IHttpHandler", apiType.Name));
-                            response.End();
-                        }
+                        (handler as IHttpHandler).ProcessRequest(app.Context);
+                        response.End();
                     }
                     else
                     {
-                        response.Write(String.Format("Unknown API: '{0}'", apiName));
+                        response.Write(String.Format("'{0}' is not an IHttpHandler", apiType.Name));
                         response.End();
                     }
                 }
                 else
                 {
-                    response.Write(String.Format("API is not defined. Use {0}/?api=ApiName", Path));
+                    response.Write(String.Format("API '{0}' not found", apiName));
                     response.End();
                 }
             }
         }
 
         /// <summary>
-        /// Returns collection of APIs. Should be overriden in descendands.
+        /// Returns collection of APIs types that implement IHttpHandler interface. Should be overriden in descendands.
         /// </summary>
         /// <returns></returns>
         protected abstract IEnumerable<Type> GetAPIs();
