@@ -8,7 +8,8 @@ namespace ExtDirectHandler
 	{
 		string Namespace { get; }
 		string Id { get; }
-		bool AllowParallel { get; }
+		bool? EnableBuffer { get; }
+		int? BufferTimeout { get; }
 		IEnumerable<string> GetActionNames();
 		IEnumerable<string> GetMethodNames(string actionName);
 		Type GetActionType(string actionName, string methodName);

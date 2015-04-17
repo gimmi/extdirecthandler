@@ -30,6 +30,7 @@ Ext.app.REMOTING_API = {
   'url': 'http://localhost:8080/rpc',
   'type': 'remoting',
   'namespace': null,
+  'enableBuffer': true,
   'actions': {},
   'descriptor': 'Ext.app.REMOTING_API'
 };");
@@ -67,6 +68,7 @@ App.server.CUSTOM_API = {
   'url': 'http://localhost:8080/rpc',
   'type': 'remoting',
   'namespace': 'App.server',
+  'enableBuffer': true,
   'actions': {
     'Action1': [
       {

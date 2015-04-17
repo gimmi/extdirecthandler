@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>ExtDirectHandler</id>
-    <version>2.1.1</version>
+    <version>2.2.1</version>
     <authors> Gian Marco Gherardi, Alexey Solonets</authors>
     <owners>Alexey Solonets</owners>
     <licenseUrl>https://github.com/gimmi/extdirecthandler/raw/master/LICENSE</licenseUrl>

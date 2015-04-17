@@ -12,7 +12,8 @@ namespace ExtDirectHandler.Configuration
 
 		public string Namespace { get; set; }
 		public string Id { get; set; }
-		public bool AllowParallel { get; set; }
+        public bool? EnableBuffer { get; set; }
+        public int? BufferTimeout { get; set; }
 
 		#region IMetadata Members
 		

@@ -31,12 +31,21 @@ namespace ExtDirectHandler
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
 				{ "namespace", new JValue(_metadata.Namespace) },
+				{ "enableBuffer", GetEnableBuffer() },
 				{ "actions", BuildActions() },
 				// "descriptor" is needed for integrating with Ext Designer
 				// see http://davehiren.blogspot.com/2011/03/configure-extdirect-api-with-ext.html
 				// see http://www.sencha.com/forum/showthread.php?102357#post_message_480214
 				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.Namespace, _metadata.Id)) }
 			}.ToString(Formatting.Indented);
+		}
+
+		private JValue GetEnableBuffer()
+		{
+            return _metadata.EnableBuffer.HasValue ?
+                _metadata.EnableBuffer == false ? new JValue(false) :
+                _metadata.BufferTimeout.HasValue ? new JValue(_metadata.BufferTimeout.Value) :
+                new JValue(true) : new JValue(true);
 		}
 
 		private string GetApiDescriptorName(string ns, string id)

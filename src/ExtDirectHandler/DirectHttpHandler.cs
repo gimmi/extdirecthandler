@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.SessionState;
 using ExtDirectHandler.Configuration;
@@ -78,34 +77,13 @@ namespace ExtDirectHandler
 			Dictionary<string, HttpPostedFile> files = httpRequest.Files.AllKeys.ToDictionary(n => n, n => httpRequest.Files[n]);
 			DirectRequest[] requests = new DirectRequestsBuilder().Build(new StreamReader(httpRequest.InputStream, httpRequest.ContentEncoding), httpRequest.Form, files);
 			var responses = new DirectResponse[requests.Length];
-
-			var tasks = new Task[requests.Length];
-			for (int i = 0; i < requests.Length; i++)
+			for(int i = 0; i < requests.Length; i++)
 			{
-				tasks[i] = new Task((state) => 
-				{
-					responses[(int)state] = new DirectHandler(_metadata, _directHandlerInterceptor).Handle(requests[(int)state]);
-				}, i);
+				responses[i] = new DirectHandler(_metadata, _directHandlerInterceptor).Handle(requests[i]);
 			}
-
-			if (_metadata.AllowParallel)
+			using(var textWriter = new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding))
 			{
-				tasks.ToList().ForEach(t => t.Start());
-				Task.WaitAll(tasks);
-			}
-			else
-			{
-				tasks.ToList().ForEach(t => t.RunSynchronously());
-			}
-
-			WriteOutput(httpResponse, requests, responses);
-		}
-
-		private static void WriteOutput(HttpResponse httpResponse, DirectRequest[] requests, DirectResponse[] responses)
-		{
-			using (var textWriter = new StreamWriter(httpResponse.OutputStream, httpResponse.ContentEncoding))
-			{
-				if (requests[0].Upload)
+				if(requests[0].Upload)
 				{
 					httpResponse.ContentType = "text/html";
 					textWriter.Write("<html><body><textarea>");
