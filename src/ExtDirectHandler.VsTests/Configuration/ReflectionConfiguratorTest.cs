@@ -1,0 +1,125 @@
+﻿using ExtDirectHandler.Configuration;
+using SharpTestsEx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace ExtDirectHandler.VsTests.Configuration
+{
+    [TestClass]
+    public class ReflectionConfiguratorTest
+    {
+        //private ReflectionHelpers _reflectionHelpers;
+        private ReflectionConfigurator _target;
+
+        //[TestInitialize]
+        [TestInitialize]
+        public void SetUp()
+        {
+            //_reflectionHelpers = new ReflectionHelpers();
+            //_target = new ReflectionConfigurator(_reflectionHelpers);
+            _target = new ReflectionConfigurator();
+        }
+
+        [TestMethod]
+        public void Should_return_null_if_no_namespace_defined()
+        {
+            _target.Namespace.Should().Be.Null();
+        }
+
+        [TestMethod]
+        public void Should_configure_namespace()
+        {
+            _target.Namespace = "ns";
+
+            _target.Namespace.Should().Be.EqualTo("ns");
+        }
+
+        [TestMethod]
+        public void Should_configure_all_registered_types()
+        {
+            _target.RegisterType<ActionClass1>()
+                .RegisterType<ActionClass2>();
+
+            _target.GetActionNames().Should().Have.SameValuesAs(new[] { "ActionClass1", "ActionClass2" });
+        }
+
+        [TestMethod]
+        public void Should_configure_methods()
+        {
+            _target.RegisterType<ActionClass1>();
+
+            _target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "publicInstanceMethod", "methodWithParameters" });
+
+            _target.GetMethodInfo("ActionClass1", "publicInstanceMethod").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("PublicInstanceMethod"));
+            _target.IsFormHandler("ActionClass1", "publicInstanceMethod").Should().Be.False();
+            _target.HasNamedArguments("ActionClass1", "publicInstanceMethod").Should().Be.False();
+
+            _target.GetMethodInfo("ActionClass1", "methodWithParameters").Should().Be.SameInstanceAs(typeof(ActionClass1).GetMethod("MethodWithParameters"));
+            _target.IsFormHandler("ActionClass1", "methodWithParameters").Should().Be.False();
+            _target.HasNamedArguments("ActionClass1", "methodWithParameters").Should().Be.False();
+        }
+
+        [TestMethod]
+        public void Should_include_decorated_inherited_methods()
+        {
+            _target.RegisterType<InheritedAction>();
+
+            _target.GetMethodNames("InheritedAction").Should().Have.SameValuesAs(new[] { "decoratedBaseMethod" });
+        }
+
+        [TestMethod]
+        public void Should_configure_formhandler_from_attribute()
+        {
+            _target.RegisterType<ActionClass3>();
+
+            _target.IsFormHandler("ActionClass3", "formHandlerMethod").Should().Be.True();
+        }
+
+        [TestMethod]
+        public void Should_configure_named_arguments_from_attribute()
+        {
+            _target.RegisterType<ActionClass3>();
+
+            _target.HasNamedArguments("ActionClass3", "namedArgumentsMethod").Should().Be.True();
+        }
+
+        [TestMethod]
+        public void Should_preserve_method_case()
+        {
+            _target.PreserveMethodCase = true;
+            _target.RegisterType<ActionClass1>();
+
+            _target.GetMethodNames("ActionClass1").Should().Have.SameValuesAs(new[] { "PublicInstanceMethod", "MethodWithParameters" });
+        }
+
+        private class ActionClass1
+        {
+            public static void StaticMethod() {}
+            public void PublicInstanceMethod() {}
+            private void PrivateInstanceMethod() {}
+            protected void ProtectedInstanceMethod() {}
+            internal void InternalInstanceMethod() {}
+            public void MethodWithParameters(int intPar, string stringPar, bool boolPar) {}
+        }
+
+        private class ActionClass2 {}
+
+        private class ActionClass3
+        {
+            [DirectMethod(FormHandler = true)]
+            public void FormHandlerMethod() {}
+
+            [DirectMethod(NamedArguments = true)]
+            public void NamedArgumentsMethod() {}
+        }
+
+        private class BaseAction
+        {
+            public void BaseMethod() {}
+
+            [DirectMethod]
+            public void DecoratedBaseMethod() {}
+        }
+
+        private class InheritedAction : BaseAction {}
+    }
+}

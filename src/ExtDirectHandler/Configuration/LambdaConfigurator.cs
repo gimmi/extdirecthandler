@@ -9,15 +9,14 @@ namespace ExtDirectHandler.Configuration
 	public class LambdaConfigurator : IMetadata
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
-		private string _namespace;
+
+		public string Namespace { get; set; }
+		public string Id { get; set; }
+        public bool? EnableBuffer { get; set; }
+        public int? BufferTimeout { get; set; }
 
 		#region IMetadata Members
-
-		public string GetNamespace()
-		{
-			return _namespace;
-		}
-
+		
 		public IEnumerable<string> GetActionNames()
 		{
 			return _cache.Keys;
@@ -99,12 +98,6 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public LambdaConfigurator SetNamespace(string ns)
-		{
-			_namespace = ns;
-			return this;
-		}
-
 		private MethodMetadata GetMethodMetadata(string actionName, string methodName)
 		{
 			try
@@ -128,5 +121,6 @@ namespace ExtDirectHandler.Configuration
 		}
 
 		#endregion
+
 	}
 }

@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <id>ExtDirectHandler</id>
+    <version>2.2.1</version>
+    <authors> Gian Marco Gherardi, Alexey Solonets</authors>
+    <owners>Alexey Solonets</owners>
     <licenseUrl>https://github.com/gimmi/extdirecthandler/raw/master/LICENSE</licenseUrl>
     <projectUrl>http://gimmi.github.com/extdirecthandler/</projectUrl>
     <iconUrl>http://gimmi.github.com/extdirecthandler/extdirect-icon.gif</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>ExtDirectHandler</description>
     <tags>web ext extjs javascript js asp.net aspnet router rpc json remoting ajax ria html webservice handler direct extdirect ext.direct mvc aspnet</tags>
   </metadata>
 </package>

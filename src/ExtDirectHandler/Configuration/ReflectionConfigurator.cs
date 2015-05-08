@@ -9,8 +9,12 @@ namespace ExtDirectHandler.Configuration
 	{
 		private readonly IDictionary<string, IDictionary<string, MethodMetadata>> _cache = new Dictionary<string, IDictionary<string, MethodMetadata>>();
 		private readonly ReflectionHelpers _reflectionHelpers;
-		private string _namespace;
-		private bool _preserveMethodCase;
+
+		public string Namespace { get; set; }
+		public string Id { get; set; }
+		public bool PreserveMethodCase { get; set; }
+        public bool? EnableBuffer { get; set; }
+        public int? BufferTimeout { get; set; }
 
 		internal ReflectionConfigurator(ReflectionHelpers reflectionHelpers)
 		{
@@ -51,18 +55,6 @@ namespace ExtDirectHandler.Configuration
 			return this;
 		}
 
-		public ReflectionConfigurator PreserveMethodCase(bool preserveMethodCase)
-		{
-			_preserveMethodCase = preserveMethodCase;
-			return this;
-		}
-
-		public ReflectionConfigurator SetNamespace(string ns)
-		{
-			_namespace = ns;
-			return this;
-		}
-
 		private void AddAction(string actionName)
 		{
 			_cache.Add(actionName, new Dictionary<string, MethodMetadata>());
@@ -76,11 +68,6 @@ namespace ExtDirectHandler.Configuration
 				IsFormHandler = isFormHandler,
 				HasNamedArguments = hasNamedArguments
 			});
-		}
-
-		public string GetNamespace()
-		{
-			return _namespace;
 		}
 
 		public IEnumerable<string> GetActionNames()
@@ -125,7 +112,7 @@ namespace ExtDirectHandler.Configuration
 
 		private string BuildMethodName(string name)
 		{
-			if(_preserveMethodCase)
+			if(PreserveMethodCase)
 			{
 				return name;
 			}
@@ -143,5 +130,6 @@ namespace ExtDirectHandler.Configuration
 		}
 
 		#endregion
+		
 	}
 }

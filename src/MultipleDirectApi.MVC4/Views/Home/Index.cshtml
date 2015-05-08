@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "Multiple APIs MVC4 demo";
+}
+
+@section headscripts
+{
+    <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.2a/ext-all-debug-w-comments.js"></script>
+    
+    <script type="text/javascript" src="/rpc/PublicApi"></script>
+    <script type="text/javascript" src="/rpc/AdminApi"></script>
+}
+
+<h2>Index</h2>
+
+@section scripts
+{
+    <script type="text/javascript">
+        Ext.require('Ext.direct.*');
+
+        Ext.onReady(function () {
+            Ext.direct.Manager.addProvider(Server.PublicApi);
+            Ext.direct.Manager.addProvider(Server.AdminApi);
+
+            function appendResult(result) {
+                var div = document.createElement('div');
+                div.innerText = result;
+                document.body.appendChild(div);
+            }
+
+            Server.OrdersAction.hello(appendResult);
+            Server.ProductsAction.hello(appendResult);
+            Server.AdminAction.hello(appendResult);
+        });
+    </script>
+}

@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Web;
 
-namespace ExtDirectHandler.Tests
+namespace ExtDirectHandler.VsTests
 {
 	public class TestUtils
 	{

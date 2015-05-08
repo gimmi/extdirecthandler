@@ -19,34 +19,48 @@ namespace ExtDirectHandler
 		internal string BuildJavascript(string url)
 		{
 			return new StringBuilder()
-				.AppendFormat("Ext.ns('{0}');", GetApiDescriptorNamespace(_metadata.GetNamespace())).Append(Environment.NewLine)
-				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.GetNamespace()), BuildJson(url))
+				.AppendFormat("Ext.ns('{0}');", GetApiDescriptorNamespace(_metadata.Namespace)).Append(Environment.NewLine)
+				.AppendFormat("{0} = {1};", GetApiDescriptorName(_metadata.Namespace, _metadata.Id), BuildJson(url))
 				.ToString();
 		}
 
 		internal string BuildJson(string url)
 		{
 			return new JObject {
-				{ "id", new JValue(_metadata.GetNamespace()) },
+				{ "id", new JValue(GetApiDescriptorId(_metadata.Id)) },
 				{ "url", new JValue(url) },
 				{ "type", new JValue("remoting") },
-				{ "namespace", new JValue(_metadata.GetNamespace()) },
+				{ "namespace", new JValue(_metadata.Namespace) },
+				{ "enableBuffer", GetEnableBuffer() },
 				{ "actions", BuildActions() },
 				// "descriptor" is needed for integrating with Ext Designer
 				// see http://davehiren.blogspot.com/2011/03/configure-extdirect-api-with-ext.html
 				// see http://www.sencha.com/forum/showthread.php?102357#post_message_480214
-				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.GetNamespace())) }
+				{ "descriptor", new JValue(GetApiDescriptorName(_metadata.Namespace, _metadata.Id)) }
 			}.ToString(Formatting.Indented);
 		}
 
-		private string GetApiDescriptorName(string ns)
+		private JValue GetEnableBuffer()
 		{
-			return string.Format("{0}.REMOTING_API", GetApiDescriptorNamespace(ns));
+            return _metadata.EnableBuffer.HasValue ?
+                _metadata.EnableBuffer == false ? new JValue(false) :
+                _metadata.BufferTimeout.HasValue ? new JValue(_metadata.BufferTimeout.Value) :
+                new JValue(true) : new JValue(true);
+		}
+
+		private string GetApiDescriptorName(string ns, string id)
+		{
+			return string.Format("{0}.{1}", GetApiDescriptorNamespace(ns), GetApiDescriptorId(id));
 		}
 
 		private string GetApiDescriptorNamespace(string ns)
 		{
 			return ns ?? "Ext.app";
+		}
+
+		private string GetApiDescriptorId(string id)
+		{
+			return id ?? "REMOTING_API";
 		}
 
 		private JObject BuildActions()

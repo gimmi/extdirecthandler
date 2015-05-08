@@ -1,13 +1,20 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler", "ExtDirectHandler\ExtDirectHandler.csproj", "{05DE4E2B-B092-40E6-9736-93AEF700C039}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.Tests", "ExtDirectHandler.Tests\ExtDirectHandler.Tests.csproj", "{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWebApplication", "SampleWebApplication\SampleWebApplication.csproj", "{AD514971-E75A-488C-9531-F1A36DEA9D60}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtSamplesRunner", "ExtSamplesRunner\ExtSamplesRunner.csproj", "{599F012D-0BDF-4FDB-996F-982ACCD3998D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtDirectHandler.VsTests", "ExtDirectHandler.VsTests\ExtDirectHandler.VsTests.csproj", "{07255498-63D6-4E21-B2D5-43464042781B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleDirectApi.MVC4", "MultipleDirectApi.MVC4\MultipleDirectApi.MVC4.csproj", "{5E5C05EF-F704-45D7-9680-83105950B904}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0EA5DDB5-7654-4721-BF5A-A89BB04D92CA}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +26,6 @@ Global
 		{05DE4E2B-B092-40E6-9736-93AEF700C039}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05DE4E2B-B092-40E6-9736-93AEF700C039}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05DE4E2B-B092-40E6-9736-93AEF700C039}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54C52296-3AA9-485E-B5EE-DA6250CFBCDC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD514971-E75A-488C-9531-F1A36DEA9D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -31,6 +34,14 @@ Global
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{599F012D-0BDF-4FDB-996F-982ACCD3998D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07255498-63D6-4E21-B2D5-43464042781B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07255498-63D6-4E21-B2D5-43464042781B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07255498-63D6-4E21-B2D5-43464042781B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07255498-63D6-4E21-B2D5-43464042781B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E5C05EF-F704-45D7-9680-83105950B904}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

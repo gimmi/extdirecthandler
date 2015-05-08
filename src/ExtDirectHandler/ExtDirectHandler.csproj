@@ -41,9 +41,6 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Configuration\DirectMethodAttribute.cs" />
     <Compile Include="Configuration\LambdaConfigurator.cs" />
     <Compile Include="DirectHandlerInterceptor.cs" />
